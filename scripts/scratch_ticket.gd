@@ -151,6 +151,17 @@ func _roll_prizes() -> void:
 		else:
 			prize = {"type": "nothing", "amount": 0}
 		_panels[i]["prize"] = prize
+		_set_prize_label(i, prize)
+
+
+func _set_prize_label(index: int, prize: Dictionary) -> void:
+	var label: Label = _prize_labels[index]
+	if prize["type"] == "coins":
+		label.text = "+%d\nCOINS" % int(prize["amount"])
+		label.add_theme_color_override("font_color", Color(0.10, 0.45, 0.12))
+	else:
+		label.text = "NOTHING"
+		label.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
 
 
 func _process(delta: float) -> void:
@@ -393,14 +404,8 @@ func _reveal_panel(panel_index: int) -> void:
 	p["dirty_indices"] = PackedInt32Array()
 
 	var prize: Dictionary = p["prize"]
-	var label: Label = _prize_labels[panel_index]
-	if prize["type"] == "coins":
-		label.text = "+%d\nCOINS" % int(prize["amount"])
-		label.add_theme_color_override("font_color", Color(0.10, 0.45, 0.12))
-		if _player and _player.has_method("add_coins"):
-			_player.add_coins(int(prize["amount"]))
-	else:
-		label.text = "NOTHING"
-		label.add_theme_color_override("font_color", Color(0.45, 0.45, 0.45))
+	_set_prize_label(panel_index, prize)
+	if prize["type"] == "coins" and _player and _player.has_method("add_coins"):
+		_player.add_coins(int(prize["amount"]))
 
 	panel_revealed.emit(panel_index, prize)
