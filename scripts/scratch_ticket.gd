@@ -2,11 +2,12 @@ extends Node3D
 
 signal panel_revealed(index: int, prize: Dictionary)
 
-@export_range(1.0, 1000.0, 1.0) var scratch_hardness: float = 50.0
+@export_range(1.0, 1000.0, 1.0) var scratch_hardness: float = 60.0
 @export_range(0.5, 32.0, 0.5) var brush_radius_cells: float = 7.0
 @export_range(0.1, 1.0, 0.01) var reveal_threshold: float = 0.85
-@export var interact_range: float = 3.5
-@export var focus_distance: float = 0.65
+@export var interact_range: float = 4.0
+@export var hold_offset: Vector3 = Vector3(0.14, -0.12, -0.42)
+@export var hold_rotation_deg: Vector3 = Vector3(-6.0, -14.0, 0.0)
 @export_range(0.0, 1.0, 0.01) var coin_chance: float = 0.5
 @export_range(0.1, 1.0, 0.05) var grid_scale: float = 0.5
 
@@ -14,25 +15,30 @@ const VIEWPORT_SIZE := Vector2i(900, 320)
 const PANEL_COUNT := 3
 const MARGIN := 18.0
 const GAP := 18.0
+const DROP_DISTANCE := 1.1
+const FLOOR_Y := 0.02
 const FOIL_COLOR := Color(0.74, 0.76, 0.80)
 const COIN_AMOUNTS := [5, 10, 15, 25]
 
-var _focused := false
+var _held := false
 var _scratching := false
 var _interact_cooldown := 0.0
+var _initial_frames := 10
 var _last_hit := Vector2(-1.0, -1.0)
 var _last_panel := -1
 
-var _ticket_size := Vector2(0.9, 0.34)
+var _ticket_size := Vector2(0.42, 0.16)
 var _panels: Array = []
 var _prize_labels: Array = []
+var _ground_basis := Basis()
+var _hold_transform := Transform3D()
 
 var _cam: Camera3D
-var _saved_cam := Transform3D()
 var _player: Node
 
 @onready var _mesh: MeshInstance3D = $Mesh
-@onready var _body: StaticBody3D = $Body
+@onready var _body: Area3D = $Body
+@onready var _shape: CollisionShape3D = $Body/CollisionShape3D
 @onready var _sub: SubViewport = $SubViewport
 
 
@@ -41,7 +47,17 @@ func _ready() -> void:
 	var quad := _mesh.mesh as QuadMesh
 	if quad:
 		_ticket_size = quad.size
+	_ground_basis = Basis.from_euler(Vector3(-PI * 0.5, 0.0, 0.0))
+	_hold_transform = Transform3D(
+		Basis.from_euler(Vector3(
+			deg_to_rad(hold_rotation_deg.x),
+			deg_to_rad(hold_rotation_deg.y),
+			deg_to_rad(hold_rotation_deg.z)
+		)),
+		hold_offset
+	)
 	_sub.size = VIEWPORT_SIZE
+	_sub.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_build_viewport_ui()
 	_setup_material()
 	_roll_prizes()
@@ -94,7 +110,8 @@ func _build_viewport_ui() -> void:
 
 		var grid_w := maxi(1, int(rect.size.x * grid_scale))
 		var grid_h := maxi(1, int(rect.size.y * grid_scale))
-		var img := _make_foil_image(grid_w, grid_h)
+		var img := Image.create_empty(grid_w, grid_h, false, Image.FORMAT_RGBA8)
+		img.fill(Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 1.0))
 		var tex := ImageTexture.create_from_image(img)
 		var foil := TextureRect.new()
 		foil.texture = tex
@@ -125,12 +142,6 @@ func _build_viewport_ui() -> void:
 		})
 
 
-func _make_foil_image(grid_w: int, grid_h: int) -> Image:
-	var img := Image.create_empty(grid_w, grid_h, false, Image.FORMAT_RGBA8)
-	img.fill(Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 1.0))
-	return img
-
-
 func _roll_prizes() -> void:
 	for i in range(_panels.size()):
 		var prize: Dictionary
@@ -147,18 +158,23 @@ func _process(delta: float) -> void:
 
 	_flush_dirty()
 
-	if _focused:
+	if _held:
+		_follow_camera()
 		return
+
+	if _initial_frames > 0:
+		_initial_frames -= 1
+		_sub.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 	if _player == null:
 		_player = get_tree().get_first_node_in_group("player")
 
 	var looking := _is_looking_at_ticket()
-	var prompt := "Press E to scratch the ticket" if looking else ""
+	var prompt := "Press E to pick up the ticket" if looking else ""
 	if _player and _player.has_method("show_prompt"):
 		_player.show_prompt(prompt)
 	if looking and _interact_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
-		_enter_focus()
+		_pick_up()
 
 
 func _flush_dirty() -> void:
@@ -170,7 +186,8 @@ func _flush_dirty() -> void:
 		var health: PackedFloat32Array = p["health"]
 		var grid_w: int = p["grid_w"]
 		for idx in p["dirty_indices"]:
-			var a := clampf(health[idx] / scratch_hardness, 0.0, 1.0)
+			var ratio := clampf(health[idx] / scratch_hardness, 0.0, 1.0)
+			var a := pow(ratio, 1.5)
 			img.set_pixel(idx % grid_w, idx / grid_w, Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, a))
 		p["texture"].update(img)
 		p["dirty"] = false
@@ -185,53 +202,68 @@ func _is_looking_at_ticket() -> bool:
 	var from := cam.global_position
 	var to := from - cam.global_transform.basis.z * interact_range
 	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.collide_with_areas = true
 	if _player is CollisionObject3D:
 		query.exclude = [(_player as CollisionObject3D).get_rid()]
 	var hit := space.intersect_ray(query)
 	return hit.has("collider") and hit["collider"] == _body
 
 
-func _enter_focus() -> void:
-	if _focused:
+func _follow_camera() -> void:
+	if _cam == null:
+		_cam = get_viewport().get_camera_3d()
+	if _cam:
+		global_transform = _cam.global_transform * _hold_transform
+
+
+func _pick_up() -> void:
+	if _held:
 		return
 	_cam = get_viewport().get_camera_3d()
 	if _cam == null:
 		return
-	_focused = true
-	_saved_cam = _cam.global_transform
-	var normal := global_transform.basis.z.normalized()
-	var cam_pos := global_position + normal * focus_distance
-	var target := Transform3D(Basis(), cam_pos)
-	target = target.looking_at(global_position, Vector3.UP)
-	_cam.global_transform = target
+	_held = true
+	_scratching = false
+	_last_hit = Vector2(-1.0, -1.0)
+	_last_panel = -1
+	_shape.disabled = true
+	_sub.render_target_update_mode = SubViewport.UPDATE_ALWAYS
+	_follow_camera()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(true)
 	if _player and _player.has_method("show_prompt"):
-		_player.show_prompt("Hold left mouse and scrub - ESC or E to exit")
+		_player.show_prompt("Hold left mouse and scrub - ESC or E to put down")
 
 
-func _exit_focus() -> void:
-	if not _focused:
+func _put_down() -> void:
+	if not _held:
 		return
-	_focused = false
+	_held = false
 	_scratching = false
-	_interact_cooldown = 0.2
+	_interact_cooldown = 0.25
 	_last_panel = -1
+	_shape.disabled = false
+	_sub.render_target_update_mode = SubViewport.UPDATE_ONCE
+
+	var drop := global_position
 	if _cam:
-		_cam.global_transform = _saved_cam
+		drop = _cam.global_position - _cam.global_transform.basis.z * DROP_DISTANCE
+	drop.y = FLOOR_Y
+	global_transform = Transform3D(_ground_basis, drop)
+
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(false)
 
 
 func _input(event: InputEvent) -> void:
-	if not _focused:
+	if not _held:
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
 		if event.keycode == KEY_ESCAPE or event.keycode == KEY_E:
-			_exit_focus()
+			_put_down()
 			get_viewport().set_input_as_handled()
 			return
 

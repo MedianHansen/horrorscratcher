@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=9 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
@@ -26,9 +26,6 @@ size = Vector3(2, 2, 2)
 [sub_resource type="BoxShape3D" id="5_box_shape"]
 size = Vector3(2, 2, 2)
 
-[sub_resource type="BoxMesh" id="6_post_mesh"]
-size = Vector3(0.08, 2.0, 0.08)
-
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -46,6 +43,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 mesh = SubResource("1_floor_mesh")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 shape = SubResource("1_floor_shape")
 
 [node name="WallN" type="StaticBody3D" parent="."]
@@ -111,15 +109,23 @@ mesh = SubResource("5_box_mesh")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacle3"]
 shape = SubResource("5_box_shape")
 
-[node name="TicketStand" type="Node3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -2.6)
+[node name="Ticket1" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 2.5, 0.02, 3.5)
 
-[node name="Post" type="MeshInstance3D" parent="TicketStand"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.0, -0.02)
-mesh = SubResource("6_post_mesh")
+[node name="Ticket2" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -4.0, 0.02, 6.0)
 
-[node name="ScratchTicket" parent="TicketStand" instance=ExtResource("6_ticket")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.0, 0.03)
+[node name="Ticket3" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 8.0, 0.02, -3.0)
+
+[node name="Ticket4" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -9.0, 0.02, -8.0)
+
+[node name="Ticket5" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 3.0, 0.02, -12.0)
+
+[node name="Ticket6" parent="." instance=ExtResource("6_ticket")]
+transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -2.0, 0.02, 12.0)
 
 [node name="Player" type="CharacterBody3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)

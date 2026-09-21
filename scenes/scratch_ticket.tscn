@@ -3,10 +3,10 @@
 [ext_resource type="Script" path="res://scripts/scratch_ticket.gd" id="1_scratch"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ticket"]
-size = Vector2(0.9, 0.34)
+size = Vector2(0.42, 0.16)
 
 [sub_resource type="BoxShape3D" id="BoxShape_ticket"]
-size = Vector3(0.9, 0.34, 0.02)
+size = Vector3(0.42, 0.16, 0.01)
 
 [node name="ScratchTicket" type="Node3D"]
 script = ExtResource("1_scratch")
@@ -14,7 +14,7 @@ script = ExtResource("1_scratch")
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("QuadMesh_ticket")
 
-[node name="Body" type="StaticBody3D" parent="."]
+[node name="Body" type="Area3D" parent="."]
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Body"]
 shape = SubResource("BoxShape_ticket")

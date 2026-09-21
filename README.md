@@ -47,6 +47,11 @@ Open from any other machine: **https://37.187.131.157.sslip.io:5997/**
 Controls: click canvas to capture mouse, `WASD` move, `Shift` sprint,
 `Space` jump, `Mouse` look, `ESC` release mouse.
 
+Scratch-off tickets lie on the floor around the room. Look down at one and press
+`E` to pick it up (it goes into your hand), then **hold left mouse and scrub** to
+wear off the foil. `E`/`ESC` puts it back down. Three spaces per ticket; clearing
+one reveals coins or nothing.
+
 ## Requirements (already installed on this server)
 
 - Godot headless: `~/bin/godot` (4.4.1)
