@@ -1,0 +1,13 @@
+{
+    "name": "horrorscratcher",
+    "version": "0.1.0",
+    "private": true,
+    "type": "module",
+    "description": "Horrorscratcher - Godot FPS, browser-hosted for testing (no GPU needed on server)",
+    "scripts": {
+        "start": "bash scripts/start.sh",
+        "dev": "bash scripts/start.sh",
+        "export": "bash scripts/export.sh",
+        "serve": "node scripts/serve.mjs"
+    }
+}

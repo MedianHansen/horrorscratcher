@@ -1,0 +1,16 @@
+[gd_resource type="Environment" format=3 uid="uid://b8kq6y7c7p3n1"]
+
+[resource]
+background_mode=1
+background_color=Color(0.051, 0.051, 0.082, 1)
+ambient_light_source=1
+ambient_light_color=Color(0.2, 0.22, 0.3, 1)
+ambient_light_energy=0.6
+fog_enabled=true
+fog_light_color=Color(0.25, 0.28, 0.4, 1)
+fog_light_energy=0.35
+fog_sun_amount=0.0
+fog_density=0.015
+tonemap_mode=2
+tonemap_exposure=1.0
+glow_enabled=false
