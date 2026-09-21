@@ -3,7 +3,7 @@ extends Node3D
 signal panel_revealed(index: int, prize: Dictionary)
 
 @export_range(1.0, 1000.0, 1.0) var scratch_hardness: float = 60.0
-@export_range(0.5, 32.0, 0.5) var brush_radius_cells: float = 7.0
+@export_range(0.5, 64.0, 0.5) var brush_radius_cells: float = 21.0
 @export_range(0.1, 1.0, 0.01) var reveal_threshold: float = 0.85
 @export var interact_range: float = 4.0
 @export var hold_offset: Vector3 = Vector3(0.14, -0.12, -0.42)
@@ -134,7 +134,8 @@ func _build_viewport_ui() -> void:
 			"health": health,
 			"image": img,
 			"texture": tex,
-			"cleared": 0,
+			"damage": 0.0,
+			"health_total": float(grid_w * grid_h) * scratch_hardness,
 			"revealed": false,
 			"dirty": false,
 			"dirty_indices": PackedInt32Array(),
@@ -337,7 +338,7 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 	var radius := int(ceil(brush_radius_cells))
 	var radius_sq := brush_radius_cells * brush_radius_cells
 	var changed := false
-	var newly_cleared := 0
+	var applied := 0.0
 	var dirty: PackedInt32Array = p["dirty_indices"]
 
 	for oy in range(-radius, radius + 1):
@@ -356,22 +357,20 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 			var falloff := 1.0 - sqrt(d_sq) / brush_radius_cells
 			var nh := maxf(0.0, h - damage * falloff)
 			if nh != h:
+				applied += h - nh
 				health[idx] = nh
 				changed = true
 				dirty.append(idx)
-				if nh <= 0.0:
-					newly_cleared += 1
 
 	if not changed:
 		return
 
 	p["health"] = health
-	p["cleared"] = int(p["cleared"]) + newly_cleared
+	p["damage"] = float(p["damage"]) + applied
 	p["dirty_indices"] = dirty
 	p["dirty"] = true
 
-	var total := grid_w * grid_h
-	if float(p["cleared"]) / float(total) >= reveal_threshold:
+	if float(p["damage"]) / float(p["health_total"]) >= reveal_threshold:
 		_reveal_panel(panel_index)
 
 
