@@ -47,10 +47,23 @@ Open from any other machine: **https://37.187.131.157.sslip.io:5997/**
 Controls: click canvas to capture mouse, `WASD` move, `Shift` sprint,
 `Space` jump, `Mouse` look, `ESC` release mouse.
 
-Scratch-off tickets lie on the floor around the room. Look down at one and press
-`E` to pick it up (it goes into your hand), then **hold left mouse and scrub** to
-wear off the foil. `E`/`ESC` puts it back down. Three spaces per ticket; clearing
-one reveals coins or nothing.
+Scratch-off tickets lie on the floor. Look down at one and press `E` to pocket it
+in your backpack. Press `Q` to take one out and hold it; **hold left mouse and
+scrub** to wear off the foil, then `E`/`ESC` stows it again. Three spaces per
+ticket; clearing one reveals coins or nothing. Deposit carried tickets at the
+hideout stash so a bad night can't cost you them.
+
+## Day / night (in progress)
+
+The carnival has a **hideout** — a walled room in the north-west corner with a
+bed in one corner and a **stash** (press `E` to deposit carried tickets). **You
+start inside, and the hideout door is sealed during the Day** — the only way out
+is to sleep. Press `E` at the bed to start **Night**: the door opens, a
+120-second timer runs and the lighting dims. Dawn despawns the floor tickets.
+**Entering the hideout during Night ends it safely**; if the timer runs out while
+you are still outside, you are caught, lose anything you carried, and respawn in
+the hideout. (Ticket respawn each night, guests, and gadgets are still being
+built — see `plan0.1.md`.)
 
 ## Requirements (already installed on this server)
 

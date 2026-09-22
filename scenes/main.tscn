@@ -1,8 +1,16 @@
-[gd_scene load_steps=9 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=31 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
 [ext_resource type="PackedScene" uid="uid://c1s2t3k4t5c6k7t" path="res://scenes/scratch_ticket.tscn" id="6_ticket"]
+[ext_resource type="Script" path="res://scripts/skill_tree_ui.gd" id="7_skill_ui"]
+[ext_resource type="Resource" path="res://ticket_types/suffering.tres" id="8_suffering"]
+[ext_resource type="Script" path="res://scripts/hud.gd" id="9_hud"]
+[ext_resource type="Script" path="res://scripts/hideout_zone.gd" id="10_hideout"]
+[ext_resource type="Script" path="res://scripts/bed.gd" id="11_bed"]
+[ext_resource type="Script" path="res://scripts/day_night_light.gd" id="12_daynight"]
+[ext_resource type="Script" path="res://scripts/stash.gd" id="13_stash"]
+[ext_resource type="Script" path="res://scripts/hideout_door.gd" id="14_door"]
 
 [sub_resource type="BoxMesh" id="1_floor_mesh"]
 size = Vector3(60, 1, 60)
@@ -26,6 +34,45 @@ size = Vector3(2, 2, 2)
 [sub_resource type="BoxShape3D" id="5_box_shape"]
 size = Vector3(2, 2, 2)
 
+[sub_resource type="BoxMesh" id="6_hb_wall_ns_mesh"]
+size = Vector3(10, 3, 0.5)
+
+[sub_resource type="BoxShape3D" id="6_hb_wall_ns_shape"]
+size = Vector3(10, 3, 0.5)
+
+[sub_resource type="BoxMesh" id="6_hb_wall_ew_mesh"]
+size = Vector3(0.5, 3, 4)
+
+[sub_resource type="BoxShape3D" id="6_hb_wall_ew_shape"]
+size = Vector3(0.5, 3, 4)
+
+[sub_resource type="BoxMesh" id="6_hb_roof_mesh"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxShape3D" id="6_hb_roof_shape"]
+size = Vector3(10, 0.5, 10)
+
+[sub_resource type="BoxShape3D" id="6_hb_zone_shape"]
+size = Vector3(9, 3, 9)
+
+[sub_resource type="BoxMesh" id="6_hb_bed_mesh"]
+size = Vector3(0.9, 0.4, 1.9)
+
+[sub_resource type="BoxShape3D" id="6_hb_bed_shape"]
+size = Vector3(0.9, 0.4, 1.9)
+
+[sub_resource type="BoxMesh" id="6_hb_stash_mesh"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="BoxShape3D" id="6_hb_stash_shape"]
+size = Vector3(0.8, 0.8, 0.8)
+
+[sub_resource type="BoxMesh" id="6_hb_door_mesh"]
+size = Vector3(0.5, 3, 2)
+
+[sub_resource type="BoxShape3D" id="6_hb_door_shape"]
+size = Vector3(0.5, 3, 2)
+
 [node name="Main" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
@@ -35,6 +82,7 @@ environment = ExtResource("2_env")
 transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 0, 14.0, 10.0)
 light_energy = 1.2
 shadow_enabled = true
+script = ExtResource("12_daynight")
 
 [node name="Floor" type="StaticBody3D" parent="."]
 
@@ -127,8 +175,99 @@ transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, 3.0, 0.02, -12.0)
 [node name="Ticket6" parent="." instance=ExtResource("6_ticket")]
 transform = Transform3D(1, 0, 0, 0, 0, 1, 0, -1, 0, -2.0, 0.02, 12.0)
 
+[node name="Hideout" type="Node3D" parent="."]
+
+[node name="WallEastA" type="StaticBody3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -28)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallEastA"]
+mesh = SubResource("6_hb_wall_ew_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallEastA"]
+shape = SubResource("6_hb_wall_ew_shape")
+
+[node name="WallEastB" type="StaticBody3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -22)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallEastB"]
+mesh = SubResource("6_hb_wall_ew_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallEastB"]
+shape = SubResource("6_hb_wall_ew_shape")
+
+[node name="WallSouth" type="StaticBody3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -20)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallSouth"]
+mesh = SubResource("6_hb_wall_ns_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallSouth"]
+shape = SubResource("6_hb_wall_ns_shape")
+
+[node name="Door" type="StaticBody3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -25)
+script = ExtResource("14_door")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Door"]
+mesh = SubResource("6_hb_door_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Door"]
+shape = SubResource("6_hb_door_shape")
+
+[node name="Roof" type="StaticBody3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 3.25, -25)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Roof"]
+mesh = SubResource("6_hb_roof_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Roof"]
+shape = SubResource("6_hb_roof_shape")
+
+[node name="Zone" type="Area3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -25)
+collision_layer = 0
+collision_mask = 1
+script = ExtResource("10_hideout")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Zone"]
+shape = SubResource("6_hb_zone_shape")
+
+[node name="Bed" type="Area3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0.2, -28)
+collision_mask = 0
+script = ExtResource("11_bed")
+prompt = "Press E to sleep"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Bed"]
+mesh = SubResource("6_hb_bed_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Bed"]
+shape = SubResource("6_hb_bed_shape")
+
+[node name="Stash" type="Area3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.4, -27)
+collision_mask = 0
+script = ExtResource("13_stash")
+prompt = "Press E to deposit tickets"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Stash"]
+mesh = SubResource("6_hb_stash_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Stash"]
+shape = SubResource("6_hb_stash_shape")
+
+[node name="Spawn" type="Marker3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -23)
+groups = ["hideout_spawn"]
+
+[node name="Light" type="OmniLight3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 2.6, -25)
+light_color = Color(1, 0.82, 0.6, 1)
+light_energy = 3.0
+omni_range = 14.0
+
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -23)
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
@@ -185,3 +324,69 @@ offset_bottom = 12.0
 text = "+"
 horizontal_alignment = 1
 mouse_filter = 2
+
+[node name="HUD" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+script = ExtResource("9_hud")
+
+[node name="PhaseLabel" type="Label" parent="UI/HUD"]
+offset_left = 16.0
+offset_top = 72.0
+offset_right = 216.0
+offset_bottom = 104.0
+text = "DAY"
+mouse_filter = 2
+
+[node name="NightTimer" type="Label" parent="UI/HUD"]
+offset_left = 16.0
+offset_top = 104.0
+offset_right = 216.0
+offset_bottom = 136.0
+text = ""
+mouse_filter = 2
+
+[node name="Carried" type="Label" parent="UI/HUD"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -220.0
+offset_top = 52.0
+offset_right = -16.0
+offset_bottom = 84.0
+text = "Tickets: 0 / 5"
+horizontal_alignment = 2
+mouse_filter = 2
+
+[node name="Gadget" type="Label" parent="UI/HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -40.0
+offset_right = 216.0
+offset_bottom = -8.0
+text = "Stun: 0"
+mouse_filter = 2
+
+[node name="DeathMessage" type="Label" parent="UI/HUD"]
+anchors_preset = 4
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -40.0
+offset_right = 300.0
+offset_bottom = 40.0
+text = ""
+horizontal_alignment = 1
+mouse_filter = 2
+
+[node name="SkillTreeUI" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("7_skill_ui")
+ticket_type = ExtResource("8_suffering")

@@ -1,6 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://c1s2t3k4t5c6k7t"]
+[gd_scene load_steps=5 format=3 uid="uid://c1s2t3k4t5c6k7t"]
 
 [ext_resource type="Script" path="res://scripts/scratch_ticket.gd" id="1_scratch"]
+[ext_resource type="Resource" path="res://ticket_types/suffering.tres" id="2_type"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_ticket"]
 size = Vector2(0.42, 0.16)
@@ -10,6 +11,7 @@ size = Vector3(0.42, 0.16, 0.01)
 
 [node name="ScratchTicket" type="Node3D"]
 script = ExtResource("1_scratch")
+ticket_type = ExtResource("2_type")
 
 [node name="Mesh" type="MeshInstance3D" parent="."]
 mesh = SubResource("QuadMesh_ticket")

@@ -19,6 +19,7 @@ const PITCH_LIMIT := deg_to_rad(88)
 @onready var cam: Camera3D = $Camera3D
 var _coins_label: Label
 var _prompt_label: Label
+var _prompt_owner: Object = null
 
 func _ready() -> void:
 	add_to_group("player")
@@ -36,9 +37,16 @@ func set_input_locked(value: bool) -> void:
 		velocity = Vector3.ZERO
 		show_prompt("")
 
-func show_prompt(text: String) -> void:
-	if _prompt_label:
-		_prompt_label.text = text
+func show_prompt(text: String, owner: Object = null) -> void:
+	if _prompt_label == null:
+		return
+	if text == "":
+		if owner == null or owner == _prompt_owner:
+			_prompt_label.text = ""
+			_prompt_owner = null
+		return
+	_prompt_owner = owner
+	_prompt_label.text = text
 
 func add_coins(amount: int) -> void:
 	coins += amount
