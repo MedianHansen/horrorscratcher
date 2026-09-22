@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TicketType" load_steps=15 format=3]
+[gd_resource type="Resource" script_class="TicketType" load_steps=16 format=3]
 
 [ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_bdm1m"]
 [ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_qqun5"]
@@ -18,8 +18,8 @@ script = ExtResource("1_bdm1m")
 id = &"blood"
 label = "BLOOD"
 color = Color(0.55, 0.06, 0.08, 1)
-weight = 30.0
-xp = 1
+weight = 0.0
+xp = 5
 coins = 0
 
 [sub_resource type="Resource" id="Resource_vxnrt"]
@@ -36,7 +36,7 @@ script = ExtResource("1_bdm1m")
 id = &"coin"
 label = "COIN"
 color = Color(0.9, 0.75, 0.2, 1)
-weight = 0.0
+weight = 30.0
 xp = 0
 coins = 1
 
@@ -60,13 +60,13 @@ coins = 100
 
 [sub_resource type="Resource" id="Resource_unlock"]
 script = ExtResource("3_mc71x")
-id = &"unlock_coin"
-title = "Unlock Coin"
-description = "Coin can now appear (weight +20) and Empty becomes less likely (weight -20)."
-icon_color = Color(0.85, 0.7, 0.2, 1)
+id = &"unlock_blood"
+title = "Unlock Blood"
+description = "Blood can now appear (weight +20) and Empty becomes less likely (weight -20)."
+icon_color = Color(0.6, 0.1, 0.12, 1)
 glyph = "U"
 kind = 0
-target_icon = &"coin"
+target_icon = &"blood"
 amount = 20.0
 target_icon_2 = &"empty"
 amount_2 = -20.0
@@ -88,7 +88,7 @@ target_icon_2 = &"empty"
 amount_2 = -20.0
 max_ranks = 1
 cost = 0
-requires = &"unlock_coin"
+requires = &"unlock_blood"
 
 [sub_resource type="Resource" id="Resource_o66fl"]
 script = ExtResource("3_mc71x")
@@ -102,7 +102,7 @@ target_icon = &"coin"
 amount = 10.0
 max_ranks = 5
 cost = 0
-requires = &"unlock_coin"
+requires = &"unlock_blood"
 
 [sub_resource type="Resource" id="Resource_d4ol6"]
 script = ExtResource("3_mc71x")
@@ -116,7 +116,7 @@ target_icon = &"empty"
 amount = -15.0
 max_ranks = 5
 cost = 0
-requires = &"unlock_coin"
+requires = &"unlock_blood"
 
 [sub_resource type="Resource" id="Resource_st322"]
 script = ExtResource("3_mc71x")
@@ -130,14 +130,28 @@ target_icon = &""
 amount = 1.0
 max_ranks = 1
 cost = 1
-requires = &"unlock_coin"
+requires = &"unlock_blood"
+
+[sub_resource type="Resource" id="Resource_bloodvalue"]
+script = ExtResource("3_mc71x")
+id = &"blood_value"
+title = "Blood Value"
+description = "Blood pairs pay +1 XP per rank."
+icon_color = Color(0.75, 0.15, 0.15, 1)
+glyph = "X"
+kind = 2
+target_icon = &"blood"
+amount = 1.0
+max_ranks = 5
+cost = 0
+requires = &"unlock_blood"
 
 [resource]
 script = ExtResource("2_qqun5")
 type_name = "Suffering"
 tile_count = 3
 level_cap = 10
-level_xp = PackedInt32Array(1, 3, 7, 14, 26, 45, 75, 120, 180)
+level_xp = PackedInt32Array(5, 15, 35, 70, 130, 225, 375, 600, 900)
 paper_color = Color(0.9, 0.87, 0.8, 1)
 icons = Array[ExtResource("1_bdm1m")]([SubResource("Resource_v205m"), SubResource("Resource_oo6x8"), SubResource("Resource_vxnrt"), SubResource("Resource_5rvvb"), SubResource("Resource_o0351"), SubResource("Resource_3ep2w")])
-skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_unlock"), SubResource("Resource_bone"), SubResource("Resource_o66fl"), SubResource("Resource_d4ol6"), SubResource("Resource_st322")])
+skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_unlock"), SubResource("Resource_bone"), SubResource("Resource_o66fl"), SubResource("Resource_d4ol6"), SubResource("Resource_st322"), SubResource("Resource_bloodvalue")])

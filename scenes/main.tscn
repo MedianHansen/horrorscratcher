@@ -1,4 +1,4 @@
-[gd_scene load_steps=14 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=16 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
@@ -12,6 +12,8 @@
 [ext_resource type="Resource" path="res://guest_types/drifter.tres" id="17_drifter"]
 [ext_resource type="Resource" path="res://guest_types/listener.tres" id="18_listener"]
 [ext_resource type="Script" path="res://scripts/upgrade_ui.gd" id="21_upgrade"]
+[ext_resource type="Resource" path="res://ticket_types/fortune.tres" id="19_fortune"]
+[ext_resource type="Script" path="res://scripts/ticket_type.gd" id="20_tickettype"]
 
 [sub_resource type="CapsuleShape3D" id="3_capsule"]
 radius = 0.45
@@ -44,7 +46,8 @@ fov = 85.0
 
 [node name="TicketSpawner" type="Node3D" parent="."]
 script = ExtResource("15_spawner")
-ticket_type = ExtResource("8_suffering")
+ticket_types = Array[ExtResource("20_tickettype")]([ExtResource("8_suffering"), ExtResource("19_fortune")])
+type_weights = PackedFloat32Array(95, 5)
 
 [node name="GuestSpawner" type="Node3D" parent="."]
 script = ExtResource("16_guests")

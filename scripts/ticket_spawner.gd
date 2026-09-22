@@ -1,6 +1,7 @@
 extends Node3D
 
-@export var ticket_type: TicketType
+@export var ticket_types: Array[TicketType] = []
+@export var type_weights: PackedFloat32Array = PackedFloat32Array()
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
 const MAP_HALF := 56.0
@@ -65,13 +66,32 @@ func _far_enough(point: Vector3, placed: Array) -> bool:
 	return true
 
 
+func _pick_type() -> TicketType:
+	if ticket_types.is_empty():
+		return null
+	var total := 0.0
+	if type_weights.size() == ticket_types.size():
+		for w in type_weights:
+			total += maxf(0.0, w)
+	if total <= 0.0:
+		return ticket_types[_rng.randi_range(0, ticket_types.size() - 1)]
+	var roll := _rng.randf() * total
+	var acc := 0.0
+	for i in range(ticket_types.size()):
+		acc += maxf(0.0, type_weights[i])
+		if roll <= acc:
+			return ticket_types[i]
+	return ticket_types[ticket_types.size() - 1]
+
+
 func _spawn_one(point: Vector3) -> void:
 	var scene: PackedScene = load(TICKET_SCENE_PATH)
 	if scene == null:
 		return
 	var ticket := scene.instantiate()
-	if ticket_type:
-		ticket.ticket_type = ticket_type
+	var type := _pick_type()
+	if type:
+		ticket.ticket_type = type
 	var yaw := _rng.randf_range(0.0, TAU)
 	var basis := Basis(Vector3.UP, yaw) * Basis.from_euler(Vector3(-PI * 0.5, 0.0, 0.0))
 	ticket.transform = Transform3D(basis, point + Vector3(0.0, 0.02, 0.0))

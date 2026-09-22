@@ -1,7 +1,7 @@
 class_name Skill
 extends Resource
 
-enum Kind { ICON_WEIGHT, PRIZE_MULTIPLIER }
+enum Kind { ICON_WEIGHT, PRIZE_MULTIPLIER, ICON_XP_BONUS }
 enum Cost { NORMAL, EPIC }
 
 @export var id: StringName = &""

@@ -19,6 +19,7 @@ const VIEWPORT_SIZE := Vector2i(900, 320)
 const MARGIN := 18.0
 const GAP := 18.0
 const FINISH_DELAY := 1.8
+const BASE_XP := 1
 const PANEL_COLOR := Color(0.97, 0.95, 0.90)
 const FOIL_COLOR := Color(0.34, 0.38, 0.46)
 
@@ -619,7 +620,7 @@ func _evaluate() -> Dictionary:
 			continue
 		counts[icon.id] = int(counts.get(icon.id, 0)) + 1
 
-	var xp := 0
+	var xp := BASE_XP
 	var coins := 0
 	var matches := []
 	var paid := {}
@@ -629,7 +630,7 @@ func _evaluate() -> Dictionary:
 			continue
 		if int(counts[icon.id]) >= 2:
 			paid[icon.id] = true
-			xp += icon.xp
+			xp += icon.xp + Progression.icon_xp_bonus(ticket_type, icon.id)
 			coins += icon.coins
 			matches.append("%s x%d" % [icon.label, int(counts[icon.id])])
 	return {"xp": xp, "coins": coins, "matches": matches, "levels_gained": 0, "level": 1}

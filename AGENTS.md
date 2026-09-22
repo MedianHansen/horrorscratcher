@@ -59,6 +59,9 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
   icon's prize is paid **once**. (With more tiles, e.g. 2 blood + 2 coins, you get
   both prizes.) Paying multiple times for triples is a special rule a future
   ticket type may have — not the default.
+- **Every finished ticket also grants a flat 1 ticket XP** (`BASE_XP` in
+  `scratch_ticket.gd`) on top of any prizes, so scratching always makes progress
+  even when nothing pairs. The prize multiplier applies to it too.
 - **Leveling is automatic and per type.** Each type has its own XP and level
   (not shared). **Every level-up grants 1 normal skill point**, except level-ups
   to a multiple of 5 (**5, 10, ...**) grant **1 epic skill point instead**.
@@ -73,23 +76,47 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 | Icon        | Weight | Prize          |
 |-------------|--------|----------------|
 | Empty       | 70     | nothing        |
-| Blood       | 30     | 1 ticket XP    |
+| Blood       | 0      | 5 ticket XP    |
 | Broken bone | 0      | 5 ticket XP    |
-| Coin        | 0      | 1 coin         |
+| Coin        | 30     | 1 coin         |
 | Purse       | 0      | 5 coins        |
 | Gold bar    | 0      | 100 coins      |
 
 Weights of 0 mean the icon cannot roll yet (it exists for when progression/skill
-trees raise its weight). XP curve for the 9 level-ups up to cap 10:
-`[1, 3, 7, 14, 26, 45, 75, 120, 180]` (total 471, ~1.6× per level — cheap early,
-demanding late; tunable).
+trees raise its weight). Coin starts unlocked; Blood is locked until its unlock is
+bought. XP curve for the 9 level-ups up to cap 10:
+`[5, 15, 35, 70, 130, 225, 375, 600, 900]` (total 2355, ~1.6× per level — cheap
+early, demanding late; tunable).
+
+### Fortune (second ticket type)
+
+A rarer, occult-themed slip. 4 tiles. Level cap 8. **No skill tree yet**
+(deferred), so all its icons are always rollable — the only locked ones are the
+future prize icons. Icons (id, weight, prize):
+
+| Icon    | Weight | Prize   |
+|---------|--------|---------|
+| Empty   | 50     | nothing |
+| Token   | 50     | 5 coins |
+| Eye     | 0      | 4 XP    |
+| Skull   | 0      | 10 XP   |
+| Chalice | 0      | 12 coins|
+| Jackpot | 0      | 80 coins|
+
+Only Empty and Token roll today; the rest wait for a future Fortune skill tree.
+A pair of Tokens pays once (the normal pair rule). XP curve for the 7 level-ups up
+to cap 8: `[5, 15, 35, 70, 130, 225, 375]`.
+
+Nightly spawn: `ticket_spawner.gd` rolls each ticket's type from a weighted list —
+currently **95% Suffering / 5% Fortune** (`scenes/main.tscn`). A malformed/empty
+weight list falls back to a uniform pick.
 
 ### Skill tree (Suffering)
 
 Per-type skill tree, opened with **`T`** (closes with `T`/`ESC`); it frees the
 mouse and locks player input while open, and cannot be opened while a ticket is
-being held. Skills cost points and are chained: **Unlock Coin is the root**, and
-the other four require Unlock Coin rank ≥ 1.
+being held. Skills cost points and are chained: **Unlock Blood is the root**, and
+the other five require Unlock Blood rank ≥ 1.
 
 The panel is a **WoW-style talent tree** (`skill_tree_ui.gd` + `skill_node.gd`):
 each skill is an icon node (`Skill.icon_color` / `Skill.glyph`) laid out by
@@ -101,21 +128,24 @@ ranked.
 
 | Skill       | Effect                                                 | Ranks | Cost   |
 |-------------|--------------------------------------------------------|-------|--------|
-| Unlock Coin | Coin weight +20 and Empty weight −20 (one-time)        | 1     | normal |
+| Unlock Blood| Blood weight +20 and Empty weight −20 (one-time)       | 1     | normal |
 | Unlock Bone | Bone weight +20 and Empty weight −20 (one-time)        | 1     | normal |
 | Lucky Coin  | Coin icon weight +10 per rank                          | 5     | normal |
 | Wear Away   | Empty icon weight −15 per rank (min 0)                 | 5     | normal |
+| Blood Value | Blood pairs pay +1 XP per rank                         | 5     | normal |
 | Blood Money | Double all prizes (coins **and** XP)                   | 1     | epic   |
 
 A single skill may carry a second icon modifier (`target_icon_2` / `amount_2`),
-which is how Unlock Coin and Unlock Bone each raise their icon and lower Empty.
-Coin and Bone cannot roll until their unlock is bought (Bone is the main XP
+which is how Unlock Blood and Unlock Bone each raise their icon and lower Empty.
+Blood and Bone cannot roll until their unlock is bought (Bone is the main XP
 source, so this is what makes later levels affordable).
 
 - Weight skills change the table **for future rolls only** — a ticket already
   generated keeps its icons.
 - The prize multiplier is applied **at payout time**, so it affects a ticket
   even if it was rolled before the skill was bought.
+- **Blood Value** (`Skill.Kind.ICON_XP_BONUS`) adds a flat XP bonus to its
+  target icon's payout, also at evaluation time; Blood Money doubles it too.
 - No respec/refund yet. Skill points and tree state are in-memory (reset on
   refresh), same as XP, until a save system exists.
 

@@ -1,0 +1,67 @@
+[gd_resource type="Resource" script_class="TicketType" load_steps=9 format=3]
+
+[ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_type"]
+
+[sub_resource type="Resource" id="Resource_empty"]
+script = ExtResource("1_icon")
+id = &"empty"
+label = "EMPTY"
+color = Color(0.8, 0.8, 0.82, 1)
+weight = 50.0
+xp = 0
+coins = 0
+
+[sub_resource type="Resource" id="Resource_token"]
+script = ExtResource("1_icon")
+id = &"token"
+label = "TOKEN"
+color = Color(0.25, 0.7, 0.5, 1)
+weight = 50.0
+xp = 0
+coins = 5
+
+[sub_resource type="Resource" id="Resource_eye"]
+script = ExtResource("1_icon")
+id = &"eye"
+label = "EYE"
+color = Color(0.4, 0.7, 0.35, 1)
+weight = 0.0
+xp = 4
+coins = 0
+
+[sub_resource type="Resource" id="Resource_skull"]
+script = ExtResource("1_icon")
+id = &"skull"
+label = "SKULL"
+color = Color(0.9, 0.88, 0.8, 1)
+weight = 0.0
+xp = 10
+coins = 0
+
+[sub_resource type="Resource" id="Resource_chalice"]
+script = ExtResource("1_icon")
+id = &"chalice"
+label = "CHALICE"
+color = Color(0.6, 0.35, 0.72, 1)
+weight = 0.0
+xp = 0
+coins = 12
+
+[sub_resource type="Resource" id="Resource_jackpot"]
+script = ExtResource("1_icon")
+id = &"jackpot"
+label = "JACKPOT"
+color = Color(0.95, 0.78, 0.15, 1)
+weight = 0.0
+xp = 0
+coins = 80
+
+[resource]
+script = ExtResource("2_type")
+type_name = "Fortune"
+tile_count = 4
+level_cap = 8
+level_xp = PackedInt32Array(5, 15, 35, 70, 130, 225, 375)
+paper_color = Color(0.85, 0.81, 0.91, 1)
+icons = Array[ExtResource("1_icon")]([SubResource("Resource_empty"), SubResource("Resource_token"), SubResource("Resource_eye"), SubResource("Resource_skull"), SubResource("Resource_chalice"), SubResource("Resource_jackpot")])

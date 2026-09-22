@@ -49,14 +49,16 @@ Controls: click canvas to capture mouse, `WASD` move, `Shift` sprint,
 
 Scratch-off tickets lie on the floor. Look down at one and press `E` to pocket it
 in your backpack. Press `Q` to take one out and hold it; **hold left mouse and
-scrub** to wear off the foil, then `E`/`ESC` stows it again. Three spaces per
-ticket; clearing one reveals coins or nothing. Deposit carried tickets at the
-hideout stash so a bad night can't cost you them.
+scrub** to wear off the foil, then `E`/`ESC` stows it again. Most are 3-space
+**Suffering** slips; about 1 in 20 is a 4-space **Fortune** slip. Deposit carried
+tickets at the hideout stash so a bad night can't cost you them.
 
-Scratching earns **ticket XP**; leveling up grants skill points. Press `T` to
-open the Suffering **talent tree** (a WoW-style node tree): learn **Unlock Coin**
-and **Unlock Bone** to make those icons rollable, then **Lucky Coin** (more
-coins), **Wear Away** (less Empty) and **Blood Money** (double prizes).
+Scratching always earns a little **ticket XP** (every finished ticket, even with
+no match); leveling up grants skill points. Press `T` to open the Suffering
+**talent tree** (a WoW-style node tree): learn **Unlock Blood** and **Unlock
+Bone** to make those icons rollable, then **Lucky Coin** (more coins, unlocked
+from the start), **Wear Away** (less Empty), **Blood Value** (more XP from
+Blood) and **Blood Money** (double prizes).
 
 ## Day / night
 

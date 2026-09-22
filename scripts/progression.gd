@@ -103,6 +103,16 @@ static func icon_weight(type: TicketType, icon_id: StringName) -> float:
 	return maxf(0.0, value)
 
 
+static func icon_xp_bonus(type: TicketType, icon_id: StringName) -> int:
+	var value := 0.0
+	if type == null:
+		return 0
+	for skill in type.skills:
+		if skill.kind == Skill.Kind.ICON_XP_BONUS and skill.target_icon == icon_id:
+			value += skill.amount * float(rank(type.type_name, skill.id))
+	return int(round(value))
+
+
 static func prize_multiplier(type: TicketType) -> float:
 	var mult := 1.0
 	if type == null:
