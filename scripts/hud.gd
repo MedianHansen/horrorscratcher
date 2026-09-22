@@ -18,6 +18,7 @@ func _ready() -> void:
 	if _game:
 		_game.phase_changed.connect(_on_phase_changed)
 		_game.backpack_changed.connect(refresh)
+		_game.gadgets_changed.connect(refresh)
 		_game.player_died.connect(_on_player_died)
 	refresh()
 

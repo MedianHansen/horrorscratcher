@@ -1,0 +1,15 @@
+[gd_resource type="Resource" script_class="GuestType" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/guest_type.gd" id="1_guest"]
+
+[resource]
+script = ExtResource("1_guest")
+type_name = "Listener"
+color = Color(0.34, 0.46, 0.5, 1)
+speed = 3.0
+chase_speed = 4.6
+can_see = false
+sight_range = 0.0
+sight_angle_deg = 0.0
+hear_radius = 12.0
+capture_range = 1.2

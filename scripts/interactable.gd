@@ -56,8 +56,12 @@ func _player_can_use() -> bool:
 
 func _show_prompt() -> void:
 	if _player and _player.has_method("show_prompt"):
-		_player.show_prompt(prompt, self)
+		_player.show_prompt(_prompt_text(), self)
 	_showing = true
+
+
+func _prompt_text() -> String:
+	return prompt
 
 
 func _clear_prompt() -> void:

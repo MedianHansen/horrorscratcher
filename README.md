@@ -62,8 +62,14 @@ is to sleep. Press `E` at the bed to start **Night**: the door opens, a
 120-second timer runs and the lighting dims. Dawn despawns the floor tickets.
 **Entering the hideout during Night ends it safely**; if the timer runs out while
 you are still outside, you are caught, lose anything you carried, and respawn in
-the hideout. (Ticket respawn each night, guests, and gadgets are still being
-built — see `plan0.1.md`.)
+the hideout. Each Night spawns 10 fresh tickets around the carnival and dawn
+clears any left on the ground. Guests stalk the carnival at night: **Drifters**
+see you and hear you, **Listeners** are blind but hear you from further away.
+Sprinting is loud, walking is quiet, standing still is silent — get caught and
+you lose your carried tickets. Spend coins at the hideout **gadget bench** to buy
+the **Stun Device** (25 coins); at Night, `G` stuns nearby guests for a few
+seconds, 3 charges per night. (More gadgets are still being built — see
+`plan0.1.md`.)
 
 ## Requirements (already installed on this server)
 

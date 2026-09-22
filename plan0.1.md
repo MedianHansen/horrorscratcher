@@ -113,43 +113,64 @@ risk by carrying them until they are back home.
       keep that check working after the refactor.
 
 ### Phase 3 — nightly ticket spawner
-- [ ] Remove the six hardcoded `Ticket1..6` nodes from `scenes/main.tscn`.
-- [ ] `scripts/ticket_spawner.gd`: on Night start, place `tickets_per_night`
+- [x] Remove the six hardcoded `Ticket1..6` nodes from `scenes/main.tscn`.
+- [x] `scripts/ticket_spawner.gd`: on Night start, place `tickets_per_night`
       tickets at valid candidate points (inside walls, not inside obstacles, not
       in the hideout, minimum spacing, reachable by a straight floor raycast).
-- [ ] On dawn, free every un-pocketed ground ticket.
-- [ ] Keep ticket type assignment data-driven; allow weighted type selection
+  *Implemented with rejection sampling: a downward ray from `y = 6` must land on
+  the floor (`y <= 0.5`), which automatically rejects obstacle tops and the
+  hideout roof; plus 3 m minimum spacing and a random yaw. No hardcoded obstacle
+  list.*
+- [x] On dawn, free every un-pocketed ground ticket.
+- [x] Keep ticket type assignment data-driven; allow weighted type selection
       later, but Suffering is the only type for now.
+  *Spawner has an exported `ticket_type`; weighted selection is still future work.*
 
 ### Phase 4 — guests, senses, capture, death
-- [ ] `scripts/guest_type.gd` (`GuestType`, `class_name extends Resource`) with
+- [x] `scripts/guest_type.gd` (`GuestType`, `class_name extends Resource`) with
       `type_name`, `speed`, `sight_range`, `sight_angle_deg`, `can_see`,
       `hear_radius`, `capture_range`, path colour.
-- [ ] `.tres` instances in `guest_types/`: **Drifter** (sight + noise) and
+  *Added `color` and `chase_speed`.*
+- [x] `.tres` instances in `guest_types/`: **Drifter** (sight + noise) and
       **Listener** (blind, noise-only, faster).
-- [ ] `scripts/guest.gd` (`CharacterBody3D`): patrol waypoint loop, awareness
+- [x] `scripts/guest.gd` (`CharacterBody3D`): patrol waypoint loop, awareness
       FSM `UNAWARE → SUSPICIOUS → CHASING → CAUGHT`.
-      - sight: range + angle + clear-line-of-sight raycast (exclude self);
+      - sight: range + angle + clear-line-of-sight raycast;
       - hearing: distance to player ≤ noise radius;
       - capture: while chasing, distance ≤ `capture_range` → `Game.on_caught()`.
-- [ ] Player noise: expose `current_noise_radius()` from `player.gd` based on
+  *Uses random wander targets (floor-raycast sampled) instead of authored
+  waypoints. LOS ray aims at the player's `Camera3D`; capture uses **horizontal**
+  distance (the guest origin is at its feet).*
+- [x] Player noise: expose `current_noise_radius()` from `player.gd` based on
       moving + sprint state (`noise_sprint_radius` / `noise_walk_radius` / 0).
-- [ ] Spawn points as `Marker3D` nodes; spawn at Night start, despawn at dawn.
-- [ ] `Game.on_caught()`: teleport player to hideout, clear backpack (undeposited
+- [x] Spawn points as `Marker3D` nodes; spawn at Night start, despawn at dawn.
+  *`scripts/guest_spawner.gd` with 2 Drifters + 1 Listener and six markers.*
+- [x] `Game.on_caught()`: teleport player to hideout, clear backpack (undeposited
       tickets only), end Night, show a death message. Keep coins / XP / stash /
       gadgets.
-- [ ] Hideout is safe: guests never path into it and cannot detect inside.
+- [x] Hideout is safe: guests never path into it and cannot detect inside.
+  *`guest._sense` bails while `Game.player_in_hideout`.*
+
+### Scene-format gotcha (learned in Phase 4)
+- In `.tscn`, node groups must be in the **node header**
+  (`[node name="X" type="Y" parent="Z" groups=["g"]]`), not a separate
+  `groups = [...]` property line — the latter is silently ignored. This was also
+  silently breaking the hideout respawn marker.
+- Toggling a `CollisionShape3D.disabled` from a signal handler can hit
+  "can't change state while flushing queries"; use `set_deferred("disabled", …)`.
 
 ### Phase 5 — stun gadget & bench
-- [ ] `scripts/gadget.gd` (`Gadget`, `class_name extends Resource`): id, title,
+- [x] `scripts/gadget.gd` (`Gadget`, `class_name extends Resource`): id, title,
       coin cost, charges per night, stun radius, stun duration. First entry:
-      Stun Device.
-- [ ] `scripts/gadget_bench.gd`: `E` interactable in the hideout; buy the gadget
+      Stun Device (`gadgets/stun_device.tres`).
+- [x] `scripts/gadget_bench.gd`: `E` interactable in the hideout; buy the gadget
       for coins, show owned state.
-- [ ] `player.gd`: `G` uses the gadget if charges remain; `Game` tracks charges
+  *Built on `Interactable` with an overridable `_prompt_text()` showing cost /
+  affordability / owned state.*
+- [x] `player.gd`: `G` uses the gadget if charges remain; `Game` tracks charges
       and resets them each Night.
-- [ ] `guest.gd`: stunned state (stop moving, no detection) for the duration.
-- [ ] HUD: gadget charges.
+- [x] `guest.gd`: stunned state (stop moving, no detection) for the duration.
+- [x] HUD: gadget charges.
 
 ## Verification (per phase)
 

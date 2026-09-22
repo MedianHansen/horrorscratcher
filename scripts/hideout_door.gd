@@ -24,6 +24,6 @@ func _on_day() -> void:
 
 func _apply(open: bool) -> void:
 	if _shape:
-		_shape.disabled = open
+		_shape.set_deferred("disabled", open)
 	if _mesh:
 		_mesh.visible = not open

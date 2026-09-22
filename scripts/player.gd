@@ -20,6 +20,7 @@ const PITCH_LIMIT := deg_to_rad(88)
 var _coins_label: Label
 var _prompt_label: Label
 var _prompt_owner: Object = null
+var _game: Node
 
 func _ready() -> void:
 	add_to_group("player")
@@ -29,7 +30,21 @@ func _ready() -> void:
 	pitch = cam.rotation.x
 	_coins_label = get_node_or_null("../UI/Coins")
 	_prompt_label = get_node_or_null("../UI/Prompt")
+	_game = get_tree().get_first_node_in_group("game")
 	_update_coins_label()
+
+
+func current_noise_radius() -> float:
+	if input_locked:
+		return 0.0
+	if Vector2(velocity.x, velocity.z).length() <= 0.5:
+		return 0.0
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	var sprinting := Input.is_action_pressed("sprint")
+	if _game:
+		return float(_game.noise_sprint_radius) if sprinting else float(_game.noise_walk_radius)
+	return 12.0 if sprinting else 4.0
 
 func set_input_locked(value: bool) -> void:
 	input_locked = value
@@ -76,6 +91,16 @@ func _unhandled_input(event: InputEvent) -> void:
 			Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 		else:
 			Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+
+	if event.is_action_pressed("use_gadget"):
+		_use_gadget()
+
+
+func _use_gadget() -> void:
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	if _game:
+		_game.use_active_gadget()
 
 func _physics_process(delta: float) -> void:
 	if input_locked:

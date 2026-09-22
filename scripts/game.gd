@@ -4,11 +4,13 @@ signal phase_changed(phase: int)
 signal night_started()
 signal day_started()
 signal backpack_changed()
+signal gadgets_changed()
 signal player_died()
 
 enum Phase { DAY, NIGHT }
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
+const ACTIVE_GADGET := &"stun"
 
 var night_duration: float = 120.0
 var tickets_per_night: int = 10
@@ -66,6 +68,7 @@ func start_night() -> void:
 	if phase == Phase.NIGHT:
 		return
 	night_time_left = night_duration
+	reset_gadgets()
 	set_phase(Phase.NIGHT)
 	night_started.emit()
 
@@ -101,6 +104,47 @@ func deposit_all() -> int:
 	backpack.clear()
 	backpack_changed.emit()
 	return count
+
+
+func buy_gadget(gadget: Gadget) -> bool:
+	if gadget == null or gadgets.has(gadget.id):
+		return false
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or int(player.get("coins")) < gadget.cost:
+		return false
+	if player.has_method("add_coins"):
+		player.add_coins(-gadget.cost)
+	gadgets[gadget.id] = gadget
+	if gadget.id == ACTIVE_GADGET:
+		gadget_charges = gadget.charges_per_night
+	gadgets_changed.emit()
+	return true
+
+
+func use_active_gadget() -> bool:
+	if phase != Phase.NIGHT:
+		return false
+	var gadget = gadgets.get(ACTIVE_GADGET)
+	if gadget == null or gadget_charges <= 0:
+		return false
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null:
+		return false
+	var origin: Vector3 = (player as Node3D).global_position
+	for guest in get_tree().get_nodes_in_group("guest"):
+		if guest is Node3D and (guest as Node3D).global_position.distance_to(origin) <= gadget.stun_radius:
+			if guest.has_method("stun"):
+				guest.stun(gadget.stun_duration)
+	gadget_charges -= 1
+	gadgets_changed.emit()
+	return true
+
+
+func reset_gadgets() -> void:
+	var gadget = gadgets.get(ACTIVE_GADGET)
+	if gadget != null:
+		gadget_charges = gadget.charges_per_night
+		gadgets_changed.emit()
 
 
 func take_for_scratch() -> bool:
@@ -147,6 +191,14 @@ func enter_hideout() -> void:
 	player_in_hideout = true
 	if phase == Phase.NIGHT:
 		end_night(true)
+
+
+func on_caught() -> void:
+	if phase == Phase.NIGHT:
+		end_night(false)
+	else:
+		_teleport_player_home()
+		player_died.emit()
 
 
 func exit_hideout() -> void:

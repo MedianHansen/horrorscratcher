@@ -172,18 +172,19 @@ around the carnival. They spawn at Night and despawn at dawn. First two types:
 
 - Bought at the hideout gadget bench with **coins**; owned gadgets and charges
   are in-memory until a save system exists.
-- **First pass: the Stun Device only.** Usable at Night, stuns guests within a
-  short radius for a brief time, with limited charges per night. Exact
-  radius/duration/charges are set at implementation.
+- **First pass: the Stun Device only.** Bought once for **25 coins**; usable at
+  Night with **3 charges per night** (refilled at the start of each Night). Press
+  `G` to stun guests within **5 m** for **4 s**.
 - **Lethal gadgets and decoys are deferred.**
 
 ### First-pass tunables
 
 `night_duration 120 s`, `tickets_per_night 10`, `backpack_capacity 5`,
 `noise_sprint_radius 12 m`, `noise_walk_radius 4 m`, `capture_range 1.2 m`,
-stun radius/duration/charges TBD. All are meant to be tuned.
+stun cost 25 coins / radius 5 m / duration 4 s / 3 charges per night. All are
+meant to be tuned.
 
-**Status:** agreed design, not built yet.
+**Status:** built (first pass); the values above are the current ones.
 
 ### Deferred (do not build yet)
 
