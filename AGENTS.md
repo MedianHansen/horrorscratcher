@@ -80,15 +80,16 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 | Gold bar    | 0      | 100 coins      |
 
 Weights of 0 mean the icon cannot roll yet (it exists for when progression/skill
-trees raise its weight). Placeholder XP curve for the 9 level-ups up to cap 10:
-`[1, 5, 10, 15, 20, 25, 30, 35, 40]` (tunable).
+trees raise its weight). XP curve for the 9 level-ups up to cap 10:
+`[1, 3, 7, 14, 26, 45, 75, 120, 180]` (total 471, ~1.6× per level — cheap early,
+demanding late; tunable).
 
 ### Skill tree (Suffering)
 
 Per-type skill tree, opened with **`T`** (closes with `T`/`ESC`); it frees the
 mouse and locks player input while open, and cannot be opened while a ticket is
 being held. Skills cost points and are chained: **Unlock Coin is the root**, and
-the other three require Unlock Coin rank ≥ 1.
+the other four require Unlock Coin rank ≥ 1.
 
 The panel is a **WoW-style talent tree** (`skill_tree_ui.gd` + `skill_node.gd`):
 each skill is an icon node (`Skill.icon_color` / `Skill.glyph`) laid out by
@@ -101,13 +102,15 @@ ranked.
 | Skill       | Effect                                                 | Ranks | Cost   |
 |-------------|--------------------------------------------------------|-------|--------|
 | Unlock Coin | Coin weight +20 and Empty weight −20 (one-time)        | 1     | normal |
+| Unlock Bone | Bone weight +20 and Empty weight −20 (one-time)        | 1     | normal |
 | Lucky Coin  | Coin icon weight +10 per rank                          | 5     | normal |
 | Wear Away   | Empty icon weight −15 per rank (min 0)                 | 5     | normal |
 | Blood Money | Double all prizes (coins **and** XP)                   | 1     | epic   |
 
 A single skill may carry a second icon modifier (`target_icon_2` / `amount_2`),
-which is how Unlock Coin both raises Coin and lowers Empty. Coin cannot roll
-until Unlock Coin is bought.
+which is how Unlock Coin and Unlock Bone each raise their icon and lower Empty.
+Coin and Bone cannot roll until their unlock is bought (Bone is the main XP
+source, so this is what makes later levels affordable).
 
 - Weight skills change the table **for future rolls only** — a ticket already
   generated keeps its icons.
@@ -161,6 +164,14 @@ stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
   despawns. At the start of each Night, `tickets_per_night` (default **10**)
   fresh tickets are placed at valid, reachable floor points.
 - **Scratching can happen anywhere, anytime**, day or night.
+
+### Stamina
+
+- Max **100**. Sprinting drains it over ~30 s (`sprint_stamina_seconds`), so once
+  empty you drop to a walk until you rest.
+- **Only sleeping restores stamina**: each sleep at the bed restores **5** (or
+  **10** with the Restful Bed upgrade). It does not regenerate on its own.
+- The HUD shows a stamina bar (`stamina` / `stamina_max` on the player).
 
 ### Backpack, stash & loss
 
@@ -224,7 +235,10 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 |----------------|-------------------------------|--------|------------------|
 | Scratch Damage | +25% scratch damage per level | 10     | 20 × (level + 1) |
 | Movement Speed | +10% movement speed per level | 5      | 30 × (level + 1) |
-| Trashcan       | Unlocks a hideout bin to discard held tickets | 1 | 50 |
+| Trashcan       | Unlocks a hideout bin to discard held tickets | 1 | 1 |
+| Bag Space      | +2 backpack slots per level   | 5      | 60 × (level + 1) |
+| Brush Size     | +20% scratch brush radius per level | 5 | 35 × (level + 1) |
+| Restful Bed    | Sleep restores 10 stamina instead of 5 | 1 | 80 |
 
 - Bonuses are multiplicative (`1.25^level`, `1.10^level`): level 2 damage is
   ×1.5625, level 3 ×1.953125, and so on.
@@ -236,7 +250,7 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 
 ### Trashcan
 
-- Bought at the **workshop for 50 coins** (a one-level unlock); until bought it
+- Bought at the **workshop for 1 coin** (a one-level unlock); until bought it
   is absent from the hideout (no mesh, no collision, no interaction).
 - Once bought, it is a bin in the hideout. While **holding** a ticket, standing
   within ~2.5 m of the trashcan and pressing `E` **discards** it (removed from
@@ -247,6 +261,7 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 
 `night_duration 120 s`, `tickets_per_night 10`, `backpack_capacity 5`,
 `noise_sprint_radius 12 m`, `noise_walk_radius 4 m`, `capture_range 1.2 m`,
+stamina 100 over ~30 s of sprint (sleep restores 5, or 10 with Restful Bed),
 stun cost 25 coins / radius 5 m / duration 4 s / 3 charges per night. All are
 meant to be tuned.
 

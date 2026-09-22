@@ -9,11 +9,14 @@ extends CharacterBody3D
 @export var jump_velocity: float = 4.5
 @export var gravity: float = 9.8
 @export var scratch_damage: float = 0.6
+@export var stamina_max: float = 100.0
+@export var sprint_stamina_seconds: float = 30.0
 
 var yaw: float = 0.0
 var pitch: float = 0.0
 var coins: int = 0
 var input_locked: bool = false
+var stamina: float = 100.0
 const PITCH_LIMIT := deg_to_rad(88)
 
 @onready var cam: Camera3D = $Camera3D
@@ -31,7 +34,12 @@ func _ready() -> void:
 	_coins_label = get_node_or_null("../UI/Coins")
 	_prompt_label = get_node_or_null("../UI/Prompt")
 	_game = get_tree().get_first_node_in_group("game")
+	stamina = stamina_max
 	_update_coins_label()
+
+
+func restore_stamina(amount: float) -> void:
+	stamina = clampf(stamina + amount, 0.0, stamina_max)
 
 
 func current_noise_radius() -> float:
@@ -41,7 +49,7 @@ func current_noise_radius() -> float:
 		return 0.0
 	if _game == null:
 		_game = get_tree().get_first_node_in_group("game")
-	var sprinting := Input.is_action_pressed("sprint")
+	var sprinting := Input.is_action_pressed("sprint") and stamina > 0.0
 	if _game:
 		return float(_game.noise_sprint_radius) if sprinting else float(_game.noise_walk_radius)
 	return 12.0 if sprinting else 4.0
@@ -134,9 +142,14 @@ func _physics_process(delta: float) -> void:
 	if direction.length() > 0:
 		direction = direction.normalized()
 
-	var speed := (sprint_speed if Input.is_action_pressed("sprint") else normal_speed) * _move_speed_multiplier()
+	var moving := direction != Vector3.ZERO
+	var sprinting := moving and Input.is_action_pressed("sprint") and stamina > 0.0
+	if sprinting:
+		stamina = maxf(0.0, stamina - (stamina_max / maxf(0.001, sprint_stamina_seconds)) * delta)
 
-	if direction != Vector3.ZERO:
+	var speed := (sprint_speed if sprinting else normal_speed) * _move_speed_multiplier()
+
+	if moving:
 		velocity.x = direction.x * speed
 		velocity.z = direction.z * speed
 	else:

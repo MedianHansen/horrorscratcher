@@ -371,7 +371,7 @@ func _pocket() -> void:
 	_resolve_game()
 	if _game == null:
 		return
-	if _game.backpack.size() >= int(_game.backpack_capacity):
+	if _game.backpack.size() >= int(_game.effective_backpack_capacity()):
 		if _player and _player.has_method("show_prompt"):
 			_player.show_prompt("Backpack full", self)
 		_interact_cooldown = 0.75
@@ -512,8 +512,9 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 	var grid_h: int = p["grid_h"]
 	var health: PackedFloat32Array = p["health"]
 	var damage := distance * _player_damage()
-	var radius := int(ceil(brush_radius_cells))
-	var radius_sq := brush_radius_cells * brush_radius_cells
+	var brush := brush_radius_cells * _brush_scale()
+	var radius := int(ceil(brush))
+	var radius_sq := brush * brush
 	var changed := false
 	var applied := 0.0
 	var dirty: PackedInt32Array = p["dirty_indices"]
@@ -531,7 +532,7 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 			var h := health[idx]
 			if h <= 0.0:
 				continue
-			var falloff := 1.0 - sqrt(d_sq) / brush_radius_cells
+			var falloff := 1.0 - sqrt(d_sq) / brush
 			var nh := maxf(0.0, h - damage * falloff)
 			if nh != h:
 				applied += h - nh
@@ -560,6 +561,13 @@ func _player_damage() -> float:
 	if _game and _game.has_method("scratch_damage_multiplier"):
 		mult = float(_game.scratch_damage_multiplier())
 	return base * mult
+
+
+func _brush_scale() -> float:
+	_resolve_game()
+	if _game and _game.has_method("brush_scale"):
+		return float(_game.brush_scale())
+	return 1.0
 
 
 func _reveal_panel(panel_index: int) -> void:

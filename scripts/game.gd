@@ -32,7 +32,28 @@ const UPGRADES := {
 		"description": "Unlocks a bin in the hideout to discard a held ticket.",
 		"max": 1,
 		"mult": 1.0,
-		"base_cost": 50,
+		"base_cost": 1,
+	},
+	&"bag_space": {
+		"title": "Bag Space",
+		"description": "+2 backpack slots per level.",
+		"max": 5,
+		"mult": 1.0,
+		"base_cost": 60,
+	},
+	&"brush_size": {
+		"title": "Brush Size",
+		"description": "+20% scratch brush radius per level.",
+		"max": 5,
+		"mult": 1.2,
+		"base_cost": 35,
+	},
+	&"restful_bed": {
+		"title": "Restful Bed",
+		"description": "Sleeping restores 10 stamina instead of 5.",
+		"max": 1,
+		"mult": 1.0,
+		"base_cost": 80,
 	},
 }
 
@@ -94,6 +115,9 @@ func start_night() -> void:
 		return
 	night_time_left = night_duration
 	reset_gadgets()
+	var player := get_tree().get_first_node_in_group("player")
+	if player and player.has_method("restore_stamina"):
+		player.restore_stamina(float(sleep_stamina_rest()))
 	set_phase(Phase.NIGHT)
 	night_started.emit()
 
@@ -237,6 +261,22 @@ func move_speed_multiplier() -> float:
 
 func has_trashcan() -> bool:
 	return upgrade_level(&"trashcan") > 0
+
+
+func backpack_bonus() -> int:
+	return 2 * upgrade_level(&"bag_space")
+
+
+func effective_backpack_capacity() -> int:
+	return backpack_capacity + backpack_bonus()
+
+
+func brush_scale() -> float:
+	return _upgrade_multiplier(&"brush_size")
+
+
+func sleep_stamina_rest() -> int:
+	return 10 if upgrade_level(&"restful_bed") > 0 else 5
 
 
 func _upgrade_multiplier(id: StringName) -> float:

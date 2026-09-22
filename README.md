@@ -55,8 +55,8 @@ hideout stash so a bad night can't cost you them.
 
 Scratching earns **ticket XP**; leveling up grants skill points. Press `T` to
 open the Suffering **talent tree** (a WoW-style node tree): learn **Unlock Coin**
-to make Coin rollable, then **Lucky Coin** (more coins), **Wear Away** (less
-Empty) and **Blood Money** (double prizes).
+and **Unlock Bone** to make those icons rollable, then **Lucky Coin** (more
+coins), **Wear Away** (less Empty) and **Blood Money** (double prizes).
 
 ## Day / night
 
@@ -78,11 +78,14 @@ guest turns amber when suspicious and red when chasing, with `?` / `SPOTTED!` on
 the HUD. Sprinting is loud, walking is quiet, standing still is silent — get
 caught and you lose your carried tickets.
 
-Spend coins at the **gadget bench** for the **Stun Device** (25 coins; `G` at
-Night, 3 charges) and at the **workshop** for upgrades (Scratch Damage, Movement
-Speed, and a **Trashcan** for 50 coins). Once you own the trashcan, stand at it,
-take a ticket out (`Q`), then press `E` to discard it. (Lethal gadgets and decoys
-are still being built — see `plan0.1.md`.)
+Sprinting drains **stamina** (100, about 30 seconds of running); when it's empty
+you drop to a walk, and **only sleeping restores it** (5, or 10 with the Restful
+Bed). Spend coins at the **gadget bench** for the **Stun Device** (25 coins; `G`
+at Night, 3 charges) and at the **workshop** for upgrades: Scratch Damage,
+Movement Speed, Bag Space, Brush Size, Restful Bed and a **Trashcan** (1
+coin). Once you own the trashcan, stand at it, take a ticket out (`Q`), then
+press `E` to discard it. (Lethal gadgets and decoys are still being built — see
+`plan0.1.md`.)
 
 ## Requirements (already installed on this server)
 

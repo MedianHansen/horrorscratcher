@@ -143,6 +143,28 @@ offset_bottom = -8.0
 text = "Stun: 0"
 mouse_filter = 2
 
+[node name="StaminaLabel" type="Label" parent="UI/HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -92.0
+offset_right = 216.0
+offset_bottom = -74.0
+text = "Stamina"
+mouse_filter = 2
+
+[node name="Stamina" type="ProgressBar" parent="UI/HUD"]
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -72.0
+offset_right = 216.0
+offset_bottom = -56.0
+max_value = 100.0
+value = 100.0
+show_percentage = false
+mouse_filter = 2
+
 [node name="DeathMessage" type="Label" parent="UI/HUD"]
 anchors_preset = 4
 anchor_left = 0.5

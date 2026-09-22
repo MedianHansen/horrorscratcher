@@ -183,7 +183,7 @@ risk by carrying them until they are back home.
       (`FOIL_COLOR`) for strong contrast.
 - [x] Coin upgrades + workshop panel: Scratch Damage (+25%/level, 10 levels) and
       Movement Speed (+10%/level, 5 levels).
-- [x] Trashcan: bought at the workshop for 50 coins (one-level unlock); discards
+- [x] Trashcan: bought at the workshop for 1 coin (one-level unlock); discards
       the held ticket (`E` within ~2.5 m). Absent until bought.
 
 ### Round 3 — carnival scene
@@ -213,6 +213,22 @@ risk by carrying them until they are back home.
       border: green learnable / gold maxed / dark locked); `skill_tree_lines.gd`
       draws the links.
 - [x] `Skill` gained `icon_color` and `glyph`; Suffering's four skills set them.
+
+### Round 6 — stamina & three more upgrades
+- [x] Stamina: max 100, sprint drains it over ~30 s; empty forces a walk. Only
+      sleeping restores it (5, or 10 with Restful Bed). HUD stamina bar.
+- [x] Workshop upgrades: Bag Space (+2 slots/level, 5, 60×(lvl+1)), Brush Size
+      (+20% radius/level, 5, 35×(lvl+1)), Restful Bed (sleep 5→10, 1 level, 80).
+- [x] Backpack capacity, scratch brush radius and sleep restore now read from the
+      upgrade state.
+
+### Round 7 — balancing
+- [x] Trashcan cost 50 → 1 coin.
+- [x] Suffering XP curve → `[1, 3, 7, 14, 26, 45, 75, 120, 180]` (soft ramp,
+      total 471): cheap early, strongly back-loaded for later levels.
+- [x] New skill **Unlock Bone** (Bone weight +20, Empty −20; requires Unlock
+      Coin) so the higher-XP Bone icon becomes rollable and later levels are
+      affordable.
 
 ## Verification (per phase)
 

@@ -59,8 +59,10 @@ func _draw() -> void:
 
 	var glyph := skill.glyph if skill.glyph != "" else skill.title.substr(0, 1)
 	var fs := 30
+	var lum := 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b
+	var glyph_color := Color(0.06, 0.06, 0.07) if lum > 0.5 else Color(0.95, 0.95, 0.95)
 	var glyph_size := font.get_string_size(glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, fs)
-	draw_string(font, Vector2((size.x - glyph_size.x) * 0.5, (size.y + glyph_size.y) * 0.5 - 6.0), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, Color(0.06, 0.06, 0.07))
+	draw_string(font, Vector2((size.x - glyph_size.x) * 0.5, (size.y + glyph_size.y) * 0.5 - 6.0), glyph, HORIZONTAL_ALIGNMENT_LEFT, -1, fs, glyph_color)
 
 	var rank_text := "%d/%d" % [rank, skill.max_ranks]
 	var rank_size := font.get_string_size(rank_text, HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
