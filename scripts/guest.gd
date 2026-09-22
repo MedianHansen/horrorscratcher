@@ -224,8 +224,8 @@ func _try_capture() -> void:
 func _pick_target() -> void:
 	var space := get_world_3d().direct_space_state
 	for i in range(30):
-		var x := _rng.randf_range(-26.0, 26.0)
-		var z := _rng.randf_range(-26.0, 26.0)
+		var x := _rng.randf_range(-56.0, 56.0)
+		var z := _rng.randf_range(-56.0, 56.0)
 		var query := PhysicsRayQueryParameters3D.create(Vector3(x, 6.0, z), Vector3(x, -1.0, z))
 		query.exclude = [get_rid()]
 		var hit := space.intersect_ray(query)

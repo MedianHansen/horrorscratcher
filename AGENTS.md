@@ -106,8 +106,29 @@ the other two require Lucky Coin rank ≥ 1.
 ## Day/night loop, hideout, scavenging & guests
 
 The loop is **day = hide & scratch, night = scavenge the carnival and avoid the
-guests.** The carnival is the existing map; the hideout is a safe room in the
-same map (no scene switching).
+guests.** The carnival is one 120×120 walled grounds (`scenes/carnival.tscn`,
+instanced by `scenes/main.tscn`); the hideout is a metal room in its backlot (no
+scene switching).
+
+### Carnival layout
+
+`scenes/carnival.tscn` is a **static, hand-editable** scene (no runtime
+generation). It contains the ground, a fenced perimeter, and:
+
+- **Entrance gate** (south) with pillars, marquee and a ticket booth.
+- **Big top tent** (west), **Ferris wheel** (east, slowly rotating) and
+  **Carousel** (centre, rotating) — the two rides spin via `ferris_wheel.gd` /
+  `carousel.gd`.
+- **Funhouse** (east), a row of five **game stalls** (north) and three **food
+  carts**.
+- **Lampposts** with amber lights along the midway, plus string lights.
+- **Backlot** (north-west): dumpsters, crates, barrels — and the **hideout**.
+- **Guest spawn markers** (8, group `guest_spawn`) and the hideout respawn marker
+  (group `hideout_spawn`).
+
+The hideout is a standalone 10×10 metal room with a door (east side) that is
+sealed during Day and opens at Night, an interior trigger `Zone`, and the bed,
+stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
 
 - **Hybrid cycle.** *Day* is untimed; it lasts until the player sleeps at the
   hideout bed, which starts *Night*. *Night* runs a fixed real-time timer
@@ -152,7 +173,8 @@ Caught by a guest, **or** still outside when the night timer expires → death:
 ### Guests (data-driven)
 
 Guest types are data-driven resources (`GuestType`) with spawn points placed
-around the carnival. They spawn at Night and despawn at dawn. First two types:
+around the carnival (8 markers; **4 Drifters + 2 Listeners** each Night). They
+spawn at Night and despawn at dawn. First two types:
 
 | Guest    | Movement | Senses                             |
 |----------|----------|------------------------------------|

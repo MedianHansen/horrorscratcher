@@ -55,19 +55,22 @@ hideout stash so a bad night can't cost you them.
 
 ## Day / night
 
-The carnival has a **hideout** — a walled room in the north-west corner with a
-bed in one corner, a **stash** (press `E` to deposit carried tickets), a **gadget
-bench**, a **workshop** and a **trashcan**. **You start inside, and the hideout
-door is sealed during the Day** — the only way out is to sleep. Press `E` at the
-bed to start **Night**: the door opens, a 120-second timer runs and the lighting
-dims. Dawn despawns the floor tickets. **Entering the hideout during Night ends
-it safely**; if the timer runs out while you are still outside, you are caught,
-lose anything you carried, and respawn in the hideout. Each Night spawns 10 fresh
-tickets around the carnival and dawn clears any left on the ground. Guests stalk
-the carnival at night: **Drifters** see you and hear you, **Listeners** are blind
-but hear you from further away. A guest turns amber when suspicious and red when
-chasing, with `?` / `SPOTTED!` on the HUD. Sprinting is loud, walking is quiet,
-standing still is silent — get caught and you lose your carried tickets.
+The map is a 120×120 carnival grounds: an entrance gate, a big top tent, a
+slowly rotating Ferris wheel and carousel, a funhouse, five game stalls, food
+carts, lampposts and string lights, and a backstage backlot. Your **hideout** is
+a metal room in that backlot with a bed, a **stash** (press `E` to deposit
+carried tickets), a **gadget bench**, a **workshop** and a **trashcan**. **You
+start inside, and the hideout door is sealed during the Day** — the only way out
+is to sleep. Press `E` at the bed to start **Night**: the door opens, a
+120-second timer runs and the lighting dims. Dawn despawns the floor tickets.
+**Entering the hideout during Night ends it safely**; if the timer runs out while
+you are still outside, you are caught, lose anything you carried, and respawn in
+the hideout. Each Night spawns 10 fresh tickets around the carnival and dawn
+clears any left on the ground. Guests stalk the carnival at night: **Drifters**
+see you and hear you, **Listeners** are blind but hear you from further away. A
+guest turns amber when suspicious and red when chasing, with `?` / `SPOTTED!` on
+the HUD. Sprinting is loud, walking is quiet, standing still is silent — get
+caught and you lose your carried tickets.
 
 Spend coins at the **gadget bench** for the **Stun Device** (25 coins; `G` at
 Night, 3 charges) and at the **workshop** for upgrades (Scratch Damage and

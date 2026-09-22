@@ -3,7 +3,7 @@ extends Node3D
 @export var ticket_type: TicketType
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
-const MAP_HALF := 28.0
+const MAP_HALF := 56.0
 const FLOOR_TOP := 0.5
 const MIN_SPACING := 3.0
 

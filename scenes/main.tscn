@@ -1,99 +1,21 @@
-[gd_scene load_steps=40 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=14 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
-[ext_resource type="Script" path="res://scripts/ticket_spawner.gd" id="15_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/carnival.tscn" id="3_carnival"]
 [ext_resource type="Script" path="res://scripts/skill_tree_ui.gd" id="7_skill_ui"]
 [ext_resource type="Resource" path="res://ticket_types/suffering.tres" id="8_suffering"]
 [ext_resource type="Script" path="res://scripts/hud.gd" id="9_hud"]
-[ext_resource type="Script" path="res://scripts/hideout_zone.gd" id="10_hideout"]
-[ext_resource type="Script" path="res://scripts/bed.gd" id="11_bed"]
 [ext_resource type="Script" path="res://scripts/day_night_light.gd" id="12_daynight"]
-[ext_resource type="Script" path="res://scripts/stash.gd" id="13_stash"]
-[ext_resource type="Script" path="res://scripts/hideout_door.gd" id="14_door"]
+[ext_resource type="Script" path="res://scripts/ticket_spawner.gd" id="15_spawner"]
 [ext_resource type="Script" path="res://scripts/guest_spawner.gd" id="16_guests"]
 [ext_resource type="Resource" path="res://guest_types/drifter.tres" id="17_drifter"]
 [ext_resource type="Resource" path="res://guest_types/listener.tres" id="18_listener"]
-[ext_resource type="Script" path="res://scripts/gadget_bench.gd" id="19_bench"]
-[ext_resource type="Resource" path="res://gadgets/stun_device.tres" id="20_stun"]
 [ext_resource type="Script" path="res://scripts/upgrade_ui.gd" id="21_upgrade"]
-[ext_resource type="Script" path="res://scripts/workshop.gd" id="22_workshop"]
-
-[sub_resource type="BoxMesh" id="1_floor_mesh"]
-size = Vector3(60, 1, 60)
-
-[sub_resource type="BoxShape3D" id="1_floor_shape"]
-size = Vector3(60, 1, 60)
 
 [sub_resource type="CapsuleShape3D" id="3_capsule"]
 radius = 0.45
 height = 1.6
-
-[sub_resource type="BoxMesh" id="4_wall_mesh"]
-size = Vector3(60, 6, 1)
-
-[sub_resource type="BoxShape3D" id="4_wall_shape"]
-size = Vector3(60, 6, 1)
-
-[sub_resource type="BoxMesh" id="5_box_mesh"]
-size = Vector3(2, 2, 2)
-
-[sub_resource type="BoxShape3D" id="5_box_shape"]
-size = Vector3(2, 2, 2)
-
-[sub_resource type="BoxMesh" id="6_hb_wall_ns_mesh"]
-size = Vector3(10, 3, 0.5)
-
-[sub_resource type="BoxShape3D" id="6_hb_wall_ns_shape"]
-size = Vector3(10, 3, 0.5)
-
-[sub_resource type="BoxMesh" id="6_hb_wall_ew_mesh"]
-size = Vector3(0.5, 3, 4)
-
-[sub_resource type="BoxShape3D" id="6_hb_wall_ew_shape"]
-size = Vector3(0.5, 3, 4)
-
-[sub_resource type="BoxMesh" id="6_hb_roof_mesh"]
-size = Vector3(10, 0.5, 10)
-
-[sub_resource type="BoxShape3D" id="6_hb_roof_shape"]
-size = Vector3(10, 0.5, 10)
-
-[sub_resource type="BoxShape3D" id="6_hb_zone_shape"]
-size = Vector3(9, 3, 9)
-
-[sub_resource type="BoxMesh" id="6_hb_bed_mesh"]
-size = Vector3(0.9, 0.4, 1.9)
-
-[sub_resource type="BoxShape3D" id="6_hb_bed_shape"]
-size = Vector3(0.9, 0.4, 1.9)
-
-[sub_resource type="BoxMesh" id="6_hb_stash_mesh"]
-size = Vector3(0.8, 0.8, 0.8)
-
-[sub_resource type="BoxShape3D" id="6_hb_stash_shape"]
-size = Vector3(0.8, 0.8, 0.8)
-
-[sub_resource type="BoxMesh" id="6_hb_bench_mesh"]
-size = Vector3(1, 0.8, 0.6)
-
-[sub_resource type="BoxShape3D" id="6_hb_bench_shape"]
-size = Vector3(1, 0.8, 0.6)
-
-[sub_resource type="CylinderMesh" id="6_hb_trash_mesh"]
-top_radius = 0.35
-bottom_radius = 0.3
-height = 0.9
-
-[sub_resource type="CylinderShape3D" id="6_hb_trash_shape"]
-radius = 0.35
-height = 0.9
-
-[sub_resource type="BoxMesh" id="6_hb_door_mesh"]
-size = Vector3(0.5, 3, 2)
-
-[sub_resource type="BoxShape3D" id="6_hb_door_shape"]
-size = Vector3(0.5, 3, 2)
 
 [node name="Main" type="Node3D"]
 
@@ -106,234 +28,10 @@ light_energy = 1.2
 shadow_enabled = true
 script = ExtResource("12_daynight")
 
-[node name="Floor" type="StaticBody3D" parent="."]
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-mesh = SubResource("1_floor_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
-shape = SubResource("1_floor_shape")
-
-[node name="WallN" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, -30)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WallN"]
-mesh = SubResource("4_wall_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WallN"]
-shape = SubResource("4_wall_shape")
-
-[node name="WallS" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 30)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WallS"]
-mesh = SubResource("4_wall_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WallS"]
-shape = SubResource("4_wall_shape")
-
-[node name="WallE" type="StaticBody3D" parent="."]
-transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, 30, 3, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WallE"]
-mesh = SubResource("4_wall_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WallE"]
-shape = SubResource("4_wall_shape")
-
-[node name="WallW" type="StaticBody3D" parent="."]
-transform = Transform3D(0, 0, 1, 0, 1, 0, -1, 0, 0, -30, 3, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="WallW"]
-mesh = SubResource("4_wall_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="WallW"]
-shape = SubResource("4_wall_shape")
-
-[node name="Obstacle1" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 1, 5)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacle1"]
-mesh = SubResource("5_box_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacle1"]
-shape = SubResource("5_box_shape")
-
-[node name="Obstacle2" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7, 1, -4)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacle2"]
-mesh = SubResource("5_box_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacle2"]
-shape = SubResource("5_box_shape")
-
-[node name="Obstacle3" type="StaticBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1, -9)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Obstacle3"]
-mesh = SubResource("5_box_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Obstacle3"]
-shape = SubResource("5_box_shape")
-
-[node name="TicketSpawner" type="Node3D" parent="."]
-script = ExtResource("15_spawner")
-ticket_type = ExtResource("8_suffering")
-
-[node name="GuestSpawner" type="Node3D" parent="."]
-script = ExtResource("16_guests")
-drifter_type = ExtResource("17_drifter")
-listener_type = ExtResource("18_listener")
-
-[node name="GuestSpawns" type="Node3D" parent="."]
-
-[node name="Spawn1" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0.1, 12)
-
-[node name="Spawn2" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0.1, 14)
-
-[node name="Spawn3" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 18, 0.1, -6)
-
-[node name="Spawn4" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.1, -18)
-
-[node name="Spawn5" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16, 0.1, 8)
-
-[node name="Spawn6" type="Marker3D" parent="GuestSpawns" groups=["guest_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0.1, 20)
-
-[node name="Hideout" type="Node3D" parent="."]
-
-[node name="WallEastA" type="StaticBody3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -28)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallEastA"]
-mesh = SubResource("6_hb_wall_ew_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallEastA"]
-shape = SubResource("6_hb_wall_ew_shape")
-
-[node name="WallEastB" type="StaticBody3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -22)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallEastB"]
-mesh = SubResource("6_hb_wall_ew_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallEastB"]
-shape = SubResource("6_hb_wall_ew_shape")
-
-[node name="WallSouth" type="StaticBody3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -20)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/WallSouth"]
-mesh = SubResource("6_hb_wall_ns_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/WallSouth"]
-shape = SubResource("6_hb_wall_ns_shape")
-
-[node name="Door" type="StaticBody3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 1.5, -25)
-script = ExtResource("14_door")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Door"]
-mesh = SubResource("6_hb_door_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Door"]
-shape = SubResource("6_hb_door_shape")
-
-[node name="Roof" type="StaticBody3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 3.25, -25)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Roof"]
-mesh = SubResource("6_hb_roof_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Roof"]
-shape = SubResource("6_hb_roof_shape")
-
-[node name="Zone" type="Area3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -25)
-collision_layer = 0
-collision_mask = 1
-script = ExtResource("10_hideout")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Zone"]
-shape = SubResource("6_hb_zone_shape")
-
-[node name="Bed" type="Area3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -28, 0.2, -28)
-collision_mask = 0
-script = ExtResource("11_bed")
-prompt = "Press E to sleep"
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Bed"]
-mesh = SubResource("6_hb_bed_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Bed"]
-shape = SubResource("6_hb_bed_shape")
-
-[node name="Stash" type="Area3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.4, -27)
-collision_mask = 0
-script = ExtResource("13_stash")
-prompt = "Press E to deposit tickets"
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Stash"]
-mesh = SubResource("6_hb_stash_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Stash"]
-shape = SubResource("6_hb_stash_shape")
-
-[node name="Bench" type="Area3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -22, 0.4, -22)
-collision_mask = 0
-script = ExtResource("19_bench")
-gadget = ExtResource("20_stun")
-prompt = "Gadget bench"
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Bench"]
-mesh = SubResource("6_hb_bench_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Bench"]
-shape = SubResource("6_hb_bench_shape")
-
-[node name="Workshop" type="Area3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0.4, -22)
-collision_mask = 0
-script = ExtResource("22_workshop")
-prompt = "Press E to use the workshop"
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Workshop"]
-mesh = SubResource("6_hb_bench_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Workshop"]
-shape = SubResource("6_hb_bench_shape")
-
-[node name="Trashcan" type="StaticBody3D" parent="Hideout" groups=["trashcan"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0.45, -22)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Trashcan"]
-mesh = SubResource("6_hb_trash_mesh")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Trashcan"]
-shape = SubResource("6_hb_trash_shape")
-
-[node name="Spawn" type="Marker3D" parent="Hideout" groups=["hideout_spawn"]]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -23)
-
-[node name="Light" type="OmniLight3D" parent="Hideout"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 2.6, -25)
-light_color = Color(1, 0.82, 0.6, 1)
-light_energy = 3.0
-omni_range = 14.0
+[node name="Carnival" parent="." instance=ExtResource("3_carnival")]
 
 [node name="Player" type="CharacterBody3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -23)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 1.5, 37)
 script = ExtResource("1_player")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Player"]
@@ -344,6 +42,15 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
 current = true
 fov = 85.0
 
+[node name="TicketSpawner" type="Node3D" parent="."]
+script = ExtResource("15_spawner")
+ticket_type = ExtResource("8_suffering")
+
+[node name="GuestSpawner" type="Node3D" parent="."]
+script = ExtResource("16_guests")
+drifter_type = ExtResource("17_drifter")
+listener_type = ExtResource("18_listener")
+
 [node name="UI" type="CanvasLayer" parent="."]
 
 [node name="Label" type="Label" parent="UI"]
@@ -351,7 +58,7 @@ offset_left = 16.0
 offset_top = 16.0
 offset_right = 560.0
 offset_bottom = 64.0
-text = "HORRORSCRATCHER - FPS Test | WASD Move | Shift Sprint | Space Jump | Mouse Look | ESC release | Click capture"
+text = "HORRORSCRATCHER - WASD Move | Shift Sprint | Space Jump | Mouse Look | E interact | Q scratch | T skills | ESC release"
 horizontal_alignment = 0
 mouse_filter = 2
 

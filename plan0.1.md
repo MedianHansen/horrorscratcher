@@ -185,6 +185,20 @@ risk by carrying them until they are back home.
       Movement Speed (+10%/level, 5 levels).
 - [x] Trashcan: discard the held ticket (`E` within ~2.5 m).
 
+### Round 3 — carnival scene
+- [x] Rebuilt the map as a 120×120 walled carnival (`scenes/carnival.tscn`,
+      static/hand-editable) instanced by `scenes/main.tscn`.
+- [x] Attractions: entrance gate + ticket booth, big top tent, Ferris wheel
+      (rotating), carousel (rotating), funhouse, five game stalls, three food
+      carts, lampposts + string lights, and a backlot (dumpsters/crates/barrels).
+- [x] Hideout rebuilt as a standalone 10×10 metal room in the backlot, with all
+      interactables (bed, stash, gadget bench, workshop, trashcan, spawn, light).
+- [x] `scripts/ferris_wheel.gd` / `scripts/carousel.gd` spin the rides.
+- [x] Reworked spawns for the larger map: ticket bounds `MAP_HALF 28 → 56`, guest
+      wander bounds `26 → 56`, 8 guest markers, 4 Drifters + 2 Listeners.
+- [x] `main.tscn` reduced to an orchestrator (environment, sun, carnival instance,
+      player, UI, spawners).
+
 ## Verification (per phase)
 
 1. Parse-check every touched/new script:

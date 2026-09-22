@@ -2,8 +2,8 @@ extends Node3D
 
 @export var drifter_type: GuestType
 @export var listener_type: GuestType
-@export var drifters: int = 2
-@export var listeners: int = 1
+@export var drifters: int = 4
+@export var listeners: int = 2
 
 const GUEST_SCENE_PATH := "res://scenes/guest.tscn"
 
