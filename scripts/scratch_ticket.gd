@@ -4,6 +4,7 @@ signal panel_revealed(index: int)
 signal ticket_completed(result: Dictionary)
 signal stowed(data)
 signal finished(data)
+signal discarded(data)
 
 @export var ticket_type: TicketType
 @export_range(1.0, 1000.0, 1.0) var scratch_hardness: float = 60.0
@@ -18,7 +19,8 @@ const VIEWPORT_SIZE := Vector2i(900, 320)
 const MARGIN := 18.0
 const GAP := 18.0
 const FINISH_DELAY := 1.8
-const FOIL_COLOR := Color(0.74, 0.76, 0.80)
+const PANEL_COLOR := Color(0.97, 0.95, 0.90)
+const FOIL_COLOR := Color(0.34, 0.38, 0.46)
 
 enum Mode { GROUND, HELD }
 
@@ -104,7 +106,7 @@ func _build_viewport_ui() -> void:
 		var rect := Rect2(Vector2(MARGIN + float(i) * (panel_w + GAP), MARGIN), Vector2(panel_w, panel_h))
 
 		var bg := ColorRect.new()
-		bg.color = Color(0.99, 0.98, 0.95)
+		bg.color = PANEL_COLOR
 		bg.position = rect.position
 		bg.size = rect.size
 		bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -173,7 +175,7 @@ func hold(data: TicketData) -> void:
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(true)
 	if _player and _player.has_method("show_prompt"):
-		_player.show_prompt("Hold left mouse and scrub - E or ESC to stow", self)
+		_player.show_prompt("Scrub with the mouse - E/ESC stow, E at a trashcan discards", self)
 
 
 func _load_data(data: TicketData) -> void:
@@ -268,17 +270,16 @@ func _roll_icon() -> TicketIcon:
 func _apply_icon_visual(index: int, icon: TicketIcon) -> void:
 	var bg: ColorRect = _panel_bgs[index]
 	var label: Label = _prize_labels[index]
+	bg.color = PANEL_COLOR
 	if icon == null:
-		bg.color = Color(0.99, 0.98, 0.95)
 		label.text = ""
 		return
-	bg.color = icon.color
 	label.text = icon.label
 	var lum := 0.2126 * icon.color.r + 0.7152 * icon.color.g + 0.0722 * icon.color.b
-	if lum > 0.6:
-		label.add_theme_color_override("font_color", Color(0.06, 0.06, 0.06))
+	if lum > 0.55:
+		label.add_theme_color_override("font_color", Color(0.08, 0.08, 0.08))
 	else:
-		label.add_theme_color_override("font_color", Color(0.97, 0.97, 0.97))
+		label.add_theme_color_override("font_color", icon.color)
 
 
 func _process(delta: float) -> void:
@@ -399,11 +400,43 @@ func _stow() -> void:
 	queue_free()
 
 
+func _discard() -> void:
+	if _mode != Mode.HELD or _finished:
+		return
+	_mode = Mode.GROUND
+	_scratching = false
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
+	if _player and _player.has_method("set_input_locked"):
+		_player.set_input_locked(false)
+	if _player and _player.has_method("show_prompt"):
+		_player.show_prompt("", self)
+	discarded.emit(_data)
+	queue_free()
+
+
+func _near_trashcan() -> bool:
+	_resolve_player()
+	if _player == null:
+		return false
+	var origin: Vector3 = (_player as Node3D).global_position
+	for can in get_tree().get_nodes_in_group("trashcan"):
+		if can is Node3D:
+			var offset := (can as Node3D).global_position - origin
+			offset.y = 0.0
+			if offset.length() <= 2.5:
+				return true
+	return false
+
+
 func _input(event: InputEvent) -> void:
 	if _mode != Mode.HELD or _finished:
 		return
 
 	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_E and _near_trashcan():
+			_discard()
+			get_viewport().set_input_as_handled()
+			return
 		if event.keycode == KEY_ESCAPE or event.keycode == KEY_E:
 			_stow()
 			get_viewport().set_input_as_handled()
@@ -516,9 +549,14 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 
 
 func _player_damage() -> float:
+	var base := 1.0
 	if _player and "scratch_damage" in _player:
-		return float(_player.scratch_damage)
-	return 1.0
+		base = float(_player.scratch_damage)
+	_resolve_game()
+	var mult := 1.0
+	if _game and _game.has_method("scratch_damage_multiplier"):
+		mult = float(_game.scratch_damage_multiplier())
+	return base * mult
 
 
 func _reveal_panel(panel_index: int) -> void:

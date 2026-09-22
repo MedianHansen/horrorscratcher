@@ -5,12 +5,29 @@ signal night_started()
 signal day_started()
 signal backpack_changed()
 signal gadgets_changed()
+signal upgrades_changed()
 signal player_died()
 
 enum Phase { DAY, NIGHT }
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
 const ACTIVE_GADGET := &"stun"
+const UPGRADES := {
+	&"scratch_damage": {
+		"title": "Scratch Damage",
+		"description": "+25% scratch damage per level.",
+		"max": 10,
+		"mult": 1.25,
+		"base_cost": 20,
+	},
+	&"move_speed": {
+		"title": "Movement Speed",
+		"description": "+10% movement speed per level.",
+		"max": 5,
+		"mult": 1.10,
+		"base_cost": 30,
+	},
+}
 
 var night_duration: float = 120.0
 var tickets_per_night: int = 10
@@ -26,6 +43,7 @@ var backpack: Array = []
 var stash: Array = []
 var gadgets: Dictionary = {}
 var gadget_charges: int = 0
+var upgrades: Dictionary = {}
 var held_ticket: Node = null
 
 
@@ -147,6 +165,75 @@ func reset_gadgets() -> void:
 		gadgets_changed.emit()
 
 
+func upgrade_ids() -> Array:
+	return UPGRADES.keys()
+
+
+func upgrade_title(id: StringName) -> String:
+	if not UPGRADES.has(id):
+		return ""
+	return String(UPGRADES[id]["title"])
+
+
+func upgrade_description(id: StringName) -> String:
+	if not UPGRADES.has(id):
+		return ""
+	return String(UPGRADES[id]["description"])
+
+
+func upgrade_level(id: StringName) -> int:
+	return int(upgrades.get(id, 0))
+
+
+func upgrade_max(id: StringName) -> int:
+	if not UPGRADES.has(id):
+		return 0
+	return int(UPGRADES[id]["max"])
+
+
+func upgrade_cost(id: StringName) -> int:
+	if not UPGRADES.has(id):
+		return -1
+	var level := upgrade_level(id)
+	if level >= int(UPGRADES[id]["max"]):
+		return -1
+	return int(UPGRADES[id]["base_cost"]) * (level + 1)
+
+
+func can_buy_upgrade(id: StringName) -> bool:
+	var cost := upgrade_cost(id)
+	if cost < 0:
+		return false
+	var player := get_tree().get_first_node_in_group("player")
+	return player != null and int(player.get("coins")) >= cost
+
+
+func buy_upgrade(id: StringName) -> bool:
+	if not can_buy_upgrade(id):
+		return false
+	var cost := upgrade_cost(id)
+	var player := get_tree().get_first_node_in_group("player")
+	if player.has_method("add_coins"):
+		player.add_coins(-cost)
+	upgrades[id] = upgrade_level(id) + 1
+	upgrades_changed.emit()
+	return true
+
+
+func scratch_damage_multiplier() -> float:
+	return _upgrade_multiplier(&"scratch_damage")
+
+
+func move_speed_multiplier() -> float:
+	return _upgrade_multiplier(&"move_speed")
+
+
+func _upgrade_multiplier(id: StringName) -> float:
+	if not UPGRADES.has(id):
+		return 1.0
+	return pow(float(UPGRADES[id]["mult"]), float(upgrade_level(id)))
+
+
 func take_for_scratch() -> bool:
 	if held_ticket != null or backpack.is_empty():
 		return false
@@ -162,6 +249,7 @@ func take_for_scratch() -> bool:
 	parent.add_child(ticket)
 	ticket.stowed.connect(_on_ticket_stowed)
 	ticket.finished.connect(_on_ticket_finished)
+	ticket.discarded.connect(_on_ticket_discarded)
 	ticket.hold(data)
 	held_ticket = ticket
 	return true
@@ -182,6 +270,12 @@ func _on_ticket_stowed(_data) -> void:
 
 
 func _on_ticket_finished(data) -> void:
+	backpack.erase(data)
+	backpack_changed.emit()
+	held_ticket = null
+
+
+func _on_ticket_discarded(data) -> void:
 	backpack.erase(data)
 	backpack_changed.emit()
 	held_ticket = null

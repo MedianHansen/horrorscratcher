@@ -28,7 +28,7 @@ These were agreed with the user and are the intended behaviour.
   other cost. Difficulty is purely how much foil health must be worn away.
 - **Per-cell health, damage per distance moved.** Every foil cell has health
   (`scratch_hardness`, default 60). The player has a damage stat
-  (`Player.scratch_damage`, default 2.0). Damage is applied in proportion to
+  (`Player.scratch_damage`, default 0.6). Damage is applied in proportion to
   **mouse distance travelled**, so holding the button still does nothing — you
   must scrub. A radial brush (`brush_radius_cells`, default 21) applies damage
   with linear falloff.
@@ -114,7 +114,8 @@ same map (no scene switching).
   (`night_duration`, default **120 s**).
 - **The hideout is safe.** Guests cannot enter it or detect the player inside. It
   holds the **bed** (sleep → start Night), the **stash** (deposit carried
-  tickets) and the **gadget bench** (spend coins).
+  tickets), the **gadget bench** (buy gadgets), the **workshop** (buy upgrades)
+  and a **trashcan** (discard the held ticket).
 - **Day is safe, and you are shut in.** No guests, and the ground is empty (all
   nightly tickets have despawned). The player **starts in the hideout**, and the
   hideout door is **sealed during Day** — the only way out is to sleep and start
@@ -164,7 +165,9 @@ around the carnival. They spawn at Night and despawn at dawn. First two types:
   default 4 m), standing still is silent. There is no crouch yet. The Listener
   ignores sight and reacts only to noise.
 - **Awareness:** *Unaware → Suspicious → Chasing → Caught*. Seeing or hearing the
-  player draws a guest to investigate; a positive lock starts a chase.
+  player draws a guest to investigate; a positive lock starts a chase. Detection
+  is shown clearly: a guest turns **amber** when suspicious and **red** when
+  chasing, and the HUD shows `?` / `SPOTTED!`.
 - **Capture:** a chasing guest within `capture_range` (default 1.2 m) catches the
   player → death (above).
 
@@ -176,6 +179,31 @@ around the carnival. They spawn at Night and despawn at dawn. First two types:
   Night with **3 charges per night** (refilled at the start of each Night). Press
   `G` to stun guests within **5 m** for **4 s**.
 - **Lethal gadgets and decoys are deferred.**
+
+### Upgrades (coins)
+
+Bought at the hideout **workshop** with coins; levels are in-memory until a save
+system exists. Two upgrades, each a multiplicative per-level bonus:
+
+| Upgrade        | Effect                        | Levels | Cost (coins)     |
+|----------------|-------------------------------|--------|------------------|
+| Scratch Damage | +25% scratch damage per level | 10     | 20 × (level + 1) |
+| Movement Speed | +10% movement speed per level | 5      | 30 × (level + 1) |
+
+- Bonuses are multiplicative (`1.25^level`, `1.10^level`): level 2 damage is
+  ×1.5625, level 3 ×1.953125, and so on.
+- Scratch damage applies at scrub time; movement speed applies to walk and sprint
+  alike.
+- The workshop opens a panel (`E` at the bench) listing each upgrade with its
+  level, cost and a Buy button; it frees the mouse and locks input like the skill
+  tree, and closes with `ESC`.
+
+### Trashcan
+
+- A bin in the hideout. While **holding** a ticket, standing within ~2.5 m of the
+  trashcan and pressing `E` **discards** it (removed from the backpack, no
+  reward) instead of stowing it; `ESC` always stows. Because holding locks
+  movement, stand at the trashcan first, then take a ticket out.
 
 ### First-pass tunables
 
@@ -202,8 +230,11 @@ meant to be tuned.
 - Look at a floor ticket + `E` = pocket it. `Q` = take one from the backpack to
   hold-and-scratch. Held: hold left mouse and scrub; `E`/`ESC` = stow it.
 - Hideout: `E` at the bed = sleep (start Night); `E` at the stash = deposit
-  carried tickets; `E` at the gadget bench = buy gadgets.
+  carried tickets; `E` at the gadget bench = buy gadgets; `E` at the workshop =
+  buy upgrades.
 - `G` = use the Stun Device (Night).
+- While holding a ticket: `E` near the trashcan = discard it (otherwise `E`/`ESC`
+  stows it).
 - `T` = open/close the Suffering skill tree (only when not holding a ticket).
 
 ---

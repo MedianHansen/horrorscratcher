@@ -6,6 +6,7 @@ var _timer_label: Label
 var _carried_label: Label
 var _gadget_label: Label
 var _death_label: Label
+var _alert_label: Label
 
 
 func _ready() -> void:
@@ -15,6 +16,7 @@ func _ready() -> void:
 	_carried_label = get_node_or_null("Carried")
 	_gadget_label = get_node_or_null("Gadget")
 	_death_label = get_node_or_null("DeathMessage")
+	_alert_label = get_node_or_null("Alert")
 	if _game:
 		_game.phase_changed.connect(_on_phase_changed)
 		_game.backpack_changed.connect(refresh)
@@ -25,6 +27,7 @@ func _ready() -> void:
 
 func _process(_delta: float) -> void:
 	_update_timer()
+	_update_alert()
 
 
 func refresh() -> void:
@@ -57,3 +60,20 @@ func _on_phase_changed(_phase: int) -> void:
 func _on_player_died() -> void:
 	if _death_label:
 		_death_label.text = "CAUGHT"
+
+
+func _update_alert() -> void:
+	if _alert_label == null:
+		return
+	var level := 0
+	for guest in get_tree().get_nodes_in_group("guest"):
+		if guest.has_method("awareness"):
+			level = maxi(level, int(guest.awareness()))
+	if level >= 2:
+		_alert_label.text = "SPOTTED!"
+		_alert_label.add_theme_color_override("font_color", Color(0.95, 0.15, 0.12))
+	elif level == 1:
+		_alert_label.text = "?"
+		_alert_label.add_theme_color_override("font_color", Color(0.96, 0.72, 0.16))
+	else:
+		_alert_label.text = ""

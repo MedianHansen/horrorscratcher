@@ -172,6 +172,19 @@ risk by carrying them until they are back home.
 - [x] `guest.gd`: stunned state (stop moving, no detection) for the duration.
 - [x] HUD: gadget charges.
 
+### Round 2 changes (post-Phase 5)
+- [x] Clearer detection feedback: guest body turns amber (suspicious) / red
+      (chasing); HUD shows `?` / `SPOTTED!`.
+- [x] Capture now triggers on contact regardless of awareness state (previously
+      only while `CHASING`, so a searching guest could bump into the player with
+      no effect).
+- [x] Base `Player.scratch_damage` 2.0 → 0.6.
+- [x] Uniform scratch-field background (`PANEL_COLOR`); foil darkened
+      (`FOIL_COLOR`) for strong contrast.
+- [x] Coin upgrades + workshop panel: Scratch Damage (+25%/level, 10 levels) and
+      Movement Speed (+10%/level, 5 levels).
+- [x] Trashcan: discard the held ticket (`E` within ~2.5 m).
+
 ## Verification (per phase)
 
 1. Parse-check every touched/new script:
@@ -187,8 +200,7 @@ risk by carrying them until they are back home.
 
 ## Open questions / TBD
 
-- Stun device exact radius, duration and charges per night.
-- Whether the hideout door should be closable or just a gap that guests ignore.
 - Guest patrol routes and spawn count per night.
+- Upgrade coin costs/curves (currently `base × (level + 1)`).
 - Whether ticket types can be weighted per night later (multiple types).
 - Save system (deferred); everything is in-memory for now.

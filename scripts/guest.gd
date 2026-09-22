@@ -19,6 +19,7 @@ var _pause := 0.0
 var _lose_timer := 0.0
 var _search_timer := 0.0
 var _stun_timer := 0.0
+var _current_color := Color(0, 0, 0, 0)
 var _rng := RandomNumberGenerator.new()
 
 @onready var _mesh: MeshInstance3D = $Mesh
@@ -36,11 +37,39 @@ func _ready() -> void:
 
 func _apply_color() -> void:
 	var mat := StandardMaterial3D.new()
-	mat.albedo_color = guest_type.color if guest_type else Color(0.6, 0.6, 0.7)
+	mat.albedo_color = _base_color()
 	_mesh.material_override = mat
+	_current_color = _base_color()
 	var nose_mat := StandardMaterial3D.new()
 	nose_mat.albedo_color = Color(0.08, 0.08, 0.1)
 	_nose.material_override = nose_mat
+
+
+func _base_color() -> Color:
+	return guest_type.color if guest_type else Color(0.6, 0.6, 0.7)
+
+
+func _state_color() -> Color:
+	if _stun_timer > 0.0:
+		return Color(0.92, 0.86, 0.42)
+	match _state:
+		State.CHASING:
+			return Color(0.92, 0.16, 0.12)
+		State.SUSPICIOUS:
+			return Color(0.96, 0.72, 0.16)
+		_:
+			return _base_color()
+
+
+func _refresh_visual() -> void:
+	var color := _state_color()
+	if color != _current_color and _mesh.material_override is StandardMaterial3D:
+		(_mesh.material_override as StandardMaterial3D).albedo_color = color
+		_current_color = color
+
+
+func awareness() -> int:
+	return _state
 
 
 func stun(duration: float) -> void:
@@ -48,8 +77,7 @@ func stun(duration: float) -> void:
 		return
 	_stun_timer = maxf(_stun_timer, duration)
 	velocity = Vector3.ZERO
-	if _mesh and _mesh.material_override is StandardMaterial3D:
-		(_mesh.material_override as StandardMaterial3D).albedo_color = Color(0.92, 0.86, 0.42)
+	_refresh_visual()
 
 
 func _physics_process(delta: float) -> void:
@@ -60,15 +88,17 @@ func _physics_process(delta: float) -> void:
 	else:
 		velocity.y = 0.0
 
+	_refresh_visual()
+
 	if _stun_timer > 0.0:
 		_stun_timer -= delta
 		velocity.x = 0.0
 		velocity.z = 0.0
 		move_and_slide()
 		if _stun_timer <= 0.0:
-			_apply_color()
 			_state = State.UNAWARE
 			_pick_target()
+			_refresh_visual()
 		return
 
 	_sense(delta)
@@ -83,6 +113,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_try_capture()
+	_refresh_visual()
 
 
 func _move_towards(target: Vector3, speed: float, delta: float) -> void:
@@ -177,7 +208,7 @@ func _speed() -> float:
 
 
 func _try_capture() -> void:
-	if _state != State.CHASING or _player == null:
+	if _player == null or _state == State.CAUGHT or _stun_timer > 0.0:
 		return
 	var range := guest_type.capture_range if guest_type else 1.2
 	var delta := _player.global_position - global_position
@@ -185,6 +216,7 @@ func _try_capture() -> void:
 	if delta.length() <= range:
 		_state = State.CAUGHT
 		velocity = Vector3.ZERO
+		_refresh_visual()
 		if _game and _game.has_method("on_caught"):
 			_game.on_caught()
 

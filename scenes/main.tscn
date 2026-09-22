@@ -1,4 +1,4 @@
-[gd_scene load_steps=36 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=40 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
@@ -16,6 +16,8 @@
 [ext_resource type="Resource" path="res://guest_types/listener.tres" id="18_listener"]
 [ext_resource type="Script" path="res://scripts/gadget_bench.gd" id="19_bench"]
 [ext_resource type="Resource" path="res://gadgets/stun_device.tres" id="20_stun"]
+[ext_resource type="Script" path="res://scripts/upgrade_ui.gd" id="21_upgrade"]
+[ext_resource type="Script" path="res://scripts/workshop.gd" id="22_workshop"]
 
 [sub_resource type="BoxMesh" id="1_floor_mesh"]
 size = Vector3(60, 1, 60)
@@ -77,6 +79,15 @@ size = Vector3(1, 0.8, 0.6)
 
 [sub_resource type="BoxShape3D" id="6_hb_bench_shape"]
 size = Vector3(1, 0.8, 0.6)
+
+[sub_resource type="CylinderMesh" id="6_hb_trash_mesh"]
+top_radius = 0.35
+bottom_radius = 0.3
+height = 0.9
+
+[sub_resource type="CylinderShape3D" id="6_hb_trash_shape"]
+radius = 0.35
+height = 0.9
 
 [sub_resource type="BoxMesh" id="6_hb_door_mesh"]
 size = Vector3(0.5, 3, 2)
@@ -291,6 +302,27 @@ mesh = SubResource("6_hb_bench_mesh")
 [node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Bench"]
 shape = SubResource("6_hb_bench_shape")
 
+[node name="Workshop" type="Area3D" parent="Hideout"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -27, 0.4, -22)
+collision_mask = 0
+script = ExtResource("22_workshop")
+prompt = "Press E to use the workshop"
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Workshop"]
+mesh = SubResource("6_hb_bench_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Workshop"]
+shape = SubResource("6_hb_bench_shape")
+
+[node name="Trashcan" type="StaticBody3D" parent="Hideout" groups=["trashcan"]]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 0.45, -22)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Trashcan"]
+mesh = SubResource("6_hb_trash_mesh")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Hideout/Trashcan"]
+shape = SubResource("6_hb_trash_shape")
+
 [node name="Spawn" type="Marker3D" parent="Hideout" groups=["hideout_spawn"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -25, 1.5, -23)
 
@@ -418,9 +450,26 @@ text = ""
 horizontal_alignment = 1
 mouse_filter = 2
 
+[node name="Alert" type="Label" parent="UI/HUD"]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -200.0
+offset_top = 20.0
+offset_right = 200.0
+offset_bottom = 60.0
+theme_override_font_sizes/font_size = 30
+horizontal_alignment = 1
+mouse_filter = 2
+
 [node name="SkillTreeUI" type="Control" parent="UI"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("7_skill_ui")
 ticket_type = ExtResource("8_suffering")
+
+[node name="UpgradeUI" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("21_upgrade")

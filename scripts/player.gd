@@ -8,7 +8,7 @@ extends CharacterBody3D
 @export var sprint_speed: float = 7.0
 @export var jump_velocity: float = 4.5
 @export var gravity: float = 9.8
-@export var scratch_damage: float = 2.0
+@export var scratch_damage: float = 0.6
 
 var yaw: float = 0.0
 var pitch: float = 0.0
@@ -102,6 +102,14 @@ func _use_gadget() -> void:
 	if _game:
 		_game.use_active_gadget()
 
+
+func _move_speed_multiplier() -> float:
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	if _game and _game.has_method("move_speed_multiplier"):
+		return float(_game.move_speed_multiplier())
+	return 1.0
+
 func _physics_process(delta: float) -> void:
 	if input_locked:
 		if not is_on_floor():
@@ -126,7 +134,7 @@ func _physics_process(delta: float) -> void:
 	if direction.length() > 0:
 		direction = direction.normalized()
 
-	var speed := sprint_speed if Input.is_action_pressed("sprint") else normal_speed
+	var speed := (sprint_speed if Input.is_action_pressed("sprint") else normal_speed) * _move_speed_multiplier()
 
 	if direction != Vector3.ZERO:
 		velocity.x = direction.x * speed
