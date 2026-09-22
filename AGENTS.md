@@ -136,7 +136,7 @@ stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
 - **The hideout is safe.** Guests cannot enter it or detect the player inside. It
   holds the **bed** (sleep → start Night), the **stash** (deposit carried
   tickets), the **gadget bench** (buy gadgets), the **workshop** (buy upgrades)
-  and a **trashcan** (discard the held ticket).
+  and — once bought — a **trashcan** (discard the held ticket).
 - **Day is safe, and you are shut in.** No guests, and the ground is empty (all
   nightly tickets have despawned). The player **starts in the hideout**, and the
   hideout door is **sealed during Day** — the only way out is to sleep and start
@@ -211,6 +211,7 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 |----------------|-------------------------------|--------|------------------|
 | Scratch Damage | +25% scratch damage per level | 10     | 20 × (level + 1) |
 | Movement Speed | +10% movement speed per level | 5      | 30 × (level + 1) |
+| Trashcan       | Unlocks a hideout bin to discard held tickets | 1 | 50 |
 
 - Bonuses are multiplicative (`1.25^level`, `1.10^level`): level 2 damage is
   ×1.5625, level 3 ×1.953125, and so on.
@@ -222,10 +223,12 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 
 ### Trashcan
 
-- A bin in the hideout. While **holding** a ticket, standing within ~2.5 m of the
-  trashcan and pressing `E` **discards** it (removed from the backpack, no
-  reward) instead of stowing it; `ESC` always stows. Because holding locks
-  movement, stand at the trashcan first, then take a ticket out.
+- Bought at the **workshop for 50 coins** (a one-level unlock); until bought it
+  is absent from the hideout (no mesh, no collision, no interaction).
+- Once bought, it is a bin in the hideout. While **holding** a ticket, standing
+  within ~2.5 m of the trashcan and pressing `E` **discards** it (removed from
+  the backpack, no reward) instead of stowing it; `ESC` always stows. Because
+  holding locks movement, stand at the trashcan first, then take a ticket out.
 
 ### First-pass tunables
 

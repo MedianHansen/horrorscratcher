@@ -27,6 +27,13 @@ const UPGRADES := {
 		"mult": 1.10,
 		"base_cost": 30,
 	},
+	&"trashcan": {
+		"title": "Trashcan",
+		"description": "Unlocks a bin in the hideout to discard a held ticket.",
+		"max": 1,
+		"mult": 1.0,
+		"base_cost": 50,
+	},
 }
 
 var night_duration: float = 120.0
@@ -226,6 +233,10 @@ func scratch_damage_multiplier() -> float:
 
 func move_speed_multiplier() -> float:
 	return _upgrade_multiplier(&"move_speed")
+
+
+func has_trashcan() -> bool:
+	return upgrade_level(&"trashcan") > 0
 
 
 func _upgrade_multiplier(id: StringName) -> float:

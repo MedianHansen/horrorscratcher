@@ -416,7 +416,10 @@ func _discard() -> void:
 
 func _near_trashcan() -> bool:
 	_resolve_player()
+	_resolve_game()
 	if _player == null:
+		return false
+	if _game and _game.has_method("has_trashcan") and not _game.has_trashcan():
 		return false
 	var origin: Vector3 = (_player as Node3D).global_position
 	for can in get_tree().get_nodes_in_group("trashcan"):

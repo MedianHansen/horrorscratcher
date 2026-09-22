@@ -59,7 +59,8 @@ The map is a 120×120 carnival grounds: an entrance gate, a big top tent, a
 slowly rotating Ferris wheel and carousel, a funhouse, five game stalls, food
 carts, lampposts and string lights, and a backstage backlot. Your **hideout** is
 a metal room in that backlot with a bed, a **stash** (press `E` to deposit
-carried tickets), a **gadget bench**, a **workshop** and a **trashcan**. **You
+carried tickets), a **gadget bench**, a **workshop** and — once bought — a
+**trashcan**. **You
 start inside, and the hideout door is sealed during the Day** — the only way out
 is to sleep. Press `E` at the bed to start **Night**: the door opens, a
 120-second timer runs and the lighting dims. Dawn despawns the floor tickets.
@@ -73,10 +74,10 @@ the HUD. Sprinting is loud, walking is quiet, standing still is silent — get
 caught and you lose your carried tickets.
 
 Spend coins at the **gadget bench** for the **Stun Device** (25 coins; `G` at
-Night, 3 charges) and at the **workshop** for upgrades (Scratch Damage and
-Movement Speed). To bin a ticket, stand at the **trashcan**, take a ticket out
-(`Q`), then press `E` to discard it. (Lethal gadgets and decoys are still being
-built — see `plan0.1.md`.)
+Night, 3 charges) and at the **workshop** for upgrades (Scratch Damage, Movement
+Speed, and a **Trashcan** for 50 coins). Once you own the trashcan, stand at it,
+take a ticket out (`Q`), then press `E` to discard it. (Lethal gadgets and decoys
+are still being built — see `plan0.1.md`.)
 
 ## Requirements (already installed on this server)
 

@@ -183,7 +183,8 @@ risk by carrying them until they are back home.
       (`FOIL_COLOR`) for strong contrast.
 - [x] Coin upgrades + workshop panel: Scratch Damage (+25%/level, 10 levels) and
       Movement Speed (+10%/level, 5 levels).
-- [x] Trashcan: discard the held ticket (`E` within ~2.5 m).
+- [x] Trashcan: bought at the workshop for 50 coins (one-level unlock); discards
+      the held ticket (`E` within ~2.5 m). Absent until bought.
 
 ### Round 3 — carnival scene
 - [x] Rebuilt the map as a 120×120 walled carnival (`scenes/carnival.tscn`,

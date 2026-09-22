@@ -1,4 +1,4 @@
-[gd_scene load_steps=250 format=3]
+[gd_scene load_steps=251 format=3]
 
 [ext_resource type="Script" path="res://scripts/ferris_wheel.gd" id="1_a1qow"]
 [ext_resource type="Script" path="res://scripts/carousel.gd" id="2_i2nui"]
@@ -9,6 +9,7 @@
 [ext_resource type="Script" path="res://scripts/gadget_bench.gd" id="7_nk35l"]
 [ext_resource type="Resource" path="res://gadgets/stun_device.tres" id="8_mo6a1"]
 [ext_resource type="Script" path="res://scripts/workshop.gd" id="9_kh6ak"]
+[ext_resource type="Script" path="res://scripts/trashcan.gd" id="10_tshcan"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h4ckd"]
 albedo_color = Color(0.11, 0.11, 0.13, 1)
@@ -2198,6 +2199,7 @@ shape = SubResource("BoxShape3D_nbbdh")
 
 [node name="Trashcan" type="StaticBody3D" parent="Hideout" groups=["trashcan"]]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -40, 0.45, 35)
+script = ExtResource("10_tshcan")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="Hideout/Trashcan"]
 material_override = SubResource("StandardMaterial3D_6sgse")
