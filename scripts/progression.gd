@@ -82,8 +82,12 @@ static func icon_weight(type: TicketType, icon_id: StringName) -> float:
 			value = icon.weight
 			break
 	for skill in type.skills:
-		if skill.kind == Skill.Kind.ICON_WEIGHT and skill.target_icon == icon_id:
-			value += skill.amount * float(rank(type.type_name, skill.id))
+		if skill.kind == Skill.Kind.ICON_WEIGHT:
+			var ranks := float(rank(type.type_name, skill.id))
+			if skill.target_icon == icon_id:
+				value += skill.amount * ranks
+			if skill.target_icon_2 == icon_id:
+				value += skill.amount_2 * ranks
 	return maxf(0.0, value)
 
 

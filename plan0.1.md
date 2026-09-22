@@ -200,6 +200,20 @@ risk by carrying them until they are back home.
 - [x] `main.tscn` reduced to an orchestrator (environment, sun, carnival instance,
       player, UI, spawners).
 
+### Round 4 — Suffering skill tree tweak
+- [x] New root skill **Unlock Coin**: Coin weight +20, Empty weight −20
+      (one-time). `Skill` gained `target_icon_2` / `amount_2` so one skill can
+      modify two icons.
+- [x] Lucky Coin, Wear Away and Blood Money now all require Unlock Coin.
+
+### Round 5 — WoW-style talent tree HUD
+- [x] `skill_tree_ui.gd` rebuilt as a talent tree: nodes laid out by dependency
+      depth with connector lines, a side tooltip, and click-to-learn.
+- [x] `skill_node.gd` draws each node (icon colour + glyph, rank badge, state
+      border: green learnable / gold maxed / dark locked); `skill_tree_lines.gd`
+      draws the links.
+- [x] `Skill` gained `icon_color` and `glyph`; Suffering's four skills set them.
+
 ## Verification (per phase)
 
 1. Parse-check every touched/new script:

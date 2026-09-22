@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TicketType" load_steps=13 format=3]
+[gd_resource type="Resource" script_class="TicketType" load_steps=14 format=3]
 
 [ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_bdm1m"]
 [ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_qqun5"]
@@ -58,41 +58,63 @@ weight = 0.0
 xp = 0
 coins = 100
 
+[sub_resource type="Resource" id="Resource_unlock"]
+script = ExtResource("3_mc71x")
+id = &"unlock_coin"
+title = "Unlock Coin"
+description = "Coin can now appear (weight +20) and Empty becomes less likely (weight -20)."
+icon_color = Color(0.85, 0.7, 0.2, 1)
+glyph = "U"
+kind = 0
+target_icon = &"coin"
+amount = 20.0
+target_icon_2 = &"empty"
+amount_2 = -20.0
+max_ranks = 1
+cost = 0
+requires = &""
+
 [sub_resource type="Resource" id="Resource_o66fl"]
 script = ExtResource("3_mc71x")
 id = &"coin_luck"
 title = "Lucky Coin"
 description = "Increase the Coin icon's weight by 10 per rank."
+icon_color = Color(0.95, 0.8, 0.25, 1)
+glyph = "$"
 kind = 0
 target_icon = &"coin"
 amount = 10.0
 max_ranks = 5
 cost = 0
-requires = &""
+requires = &"unlock_coin"
 
 [sub_resource type="Resource" id="Resource_d4ol6"]
 script = ExtResource("3_mc71x")
 id = &"wear_away"
 title = "Wear Away"
 description = "Reduce the Empty icon's weight by 15 per rank (never below 0)."
+icon_color = Color(0.55, 0.56, 0.62, 1)
+glyph = "W"
 kind = 0
 target_icon = &"empty"
 amount = -15.0
 max_ranks = 5
 cost = 0
-requires = &"coin_luck"
+requires = &"unlock_coin"
 
 [sub_resource type="Resource" id="Resource_st322"]
 script = ExtResource("3_mc71x")
 id = &"blood_money"
 title = "Blood Money"
 description = "Double all prizes (coins and XP)."
+icon_color = Color(0.5, 0.08, 0.1, 1)
+glyph = "B"
 kind = 1
 target_icon = &""
 amount = 1.0
 max_ranks = 1
 cost = 1
-requires = &"coin_luck"
+requires = &"unlock_coin"
 
 [resource]
 script = ExtResource("2_qqun5")
@@ -102,4 +124,4 @@ level_cap = 10
 level_xp = PackedInt32Array(1, 5, 10, 15, 20, 25, 30, 35, 40)
 paper_color = Color(0.9, 0.87, 0.8, 1)
 icons = Array[ExtResource("1_bdm1m")]([SubResource("Resource_v205m"), SubResource("Resource_oo6x8"), SubResource("Resource_vxnrt"), SubResource("Resource_5rvvb"), SubResource("Resource_o0351"), SubResource("Resource_3ep2w")])
-skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_o66fl"), SubResource("Resource_d4ol6"), SubResource("Resource_st322")])
+skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_unlock"), SubResource("Resource_o66fl"), SubResource("Resource_d4ol6"), SubResource("Resource_st322")])

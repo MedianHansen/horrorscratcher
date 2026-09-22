@@ -87,14 +87,27 @@ trees raise its weight). Placeholder XP curve for the 9 level-ups up to cap 10:
 
 Per-type skill tree, opened with **`T`** (closes with `T`/`ESC`); it frees the
 mouse and locks player input while open, and cannot be opened while a ticket is
-being held. Skills cost points and are chained: **Lucky Coin is the root**, and
-the other two require Lucky Coin rank ≥ 1.
+being held. Skills cost points and are chained: **Unlock Coin is the root**, and
+the other three require Unlock Coin rank ≥ 1.
 
-| Skill      | Effect                                   | Ranks | Cost   |
-|------------|------------------------------------------|-------|--------|
-| Lucky Coin | Coin icon weight +10 per rank            | 5     | normal |
-| Wear Away  | Empty icon weight −15 per rank (min 0)   | 5     | normal |
-| Blood Money| Double all prizes (coins **and** XP)     | 1     | epic   |
+The panel is a **WoW-style talent tree** (`skill_tree_ui.gd` + `skill_node.gd`):
+each skill is an icon node (`Skill.icon_color` / `Skill.glyph`) laid out by
+dependency depth with connector lines between a skill and its prerequisite.
+Hovering a node fills a tooltip (name, description, rank, cost, requirement) and
+clicking it spends a point. Node borders show state — green = learnable, gold =
+maxed, dark = locked — and connector lines light up once the prerequisite is
+ranked.
+
+| Skill       | Effect                                                 | Ranks | Cost   |
+|-------------|--------------------------------------------------------|-------|--------|
+| Unlock Coin | Coin weight +20 and Empty weight −20 (one-time)        | 1     | normal |
+| Lucky Coin  | Coin icon weight +10 per rank                          | 5     | normal |
+| Wear Away   | Empty icon weight −15 per rank (min 0)                 | 5     | normal |
+| Blood Money | Double all prizes (coins **and** XP)                   | 1     | epic   |
+
+A single skill may carry a second icon modifier (`target_icon_2` / `amount_2`),
+which is how Unlock Coin both raises Coin and lowers Empty. Coin cannot roll
+until Unlock Coin is bought.
 
 - Weight skills change the table **for future rolls only** — a ticket already
   generated keeps its icons.

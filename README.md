@@ -53,6 +53,11 @@ scrub** to wear off the foil, then `E`/`ESC` stows it again. Three spaces per
 ticket; clearing one reveals coins or nothing. Deposit carried tickets at the
 hideout stash so a bad night can't cost you them.
 
+Scratching earns **ticket XP**; leveling up grants skill points. Press `T` to
+open the Suffering **talent tree** (a WoW-style node tree): learn **Unlock Coin**
+to make Coin rollable, then **Lucky Coin** (more coins), **Wear Away** (less
+Empty) and **Blood Money** (double prizes).
+
 ## Day / night
 
 The map is a 120×120 carnival grounds: an entrance gate, a big top tent, a
