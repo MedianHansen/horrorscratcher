@@ -1,10 +1,17 @@
 class_name TicketType
 extends Resource
 
+enum Special { NONE, DISTANCE_REWARD }
+
 @export var type_name: String = ""
 @export var tile_count: int = 3
 @export var level_cap: int = 1
 @export var level_xp: PackedInt32Array = PackedInt32Array()
+@export var spawn_per_night: float = 1.0
+@export var min_night: int = 1
+@export var special: Special = Special.NONE
+@export var distance_full_mult: float = 4.0
+@export var distance_full_meters: float = 120.0
 @export var paper_color: Color = Color(0.93, 0.91, 0.84)
 @export var icons: Array[TicketIcon] = []
 @export var skills: Array[Skill] = []
@@ -15,3 +22,10 @@ func xp_to_next(level: int) -> int:
 	if index < 0 or index >= level_xp.size():
 		return 0
 	return level_xp[index]
+
+
+func distance_multiplier(distance: float) -> float:
+	if special != Special.DISTANCE_REWARD:
+		return 1.0
+	var t := clampf(distance / maxf(1.0, distance_full_meters), 0.0, 1.0)
+	return 1.0 + t * (distance_full_mult - 1.0)

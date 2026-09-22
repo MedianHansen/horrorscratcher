@@ -1,7 +1,6 @@
 extends Node3D
 
 @export var ticket_types: Array[TicketType] = []
-@export var type_weights: PackedFloat32Array = PackedFloat32Array()
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
 const MAP_HALF := 56.0
@@ -24,14 +23,27 @@ func _on_night_started() -> void:
 		_game = get_tree().get_first_node_in_group("game")
 	if _game == null:
 		return
-	_spawn_many(int(_game.tickets_per_night))
-
-
-func _spawn_many(count: int) -> void:
 	var placed: Array = []
+	var night := int(_game.nights_started)
+	for type in ticket_types:
+		if type == null or night < type.min_night:
+			continue
+		_spawn_type(type, _roll_count(type.spawn_per_night), placed)
+
+
+func _roll_count(expected: float) -> int:
+	var value := maxf(0.0, expected)
+	var count := int(floor(value))
+	if _rng.randf() < value - float(count):
+		count += 1
+	return count
+
+
+func _spawn_type(type: TicketType, count: int, placed: Array) -> void:
 	var attempts := 0
 	var max_attempts := count * 60
-	while placed.size() < count and attempts < max_attempts:
+	var spawned := 0
+	while spawned < count and attempts < max_attempts:
 		attempts += 1
 		var point = _sample_point()
 		if point == null:
@@ -39,7 +51,8 @@ func _spawn_many(count: int) -> void:
 		if not _far_enough(point, placed):
 			continue
 		placed.append(point)
-		_spawn_one(point)
+		_spawn_one(point, type)
+		spawned += 1
 
 
 func _sample_point():
@@ -66,30 +79,11 @@ func _far_enough(point: Vector3, placed: Array) -> bool:
 	return true
 
 
-func _pick_type() -> TicketType:
-	if ticket_types.is_empty():
-		return null
-	var total := 0.0
-	if type_weights.size() == ticket_types.size():
-		for w in type_weights:
-			total += maxf(0.0, w)
-	if total <= 0.0:
-		return ticket_types[_rng.randi_range(0, ticket_types.size() - 1)]
-	var roll := _rng.randf() * total
-	var acc := 0.0
-	for i in range(ticket_types.size()):
-		acc += maxf(0.0, type_weights[i])
-		if roll <= acc:
-			return ticket_types[i]
-	return ticket_types[ticket_types.size() - 1]
-
-
-func _spawn_one(point: Vector3) -> void:
+func _spawn_one(point: Vector3, type: TicketType) -> void:
 	var scene: PackedScene = load(TICKET_SCENE_PATH)
 	if scene == null:
 		return
 	var ticket := scene.instantiate()
-	var type := _pick_type()
 	if type:
 		ticket.ticket_type = type
 	var yaw := _rng.randf_range(0.0, TAU)

@@ -49,8 +49,10 @@ These were agreed with the user and are the intended behaviour.
 Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 
 - **Ticket types are data-driven** (`TicketType` resource). Each type defines a
-  unique name, design, tile count, level cap, XP curve and a weighted list of
-  icons. New types should be added as data, not code.
+  unique name, design, tile count, level cap, XP curve, its own nightly spawn
+  number (`spawn_per_night`), the first night it may appear (`min_night`), an
+  optional special rule (`special`) and a weighted list of icons. New types
+  should be added as data, not code.
 - **Roll on first pickup.** The first time a ticket is picked up, each tile is
   rolled independently from that type's weighted icon table. The result is then
   fixed. (Pickup pockets the ticket in the backpack; see the day/night section.)
@@ -86,7 +88,7 @@ Weights of 0 mean the icon cannot roll yet (it exists for when progression/skill
 trees raise its weight). Coin starts unlocked; Blood is locked until its unlock is
 bought. XP curve for the 9 level-ups up to cap 10:
 `[5, 15, 35, 70, 130, 225, 375, 600, 900]` (total 2355, ~1.6× per level — cheap
-early, demanding late; tunable).
+early, demanding late; tunable). Spawns **10/night** from night 1.
 
 ### Fortune (second ticket type)
 
@@ -107,9 +109,33 @@ Only Empty and Token roll today; the rest wait for a future Fortune skill tree.
 A pair of Tokens pays once (the normal pair rule). XP curve for the 7 level-ups up
 to cap 8: `[5, 15, 35, 70, 130, 225, 375]`.
 
-Nightly spawn: `ticket_spawner.gd` rolls each ticket's type from a weighted list —
-currently **95% Suffering / 5% Fortune** (`scenes/main.tscn`). A malformed/empty
-weight list falls back to a uniform pick.
+Nightly spawn: each type is placed independently from its `spawn_per_night`
+(expected tickets per night) — the integer part is guaranteed and the fraction is
+a per-night chance (e.g. `1.6` = 1 always + 60% for a second). Fortune is
+**0.15/night** with `min_night = 3`, so it cannot appear on the first two nights;
+Suffering is **10/night** with `min_night = 1` (`ticket_spawner.gd`,
+`scenes/main.tscn`).
+
+### The Long Run (third ticket type)
+
+A running/endurance slip. 3 tiles. Level cap 10, Suffering's XP curve. Icons
+(id, weight, prize):
+
+| Icon      | Weight | Prize    |
+|-----------|--------|----------|
+| Empty     | 60     | nothing  |
+| Footprint | 25     | 2 coins  |
+| Sneaker   | 10     | 4 XP     |
+| Medal     | 4      | 10 coins |
+| Trophy    | 1      | 50 coins |
+
+**Special rule — distance reward** (`TicketType.Special.DISTANCE_REWARD`): the
+whole payout (coins and XP) is multiplied by how far the player is from the
+hideout when the last panel is revealed — `1×` at the hideout, rising linearly to
+`4×` at `120 m` or more (`TicketType.distance_multiplier`). Movement is locked
+while a ticket is held, so the player picks the spot before scratching; the held
+prompt shows the current multiplier. Spawns **0/night** for now (disabled until
+it is switched on).
 
 ### Skill tree (Suffering)
 
@@ -191,8 +217,9 @@ stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
   dawn safely; you keep everything you carried. The 120 s timer is only a
   deadline for being *outside*.
 - **Dawn:** every ticket still lying on the ground despawns and every guest
-  despawns. At the start of each Night, `tickets_per_night` (default **10**)
-  fresh tickets are placed at valid, reachable floor points.
+  despawns. At the start of each Night, every eligible type spawns its
+  `spawn_per_night` count (integer part guaranteed, fraction rolled) at valid,
+  reachable floor points; types below their `min_night` are skipped.
 - **Scratching can happen anywhere, anytime**, day or night.
 
 ### Stamina
@@ -289,11 +316,12 @@ system exists. Two upgrades, each a multiplicative per-level bonus:
 
 ### First-pass tunables
 
-`night_duration 120 s`, `tickets_per_night 10`, `backpack_capacity 5`,
+`night_duration 120 s`, `backpack_capacity 5`,
 `noise_sprint_radius 12 m`, `noise_walk_radius 4 m`, `capture_range 1.2 m`,
 stamina 100 over ~30 s of sprint (sleep restores 5, or 10 with Restful Bed),
-stun cost 25 coins / radius 5 m / duration 4 s / 3 charges per night. All are
-meant to be tuned.
+stun cost 25 coins / radius 5 m / duration 4 s / 3 charges per night. Ticket
+spawn numbers live on each type (Suffering 10/night, Fortune 0.15/night from
+night 3). All are meant to be tuned.
 
 **Status:** built (first pass); the values above are the current ones.
 
@@ -310,7 +338,8 @@ meant to be tuned.
   persist `user://` in IndexedDB, so progress survives reloads.
 - **Saved:** coins, stamina, per-type XP/level/skill points/ranks, the backpack
   and stash (each ticket's type, rolled icons, foil health, damage and revealed
-  state), owned gadgets + charges, and workshop upgrade levels.
+  state), owned gadgets + charges, workshop upgrade levels, and the
+  nights-started counter (used for spawn gating).
 - **Not saved:** the live world — phase, night timer, ground tickets and guests.
   Loading resumes at Day in the hideout with a fresh cycle.
 - **Autosave** runs once at startup and after every meaningful change (pickup,

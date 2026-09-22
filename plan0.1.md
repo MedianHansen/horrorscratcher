@@ -15,7 +15,7 @@ risk by carrying them until they are back home.
 | Name                  | Default |
 |-----------------------|---------|
 | `night_duration`      | 120 s   |
-| `tickets_per_night`   | 10      |
+| `spawn_per_night` (per type) | Suffering 10, Fortune 0.15 |
 | `backpack_capacity`   | 5       |
 | `noise_sprint_radius` | 12 m    |
 | `noise_walk_radius`   | 4 m     |
@@ -114,9 +114,10 @@ risk by carrying them until they are back home.
 
 ### Phase 3 — nightly ticket spawner
 - [x] Remove the six hardcoded `Ticket1..6` nodes from `scenes/main.tscn`.
-- [x] `scripts/ticket_spawner.gd`: on Night start, place `tickets_per_night`
-      tickets at valid candidate points (inside walls, not inside obstacles, not
-      in the hideout, minimum spacing, reachable by a straight floor raycast).
+- [x] `scripts/ticket_spawner.gd`: on Night start, place each type's
+      `spawn_per_night` (integer part guaranteed, fraction rolled) at valid
+      candidate points (inside walls, not inside obstacles, not in the hideout,
+      minimum spacing, reachable by a straight floor raycast).
   *Implemented with rejection sampling: a downward ray from `y = 6` must land on
   the floor (`y <= 0.5`), which automatically rejects obstacle tops and the
   hideout roof; plus 3 m minimum spacing and a random yaw. No hardcoded obstacle

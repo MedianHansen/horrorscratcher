@@ -59,7 +59,7 @@ const UPGRADES := {
 }
 
 var night_duration: float = 120.0
-var tickets_per_night: int = 10
+var nights_started: int = 0
 var backpack_capacity: int = 5
 var noise_sprint_radius: float = 12.0
 var noise_walk_radius: float = 4.0
@@ -114,6 +114,7 @@ func set_phase(value: int) -> void:
 func start_night() -> void:
 	if phase == Phase.NIGHT:
 		return
+	nights_started += 1
 	night_time_left = night_duration
 	reset_gadgets()
 	var player := get_tree().get_first_node_in_group("player")
@@ -427,6 +428,7 @@ func reset_save() -> void:
 	gadgets.clear()
 	gadget_charges = 0
 	upgrades.clear()
+	nights_started = 0
 	Progression.reset_all()
 	backpack_changed.emit()
 	gadgets_changed.emit()
@@ -442,6 +444,7 @@ func _save_dict() -> Dictionary:
 			gadget_paths.append(gadget.resource_path)
 	return {
 		"version": 1,
+		"nights_started": nights_started,
 		"coins": int(player.get("coins")) if player else 0,
 		"stamina": float(player.get("stamina")) if player else 0.0,
 		"backpack": _tickets_to_data(backpack),
@@ -454,6 +457,7 @@ func _save_dict() -> Dictionary:
 
 
 func _apply_save(d: Dictionary) -> void:
+	nights_started = int(d.get("nights_started", 0))
 	var player := get_tree().get_first_node_in_group("player")
 	if player:
 		if player.has_method("set_coins"):

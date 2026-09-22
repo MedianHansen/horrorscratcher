@@ -50,8 +50,10 @@ Controls: click canvas to capture mouse, `WASD` move, `Shift` sprint,
 Scratch-off tickets lie on the floor. Look down at one and press `E` to pocket it
 in your backpack. Press `Q` to take one out and hold it; **hold left mouse and
 scrub** to wear off the foil, then `E`/`ESC` stows it again. Most are 3-space
-**Suffering** slips; about 1 in 20 is a 4-space **Fortune** slip. Deposit carried
-tickets at the hideout stash so a bad night can't cost you them.
+**Suffering** slips; now and then a rarer 4-space **Fortune** slip turns up (from
+the third night on). A third type, **The Long Run**, pays more the farther from
+the hideout you scratch it — but it isn't spawning yet. Deposit carried tickets
+at the hideout stash so a bad night can't cost you them.
 
 Scratching always earns a little **ticket XP** (every finished ticket, even with
 no match); leveling up grants skill points. Press `T` to open the Suffering
@@ -73,8 +75,8 @@ is to sleep. Press `E` at the bed to start **Night**: the door opens, a
 120-second timer runs and the lighting dims. Dawn despawns the floor tickets.
 **Entering the hideout during Night ends it safely**; if the timer runs out while
 you are still outside, you are caught, lose anything you carried, and respawn in
-the hideout. Each Night spawns 10 fresh tickets around the carnival and dawn
-clears any left on the ground. Guests stalk the carnival at night: **Drifters**
+the hideout. Each Night spawns about 10 fresh tickets around the carnival (plus
+the occasional Fortune slip) and dawn clears any left on the ground. Guests stalk the carnival at night: **Drifters**
 see you and hear you, **Listeners** are blind but hear you from further away. A
 guest turns amber when suspicious and red when chasing, with `?` / `SPOTTED!` on
 the HUD. Sprinting is loud, walking is quiet, standing still is silent — get

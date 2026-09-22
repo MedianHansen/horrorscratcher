@@ -1,0 +1,63 @@
+[gd_resource type="Resource" script_class="TicketType" load_steps=8 format=3]
+
+[ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_type"]
+
+[sub_resource type="Resource" id="Resource_empty"]
+script = ExtResource("1_icon")
+id = &"empty"
+label = "EMPTY"
+color = Color(0.8, 0.8, 0.82, 1)
+weight = 60.0
+xp = 0
+coins = 0
+
+[sub_resource type="Resource" id="Resource_footprint"]
+script = ExtResource("1_icon")
+id = &"footprint"
+label = "FOOTPRINT"
+color = Color(0.55, 0.45, 0.35, 1)
+weight = 25.0
+xp = 0
+coins = 2
+
+[sub_resource type="Resource" id="Resource_sneaker"]
+script = ExtResource("1_icon")
+id = &"sneaker"
+label = "SNEAKER"
+color = Color(0.85, 0.85, 0.88, 1)
+weight = 10.0
+xp = 4
+coins = 0
+
+[sub_resource type="Resource" id="Resource_medal"]
+script = ExtResource("1_icon")
+id = &"medal"
+label = "MEDAL"
+color = Color(0.9, 0.75, 0.2, 1)
+weight = 4.0
+xp = 0
+coins = 10
+
+[sub_resource type="Resource" id="Resource_trophy"]
+script = ExtResource("1_icon")
+id = &"trophy"
+label = "TROPHY"
+color = Color(0.95, 0.8, 0.25, 1)
+weight = 1.0
+xp = 0
+coins = 50
+
+[resource]
+script = ExtResource("2_type")
+type_name = "The Long Run"
+tile_count = 3
+level_cap = 10
+level_xp = PackedInt32Array(5, 15, 35, 70, 130, 225, 375, 600, 900)
+spawn_per_night = 0.0
+min_night = 1
+special = 1
+distance_full_mult = 4.0
+distance_full_meters = 120.0
+paper_color = Color(0.86, 0.87, 0.9, 1)
+icons = Array[ExtResource("1_icon")]([SubResource("Resource_empty"), SubResource("Resource_footprint"), SubResource("Resource_sneaker"), SubResource("Resource_medal"), SubResource("Resource_trophy")])
