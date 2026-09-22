@@ -19,6 +19,18 @@ static func profile(type_name: String) -> Dictionary:
 	return _profiles[type_name]
 
 
+static func all_profiles() -> Dictionary:
+	return _profiles.duplicate(true)
+
+
+static func set_profiles(data: Dictionary) -> void:
+	_profiles = data.duplicate(true)
+
+
+static func reset_all() -> void:
+	_profiles.clear()
+
+
 static func add_xp(type: TicketType, amount: int) -> Dictionary:
 	var p: Dictionary = profile(type.type_name)
 	p["xp"] = int(p["xp"]) + amount

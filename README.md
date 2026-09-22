@@ -87,6 +87,14 @@ coin). Once you own the trashcan, stand at it, take a ticket out (`Q`), then
 press `E` to discard it. (Lethal gadgets and decoys are still being built — see
 `plan0.1.md`.)
 
+## Saving
+
+Progress **autosaves** to your browser's local storage (`user://` →
+IndexedDB): coins, stamina, ticket XP/levels/skills, your backpack and stash,
+gadgets and upgrades. The live night (tickets on the ground, guests) is not
+saved — you resume at Day in the hideout. To wipe everything, open the workshop
+panel and press **Reset save**.
+
 ## Requirements (already installed on this server)
 
 - Godot headless: `~/bin/godot` (4.4.1)

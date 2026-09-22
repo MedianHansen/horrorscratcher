@@ -230,6 +230,16 @@ risk by carrying them until they are back home.
       Coin) so the higher-XP Bone icon becomes rollable and later levels are
       affordable.
 
+### Round 8 — save / load
+- [x] JSON autosave at `user://horrorscratcher_save.json`: coins, stamina,
+      per-type progression, backpack/stash tickets (with foil state), gadgets,
+      upgrades. World state is not saved (loads at Day in the hideout).
+- [x] `Game.save_game` / `load_game` / `reset_save`; `TicketData.to_dict` /
+      `from_dict`; `Progression.all_profiles` / `set_profiles` / `reset_all`.
+- [x] Autosave on startup and after pickups, deposits, stows, payouts, discards,
+      gadget use, purchases, sleep and dawn; also on window close.
+- [x] "Reset save" button in the workshop panel.
+
 ## Verification (per phase)
 
 1. Parse-check every touched/new script:

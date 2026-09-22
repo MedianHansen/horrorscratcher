@@ -36,10 +36,21 @@ func _ready() -> void:
 	_game = get_tree().get_first_node_in_group("game")
 	stamina = stamina_max
 	_update_coins_label()
+	if _game and _game.has_method("load_if_pending"):
+		_game.load_if_pending()
 
 
 func restore_stamina(amount: float) -> void:
 	stamina = clampf(stamina + amount, 0.0, stamina_max)
+
+
+func set_coins(value: int) -> void:
+	coins = value
+	_update_coins_label()
+
+
+func set_stamina(value: float) -> void:
+	stamina = clampf(value, 0.0, stamina_max)
 
 
 func current_noise_radius() -> float:

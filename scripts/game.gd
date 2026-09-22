@@ -12,6 +12,7 @@ enum Phase { DAY, NIGHT }
 
 const TICKET_SCENE_PATH := "res://scenes/scratch_ticket.tscn"
 const ACTIVE_GADGET := &"stun"
+const SAVE_PATH := "user://horrorscratcher_save.json"
 const UPGRADES := {
 	&"scratch_damage": {
 		"title": "Scratch Damage",
@@ -120,6 +121,7 @@ func start_night() -> void:
 		player.restore_stamina(float(sleep_stamina_rest()))
 	set_phase(Phase.NIGHT)
 	night_started.emit()
+	save_game()
 
 
 func end_night(safe: bool) -> void:
@@ -135,13 +137,15 @@ func end_night(safe: bool) -> void:
 	set_phase(Phase.DAY)
 	_clear_guests()
 	day_started.emit()
+	save_game()
 
 
 func pocket(data) -> bool:
-	if backpack.size() >= backpack_capacity:
+	if backpack.size() >= effective_backpack_capacity():
 		return false
 	backpack.append(data)
 	backpack_changed.emit()
+	save_game()
 	return true
 
 
@@ -152,6 +156,7 @@ func deposit_all() -> int:
 	stash.append_array(backpack)
 	backpack.clear()
 	backpack_changed.emit()
+	save_game()
 	return count
 
 
@@ -167,6 +172,7 @@ func buy_gadget(gadget: Gadget) -> bool:
 	if gadget.id == ACTIVE_GADGET:
 		gadget_charges = gadget.charges_per_night
 	gadgets_changed.emit()
+	save_game()
 	return true
 
 
@@ -186,6 +192,7 @@ func use_active_gadget() -> bool:
 				guest.stun(gadget.stun_duration)
 	gadget_charges -= 1
 	gadgets_changed.emit()
+	save_game()
 	return true
 
 
@@ -248,6 +255,7 @@ func buy_upgrade(id: StringName) -> bool:
 		player.add_coins(-cost)
 	upgrades[id] = upgrade_level(id) + 1
 	upgrades_changed.emit()
+	save_game()
 	return true
 
 
@@ -318,18 +326,21 @@ func cancel_held() -> void:
 
 func _on_ticket_stowed(_data) -> void:
 	held_ticket = null
+	save_game()
 
 
 func _on_ticket_finished(data) -> void:
 	backpack.erase(data)
 	backpack_changed.emit()
 	held_ticket = null
+	save_game()
 
 
 func _on_ticket_discarded(data) -> void:
 	backpack.erase(data)
 	backpack_changed.emit()
 	held_ticket = null
+	save_game()
 
 
 func enter_hideout() -> void:
@@ -362,3 +373,152 @@ func _teleport_player_home() -> void:
 func _clear_guests() -> void:
 	for guest in get_tree().get_nodes_in_group("guest"):
 		guest.queue_free()
+
+
+func _notification(what: int) -> void:
+	if what == NOTIFICATION_WM_CLOSE_REQUEST:
+		save_game()
+
+
+func has_save() -> bool:
+	return FileAccess.file_exists(SAVE_PATH)
+
+
+func load_if_pending() -> void:
+	if has_save():
+		load_game()
+	save_game()
+
+
+func save_game() -> void:
+	var file := FileAccess.open(SAVE_PATH, FileAccess.WRITE)
+	if file == null:
+		return
+	file.store_string(JSON.stringify(_save_dict()))
+	file.close()
+
+
+func load_game() -> bool:
+	if not has_save():
+		return false
+	var file := FileAccess.open(SAVE_PATH, FileAccess.READ)
+	if file == null:
+		return false
+	var text := file.get_as_text()
+	file.close()
+	var parsed = JSON.parse_string(text)
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return false
+	_apply_save(parsed)
+	return true
+
+
+func reset_save() -> void:
+	if FileAccess.file_exists(SAVE_PATH):
+		DirAccess.remove_absolute(SAVE_PATH)
+	var player := get_tree().get_first_node_in_group("player")
+	if player:
+		if player.has_method("set_coins"):
+			player.set_coins(0)
+		if player.has_method("set_stamina"):
+			player.set_stamina(float(player.get("stamina_max")))
+	backpack.clear()
+	stash.clear()
+	gadgets.clear()
+	gadget_charges = 0
+	upgrades.clear()
+	Progression.reset_all()
+	backpack_changed.emit()
+	gadgets_changed.emit()
+	upgrades_changed.emit()
+
+
+func _save_dict() -> Dictionary:
+	var player := get_tree().get_first_node_in_group("player")
+	var gadget_paths := []
+	for id in gadgets:
+		var gadget = gadgets[id]
+		if gadget != null and gadget.resource_path != "":
+			gadget_paths.append(gadget.resource_path)
+	return {
+		"version": 1,
+		"coins": int(player.get("coins")) if player else 0,
+		"stamina": float(player.get("stamina")) if player else 0.0,
+		"backpack": _tickets_to_data(backpack),
+		"stash": _tickets_to_data(stash),
+		"gadget_charges": gadget_charges,
+		"gadgets": gadget_paths,
+		"upgrades": _keys_to_strings(upgrades),
+		"progression": Progression.all_profiles(),
+	}
+
+
+func _apply_save(d: Dictionary) -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player:
+		if player.has_method("set_coins"):
+			player.set_coins(int(d.get("coins", 0)))
+		if player.has_method("set_stamina"):
+			player.set_stamina(float(d.get("stamina", float(player.get("stamina_max")))))
+	backpack = _data_to_tickets(d.get("backpack", []))
+	stash = _data_to_tickets(d.get("stash", []))
+	gadget_charges = int(d.get("gadget_charges", 0))
+	upgrades = _strings_to_keys(d.get("upgrades", {}))
+	gadgets = {}
+	for path in d.get("gadgets", []):
+		if ResourceLoader.exists(path):
+			var gadget = load(path)
+			if gadget != null:
+				gadgets[gadget.id] = gadget
+	Progression.set_profiles(_normalize_profiles(d.get("progression", {})))
+	backpack_changed.emit()
+	gadgets_changed.emit()
+	upgrades_changed.emit()
+
+
+func _tickets_to_data(tickets: Array) -> Array:
+	var out := []
+	for data in tickets:
+		if data is TicketData:
+			out.append(data.to_dict())
+	return out
+
+
+func _data_to_tickets(data: Array) -> Array:
+	var out := []
+	for entry in data:
+		if typeof(entry) == TYPE_DICTIONARY:
+			out.append(TicketData.from_dict(entry))
+	return out
+
+
+func _keys_to_strings(source: Dictionary) -> Dictionary:
+	var out := {}
+	for key in source:
+		out[String(key)] = source[key]
+	return out
+
+
+func _strings_to_keys(source: Dictionary) -> Dictionary:
+	var out := {}
+	for key in source:
+		out[StringName(key)] = int(source[key])
+	return out
+
+
+func _normalize_profiles(source: Dictionary) -> Dictionary:
+	var out := {}
+	for type_name in source:
+		var profile: Dictionary = source[type_name]
+		var ranks_in: Dictionary = profile.get("ranks", {})
+		var ranks := {}
+		for key in ranks_in:
+			ranks[StringName(key)] = int(ranks_in[key])
+		out[type_name] = {
+			"xp": int(profile.get("xp", 0)),
+			"level": int(profile.get("level", 1)),
+			"normal": int(profile.get("normal", 0)),
+			"epic": int(profile.get("epic", 0)),
+			"ranks": ranks,
+		}
+	return out

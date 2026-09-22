@@ -272,9 +272,21 @@ meant to be tuned.
 - Skill trees for types other than Suffering; respec/refund.
 - Lethal gadgets, decoy gadgets and the full gadget-shop UI.
 - Crouch / noise-stealth moves beyond sprint-vs-walk noise.
-- Save system — XP, coins, skill points, stash, gadgets and the cycle are
-  in-memory (reset on refresh).
 - XP UI (the skill-tree panel exists, but no XP display).
+
+## Save / load
+
+- Single autosave slot at `user://horrorscratcher_save.json` (JSON). Web builds
+  persist `user://` in IndexedDB, so progress survives reloads.
+- **Saved:** coins, stamina, per-type XP/level/skill points/ranks, the backpack
+  and stash (each ticket's type, rolled icons, foil health, damage and revealed
+  state), owned gadgets + charges, and workshop upgrade levels.
+- **Not saved:** the live world — phase, night timer, ground tickets and guests.
+  Loading resumes at Day in the hideout with a fresh cycle.
+- **Autosave** runs once at startup and after every meaningful change (pickup,
+  deposit, stow, payout, discard, gadget use, purchase, sleep/start-night, dawn).
+- **Reset:** the workshop panel has a "Reset save" button that wipes the file and
+  all in-memory progress.
 
 ## Controls (current)
 

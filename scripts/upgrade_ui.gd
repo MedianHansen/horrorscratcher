@@ -54,10 +54,21 @@ func _build() -> void:
 		for id in _game.upgrade_ids():
 			box.add_child(_make_row(id))
 
+	var reset := Button.new()
+	reset.text = "Reset save (wipe progress)"
+	reset.pressed.connect(_reset)
+	box.add_child(reset)
+
 	var hint := Label.new()
 	hint.text = "ESC to close"
 	hint.modulate = Color(1, 1, 1, 0.7)
 	box.add_child(hint)
+
+
+func _reset() -> void:
+	if _game and _game.has_method("reset_save"):
+		_game.reset_save()
+	_refresh()
 
 
 func _make_row(id: StringName) -> Control:
