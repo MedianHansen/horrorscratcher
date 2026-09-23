@@ -3,6 +3,7 @@ extends Control
 var _game: Node
 var _player: Node
 var _coins_label: Label
+var _scroll: ScrollContainer
 var _rows: Array = []
 
 
@@ -50,9 +51,19 @@ func _build() -> void:
 	_coins_label = Label.new()
 	box.add_child(_coins_label)
 
+	_scroll = ScrollContainer.new()
+	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	_scroll.custom_minimum_size = Vector2(480, 360)
+	box.add_child(_scroll)
+
+	var rows := VBoxContainer.new()
+	rows.add_theme_constant_override("separation", 12)
+	rows.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	_scroll.add_child(rows)
+
 	if _game:
 		for id in _game.upgrade_ids():
-			box.add_child(_make_row(id))
+			rows.add_child(_make_row(id))
 
 	var reset := Button.new()
 	reset.text = "Reset save (wipe progress)"
@@ -139,6 +150,9 @@ func open() -> void:
 		_player = get_tree().get_first_node_in_group("player")
 	if _player and bool(_player.get("input_locked")):
 		return
+	if _scroll:
+		var available := get_viewport_rect().size.y * 0.62
+		_scroll.custom_minimum_size.y = clampf(available, 220.0, 720.0)
 	visible = true
 	_refresh()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)

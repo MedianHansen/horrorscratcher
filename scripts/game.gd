@@ -19,7 +19,7 @@ const UPGRADES := {
 		"description": "+25% scratch damage per level.",
 		"max": 10,
 		"mult": 1.25,
-		"base_cost": 20,
+		"base_cost": 10,
 	},
 	&"move_speed": {
 		"title": "Movement Speed",
@@ -40,21 +40,48 @@ const UPGRADES := {
 		"description": "+2 backpack slots per level.",
 		"max": 5,
 		"mult": 1.0,
-		"base_cost": 60,
+		"base_cost": 20,
 	},
 	&"brush_size": {
 		"title": "Brush Size",
 		"description": "+20% scratch brush radius per level.",
 		"max": 5,
 		"mult": 1.2,
-		"base_cost": 35,
+		"base_cost": 15,
 	},
 	&"restful_bed": {
 		"title": "Restful Bed",
 		"description": "Sleeping restores 10 stamina instead of 5.",
 		"max": 1,
 		"mult": 1.0,
-		"base_cost": 80,
+		"base_cost": 7,
+	},
+	&"fortune_spawn_small": {
+		"title": "Fortune Charm",
+		"description": "An additional 0.15 Fortune tickets spawn each night.",
+		"max": 1,
+		"mult": 1.0,
+		"base_cost": 20,
+		"type_name": "Fortune",
+		"spawn_bonus": 0.15,
+	},
+	&"fortune_spawn_medium": {
+		"title": "Fortune Beacon",
+		"description": "An additional 0.5 Fortune tickets spawn each night.",
+		"max": 1,
+		"mult": 1.0,
+		"base_cost": 40,
+		"type_name": "Fortune",
+		"spawn_bonus": 0.5,
+	},
+	&"fortune_spawn_large": {
+		"title": "Fortune Magnet",
+		"description": "2 additional Fortune tickets spawn each night.",
+		"max": 1,
+		"mult": 1.0,
+		"base_cost": 200,
+		"type_name": "Fortune",
+		"spawn_bonus": 2.0,
 	},
 }
 
@@ -286,6 +313,19 @@ func brush_scale() -> float:
 
 func sleep_stamina_rest() -> int:
 	return 10 if upgrade_level(&"restful_bed") > 0 else 5
+
+
+func ticket_spawn_bonus(type: TicketType) -> float:
+	if type == null:
+		return 0.0
+	var bonus := 0.0
+	for id in UPGRADES:
+		if not UPGRADES[id].has("type_name"):
+			continue
+		if String(UPGRADES[id]["type_name"]) != type.type_name:
+			continue
+		bonus += float(UPGRADES[id]["spawn_bonus"]) * float(upgrade_level(id))
+	return bonus
 
 
 func _upgrade_multiplier(id: StringName) -> float:

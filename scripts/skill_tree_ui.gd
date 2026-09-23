@@ -10,6 +10,7 @@ const BOTTOM_MARGIN := 20.0
 
 var _player: Node
 var _points_label: Label
+var _xp_label: Label
 var _tree_area: Control
 var _tooltip_title: Label
 var _tooltip_body: Label
@@ -58,6 +59,9 @@ func _build() -> void:
 	_points_label = Label.new()
 	box.add_child(_points_label)
 
+	_xp_label = Label.new()
+	box.add_child(_xp_label)
+
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 24)
 	box.add_child(hbox)
@@ -103,9 +107,15 @@ func _refresh() -> void:
 	if ticket_type == null:
 		return
 	var profile: Dictionary = Progression.profile(ticket_type.type_name)
+	var level := int(profile["level"])
 	_points_label.text = "Level %d    Normal points: %d    Epic points: %d" % [
-		int(profile["level"]), int(profile["normal"]), int(profile["epic"])
+		level, int(profile["normal"]), int(profile["epic"])
 	]
+	var need := ticket_type.xp_to_next(level)
+	if need > 0:
+		_xp_label.text = "XP: %d / %d" % [int(profile["xp"]), need]
+	else:
+		_xp_label.text = "XP: %d    (max level)" % int(profile["xp"])
 	_build_tree()
 	if _tooltip_title.text == "":
 		_tooltip_title.text = "Hover a skill"

@@ -67,13 +67,21 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
   ticket type may have — not the default.
 - **Every finished ticket also grants a flat 1 ticket XP** (`BASE_XP` in
   `scratch_ticket.gd`) on top of any prizes, so scratching always makes progress
-  even when nothing pairs. The prize multiplier applies to it too.
+  even when nothing pairs. The prize multiplier and the distance multiplier apply
+  to it too, but the **level multiplier does not** (see below).
 - **Leveling is automatic and per type.** Each type has its own XP and level
   (not shared). **Every level-up grants 1 normal skill point**, except level-ups
   to a multiple of 5 (**5, 10, ...**) grant **1 epic skill point instead**.
   Level caps are per type.
-- **Coins are the currency** (not "gold"). No XP UI yet (the skill tree has its
-  own panel).
+- **Levels multiply rewards.** The type's current level scales all of its future
+  payouts — coins **and** icon XP prizes — by that level (`level_mult` = ×1 at
+  level 1, ×2 at level 2, ×3 at level 3, ...). The per-level bonus is **100%** for
+  now (`TicketType.level_reward_bonus`, default 1.0; tunable). It is applied
+  **at payout time**, so it affects a ticket even if
+  it was rolled before the level-up. The flat `BASE_XP` is exempt. The result
+  text shows `xN level` when the multiplier is above ×1.
+- **Coins are the currency** (not "gold"). The skill-tree panel shows the
+  type's current XP and the XP needed for the next level (or "(max level)").
 
 ### Suffering (first ticket type)
 
@@ -82,7 +90,7 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 | Icon        | Weight | Prize          |
 |-------------|--------|----------------|
 | Empty       | 70     | nothing        |
-| Blood       | 0      | 5 ticket XP    |
+| Blood       | 0      | 2 ticket XP    |
 | Broken bone | 0      | 5 ticket XP    |
 | Coin        | 30     | 1 coin         |
 | Purse       | 0      | 5 coins        |
@@ -302,21 +310,27 @@ spawn at Night and despawn at dawn. First two types:
 ### Upgrades (coins)
 
 Bought at the hideout **workshop** with coins; levels are in-memory until a save
-system exists. Two upgrades, each a multiplicative per-level bonus:
+system exists.
 
 | Upgrade        | Effect                        | Levels | Cost (coins)     |
 |----------------|-------------------------------|--------|------------------|
-| Scratch Damage | +25% scratch damage per level | 10     | 20 × (level + 1) |
+| Scratch Damage | +25% scratch damage per level | 10     | 10 × (level + 1) |
 | Movement Speed | +10% movement speed per level | 5      | 30 × (level + 1) |
 | Trashcan       | Unlocks a hideout bin to discard held tickets | 1 | 1 |
-| Bag Space      | +2 backpack slots per level   | 5      | 60 × (level + 1) |
-| Brush Size     | +20% scratch brush radius per level | 5 | 35 × (level + 1) |
-| Restful Bed    | Sleep restores 10 stamina instead of 5 | 1 | 80 |
+| Bag Space      | +2 backpack slots per level   | 5      | 20 × (level + 1) |
+| Brush Size     | +20% scratch brush radius per level | 5 | 15 × (level + 1) |
+| Restful Bed    | Sleep restores 10 stamina instead of 5 | 1 | 7 |
+| Fortune Charm  | +0.15 Fortune tickets spawned per night | 1 | 20 |
+| Fortune Beacon | +0.5 Fortune tickets spawned per night  | 1 | 40 |
+| Fortune Magnet | +2 Fortune tickets spawned per night    | 1 | 200 |
 
 - Bonuses are multiplicative (`1.25^level`, `1.10^level`): level 2 damage is
   ×1.5625, level 3 ×1.953125, and so on.
 - Scratch damage applies at scrub time; movement speed applies to walk and sprint
   alike.
+- The three Fortune upgrades add to that type's nightly spawn count
+  (`TicketType.spawn_per_night`) as a flat `spawn_bonus` (fractional parts roll as
+  a per-night chance); they stack and are independent of each other.
 - The workshop opens a panel (`E` at the bench) listing each upgrade with its
   level, cost and a Buy button; it frees the mouse and locks input like the skill
   tree, and closes with `ESC`.
@@ -346,7 +360,7 @@ night 3). All are meant to be tuned.
 - Skill trees for types other than Suffering; respec/refund.
 - Lethal gadgets, decoy gadgets and the full gadget-shop UI.
 - Crouch / noise-stealth moves beyond sprint-vs-walk noise.
-- XP UI (the skill-tree panel exists, but no XP display).
+- XP UI beyond the skill-tree panel's XP line (e.g. a HUD XP bar).
 - Hunger bar (movement slowdown as it empties; see Hunger above).
 
 ## Save / load

@@ -627,7 +627,8 @@ func _evaluate() -> Dictionary:
 			continue
 		counts[icon.id] = int(counts.get(icon.id, 0)) + 1
 
-	var xp := BASE_XP
+	var base_xp := BASE_XP
+	var prize_xp := 0
 	var coins := 0
 	var matches := []
 	var paid := {}
@@ -637,25 +638,39 @@ func _evaluate() -> Dictionary:
 			continue
 		if int(counts[icon.id]) >= 2:
 			paid[icon.id] = true
-			xp += icon.xp + Progression.icon_xp_bonus(ticket_type, icon.id)
+			prize_xp += icon.xp + Progression.icon_xp_bonus(ticket_type, icon.id)
 			coins += icon.coins
 			matches.append("%s x%d" % [icon.label, int(counts[icon.id])])
-	return {"xp": xp, "coins": coins, "matches": matches, "levels_gained": 0, "level": 1}
+	return {
+		"base_xp": base_xp,
+		"prize_xp": prize_xp,
+		"xp": base_xp + prize_xp,
+		"coins": coins,
+		"matches": matches,
+		"levels_gained": 0,
+		"level": 1,
+	}
 
 
 func _award(result: Dictionary) -> void:
 	_resolve_player()
 	var mult := 1.0
 	var distance_mult := 1.0
+	var level_mult := 1.0
 	if ticket_type != null:
 		mult = Progression.prize_multiplier(ticket_type)
 		distance_mult = ticket_type.distance_multiplier(_distance_from_base())
+		var level := int(Progression.profile(ticket_type.type_name)["level"])
+		level_mult = ticket_type.level_reward_multiplier(level)
 	var total_mult := mult * distance_mult
-	var coins := int(round(float(result["coins"]) * total_mult))
-	var xp := int(round(float(result["xp"]) * total_mult))
+	var coins := int(round(float(result["coins"]) * total_mult * level_mult))
+	var base_xp := int(round(float(result["base_xp"]) * total_mult))
+	var prize_xp := int(round(float(result["prize_xp"]) * total_mult * level_mult))
+	var xp := base_xp + prize_xp
 	result["coins"] = coins
 	result["xp"] = xp
 	result["distance_mult"] = distance_mult
+	result["level_mult"] = level_mult
 	if coins > 0 and _player and _player.has_method("add_coins"):
 		_player.add_coins(coins)
 	if xp > 0 and ticket_type != null:
@@ -682,6 +697,8 @@ func _result_text(result: Dictionary) -> String:
 		parts.append("+%d %s XP" % [int(result["xp"]), ticket_type.type_name])
 	if int(result["coins"]) > 0:
 		parts.append("+%d coins" % int(result["coins"]))
+	if float(result.get("level_mult", 1.0)) > 1.001:
+		parts.append("x%d level" % int(result["level_mult"]))
 	if float(result.get("distance_mult", 1.0)) > 1.001:
 		parts.append("x%.1f distance" % float(result["distance_mult"]))
 	var text := "Nothing..." if parts.is_empty() else " | ".join(parts)

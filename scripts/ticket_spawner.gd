@@ -28,7 +28,10 @@ func _on_night_started() -> void:
 	for type in ticket_types:
 		if type == null or night < type.min_night:
 			continue
-		_spawn_type(type, _roll_count(type.spawn_per_night), placed)
+		var expected := type.spawn_per_night
+		if _game.has_method("ticket_spawn_bonus"):
+			expected += float(_game.ticket_spawn_bonus(type))
+		_spawn_type(type, _roll_count(expected), placed)
 
 
 func _roll_count(expected: float) -> int:

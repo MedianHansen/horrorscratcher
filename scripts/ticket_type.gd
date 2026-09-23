@@ -7,6 +7,7 @@ enum Special { NONE, DISTANCE_REWARD }
 @export var tile_count: int = 3
 @export var level_cap: int = 1
 @export var level_xp: PackedInt32Array = PackedInt32Array()
+@export var level_reward_bonus: float = 1.0
 @export var spawn_per_night: float = 1.0
 @export var min_night: int = 1
 @export var special: Special = Special.NONE
@@ -22,6 +23,10 @@ func xp_to_next(level: int) -> int:
 	if index < 0 or index >= level_xp.size():
 		return 0
 	return level_xp[index]
+
+
+func level_reward_multiplier(level: int) -> float:
+	return 1.0 + float(maxi(0, level - 1)) * level_reward_bonus
 
 
 func distance_multiplier(distance: float) -> float:
