@@ -7,6 +7,9 @@ export/
 # TLS certificates (self-signed and Let's Encrypt) - never commit private keys
 certs/
 
+# Large local assets (not versioned)
+assets/
+
 # Misc
 *.log
 node_modules/
