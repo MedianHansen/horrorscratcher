@@ -230,6 +230,18 @@ stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
   **10** with the Restful Bed upgrade). It does not regenerate on its own.
 - The HUD shows a stamina bar (`stamina` / `stamina_max` on the player).
 
+### Hunger
+
+**Status: not implemented (deferred).** The player has a **hunger bar** that
+empties over time and slows movement as it drops:
+
+- At **50% or above**, the player moves at full speed.
+- Speed falls off linearly as hunger drops below 50%, reaching **50% speed at
+  0%** hunger.
+
+The exact drain rate, restoration (food?) and HUD placement are still to be
+decided. Not built yet — see Deferred.
+
 ### Backpack, stash & loss
 
 - `backpack_capacity` default **5**; the HUD shows carried / capacity.
@@ -331,6 +343,7 @@ night 3). All are meant to be tuned.
 - Lethal gadgets, decoy gadgets and the full gadget-shop UI.
 - Crouch / noise-stealth moves beyond sprint-vs-walk noise.
 - XP UI (the skill-tree panel exists, but no XP display).
+- Hunger bar (movement slowdown as it empties; see Hunger above).
 
 ## Save / load
 
