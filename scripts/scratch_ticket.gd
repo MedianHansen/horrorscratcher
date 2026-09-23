@@ -10,6 +10,7 @@ signal discarded(data)
 @export_range(1.0, 1000.0, 1.0) var scratch_hardness: float = 60.0
 @export_range(0.5, 64.0, 0.5) var brush_radius_cells: float = 21.0
 @export_range(0.1, 1.0, 0.01) var reveal_threshold: float = 0.85
+@export_range(1.0, 8.0, 0.1) var foil_fade_power: float = 2.0
 @export var interact_range: float = 4.0
 @export var hold_offset: Vector3 = Vector3(0.14, -0.12, -0.42)
 @export var hold_rotation_deg: Vector3 = Vector3(-6.0, -14.0, 0.0)
@@ -225,6 +226,11 @@ func _make_data() -> TicketData:
 	return data
 
 
+func _foil_alpha(health_ratio: float) -> float:
+	var ratio := clampf(health_ratio, 0.0, 1.0)
+	return 1.0 - pow(1.0 - ratio, foil_fade_power)
+
+
 func _refresh_panel_image(index: int) -> void:
 	var p: Dictionary = _panels[index]
 	var img: Image = p["image"]
@@ -234,8 +240,7 @@ func _refresh_panel_image(index: int) -> void:
 		img.fill(Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 0.0))
 	else:
 		for idx in range(health.size()):
-			var ratio := clampf(health[idx] / scratch_hardness, 0.0, 1.0)
-			var a := pow(ratio, 1.5)
+			var a := _foil_alpha(health[idx] / scratch_hardness)
 			img.set_pixel(idx % grid_w, idx / grid_w, Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, a))
 	p["texture"].update(img)
 	p["dirty"] = false
@@ -321,8 +326,7 @@ func _flush_dirty() -> void:
 		var health: PackedFloat32Array = p["health"]
 		var grid_w: int = p["grid_w"]
 		for idx in p["dirty_indices"]:
-			var ratio := clampf(health[idx] / scratch_hardness, 0.0, 1.0)
-			var a := pow(ratio, 1.5)
+			var a := _foil_alpha(health[idx] / scratch_hardness)
 			img.set_pixel(idx % grid_w, idx / grid_w, Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, a))
 		p["texture"].update(img)
 		p["dirty"] = false

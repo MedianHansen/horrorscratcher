@@ -35,6 +35,10 @@ These were agreed with the user and are the intended behaviour.
 - **Reveal at ~85% total health removed.** When about 85% of a panel's total
   foil health is gone (`reveal_threshold`, default 0.85), the panel
   auto-clears the remaining foil and shows the prize.
+- **Foil fades with easing, not linearly.** Foil alpha is
+  `1 − (1 − health_ratio) ^ foil_fade_power` (`foil_fade_power`, default 2.0), so
+  the foil stays nearly opaque for most of the scratch and only becomes
+  see-through near the end — the prize is not given away early.
 - **Prizes come from the ticket type** (see below). The rolled result is rendered
   **under the foil from the very start**, so scratching progressively reveals it
   — it must not appear only at the moment of full reveal. Rewards are added to
