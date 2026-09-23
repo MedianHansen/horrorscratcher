@@ -53,8 +53,9 @@ These were agreed with the user and are the intended behaviour.
 Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 
 - **Ticket types are data-driven** (`TicketType` resource). Each type defines a
-  unique name, design, tile count, level cap, XP curve, its own nightly spawn
-  number (`spawn_per_night`), the first night it may appear (`min_night`), an
+  unique name, design, tile count, level cap, XP curve (`xp_base` /
+  `xp_growth`), its own nightly spawn number (`spawn_per_night`), the first night
+  it may appear (`min_night`), an
   optional special rule (`special`) and a weighted list of icons. New types
   should be added as data, not code.
 - **Roll on first pickup.** The first time a ticket is picked up, each tile is
@@ -98,9 +99,9 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 
 Weights of 0 mean the icon cannot roll yet (it exists for when progression/skill
 trees raise its weight). Coin starts unlocked; Blood is locked until its unlock is
-bought. XP curve for the 9 level-ups up to cap 10:
-`[5, 15, 35, 70, 130, 225, 375, 600, 900]` (total 2355, ~1.6× per level — cheap
-early, demanding late; tunable). Spawns **10/night** from night 1.
+bought. The XP curve is **coefficient-driven**: `xp_base` 5 and `xp_growth` 1.5,
+so level-up `L` costs `round(xp_base × xp_growth^(L-1))` — `[5, 8, 11, 17, 25,
+38, 57, 85, 128]`, total 374 (tunable per type). Spawns **10/night** from night 1.
 
 ### Fortune (second ticket type)
 
@@ -118,8 +119,9 @@ future prize icons. Icons (id, weight, prize):
 | Jackpot | 0      | 80 coins|
 
 Only Empty and Token roll today; the rest wait for a future Fortune skill tree.
-A pair of Tokens pays once (the normal pair rule). XP curve for the 7 level-ups up
-to cap 8: `[5, 15, 35, 70, 130, 225, 375]`.
+A pair of Tokens pays once (the normal pair rule). Same coefficient curve
+(`xp_base` 5, `xp_growth` 1.5), 7 level-ups up to cap 8: `[5, 8, 11, 17, 25, 38,
+57]`, total 161.
 
 Nightly spawn: each type is placed independently from its `spawn_per_night`
 (expected tickets per night) — the integer part is guaranteed and the fraction is
