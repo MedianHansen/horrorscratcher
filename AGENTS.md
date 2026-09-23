@@ -112,7 +112,7 @@ future prize icons. Icons (id, weight, prize):
 | Icon    | Weight | Prize   |
 |---------|--------|---------|
 | Empty   | 50     | nothing |
-| Token   | 50     | 5 coins |
+| Token   | 50     | 20 coins|
 | Eye     | 0      | 4 XP    |
 | Skull   | 0      | 10 XP   |
 | Chalice | 0      | 12 coins|
@@ -393,6 +393,8 @@ night 3). All are meant to be tuned.
 - While holding a ticket: `E` near the trashcan = discard it (otherwise `E`/`ESC`
   stows it).
 - `T` = open/close the Suffering skill tree (only when not holding a ticket).
+- `H` = toggle guest **sense debug overlays** (red sight cone + blue hearing
+  radius, drawn through walls). Purely a debug aid; off by default.
 
 ---
 

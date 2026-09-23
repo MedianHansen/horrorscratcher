@@ -21,6 +21,8 @@ var _search_timer := 0.0
 var _stun_timer := 0.0
 var _current_color := Color(0, 0, 0, 0)
 var _rng := RandomNumberGenerator.new()
+var _debug_sight: MeshInstance3D
+var _debug_hear: MeshInstance3D
 
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _nose: MeshInstance3D = $Nose
@@ -32,6 +34,7 @@ func _ready() -> void:
 	_player = get_tree().get_first_node_in_group("player")
 	_game = get_tree().get_first_node_in_group("game")
 	_apply_color()
+	_build_debug_senses()
 	_pick_target()
 
 
@@ -81,6 +84,7 @@ func stun(duration: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	_update_debug_senses()
 	if _state == State.CAUGHT:
 		return
 	if not is_on_floor():
@@ -233,3 +237,65 @@ func _pick_target() -> void:
 			_target = hit["position"]
 			return
 	_target = global_position
+
+
+func _build_debug_senses() -> void:
+	_debug_sight = _make_debug_mesh(Color(1.0, 0.35, 0.2, 0.22), 0.04)
+	_debug_hear = _make_debug_mesh(Color(0.25, 0.7, 1.0, 0.18), 0.02)
+	if guest_type == null:
+		return
+	if guest_type.can_see:
+		_debug_sight.mesh = _make_cone_mesh(guest_type.sight_range, guest_type.sight_angle_deg)
+	if guest_type.hear_radius > 0.0:
+		_debug_hear.mesh = _make_disk_mesh(guest_type.hear_radius)
+
+
+func _make_debug_mesh(color: Color, y: float) -> MeshInstance3D:
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = color
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mat.cull_mode = BaseMaterial3D.CULL_DISABLED
+	mat.no_depth_test = true
+	mat.disable_receive_shadows = true
+	var node := MeshInstance3D.new()
+	node.material_override = mat
+	node.position = Vector3(0.0, y, 0.0)
+	node.visible = false
+	add_child(node)
+	return node
+
+
+func _make_cone_mesh(radius: float, angle_deg: float) -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	var half := deg_to_rad(angle_deg * 0.5)
+	var segments := 32
+	for i in range(segments):
+		var a0 := -half + 2.0 * half * float(i) / float(segments)
+		var a1 := -half + 2.0 * half * float(i + 1) / float(segments)
+		mesh.surface_add_vertex(Vector3.ZERO)
+		mesh.surface_add_vertex(Vector3(sin(a0), 0.0, -cos(a0)) * radius)
+		mesh.surface_add_vertex(Vector3(sin(a1), 0.0, -cos(a1)) * radius)
+	mesh.surface_end()
+	return mesh
+
+
+func _make_disk_mesh(radius: float) -> ImmediateMesh:
+	var mesh := ImmediateMesh.new()
+	mesh.surface_begin(Mesh.PRIMITIVE_TRIANGLES)
+	var segments := 48
+	for i in range(segments):
+		var a0 := TAU * float(i) / float(segments)
+		var a1 := TAU * float(i + 1) / float(segments)
+		mesh.surface_add_vertex(Vector3.ZERO)
+		mesh.surface_add_vertex(Vector3(sin(a0), 0.0, -cos(a0)) * radius)
+		mesh.surface_add_vertex(Vector3(sin(a1), 0.0, -cos(a1)) * radius)
+	mesh.surface_end()
+	return mesh
+
+
+func _update_debug_senses() -> void:
+	var enabled := _game != null and bool(_game.get("debug_senses"))
+	_debug_sight.visible = enabled
+	_debug_hear.visible = enabled

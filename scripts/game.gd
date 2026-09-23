@@ -101,6 +101,7 @@ var gadgets: Dictionary = {}
 var gadget_charges: int = 0
 var upgrades: Dictionary = {}
 var held_ticket: Node = null
+var debug_senses: bool = false
 
 
 func _ready() -> void:
@@ -108,6 +109,10 @@ func _ready() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("debug_senses"):
+		debug_senses = not debug_senses
+		get_viewport().set_input_as_handled()
+		return
 	if held_ticket != null:
 		return
 	if not event.is_action_pressed("take_ticket"):
