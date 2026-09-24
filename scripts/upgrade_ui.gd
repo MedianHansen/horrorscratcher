@@ -9,6 +9,7 @@ var _rows: Array = []
 
 func _ready() -> void:
 	add_to_group("upgrade_ui")
+	theme = UiTheme.shared()
 	_game = get_tree().get_first_node_in_group("game")
 	_player = get_tree().get_first_node_in_group("player")
 	_build()
@@ -45,10 +46,11 @@ func _build() -> void:
 
 	var title := Label.new()
 	title.text = "Workshop - Upgrades"
-	title.add_theme_font_size_override("font_size", 28)
+	title.theme_type_variation = &"TitleLabel"
 	box.add_child(title)
 
 	_coins_label = Label.new()
+	_coins_label.theme_type_variation = &"GoldLabel"
 	box.add_child(_coins_label)
 
 	_scroll = ScrollContainer.new()
@@ -67,12 +69,13 @@ func _build() -> void:
 
 	var reset := Button.new()
 	reset.text = "Reset save (wipe progress)"
+	reset.theme_type_variation = &"DangerButton"
 	reset.pressed.connect(_reset)
 	box.add_child(reset)
 
 	var hint := Label.new()
 	hint.text = "ESC to close"
-	hint.modulate = Color(1, 1, 1, 0.7)
+	hint.theme_type_variation = &"MutedLabel"
 	box.add_child(hint)
 
 
@@ -83,28 +86,35 @@ func _reset() -> void:
 
 
 func _make_row(id: StringName) -> Control:
+	var card := PanelContainer.new()
+	card.theme_type_variation = &"CardPanel"
+
 	var row := VBoxContainer.new()
 	row.add_theme_constant_override("separation", 2)
+	card.add_child(row)
 
 	var title := Label.new()
 	title.text = _game.upgrade_title(id)
-	title.add_theme_font_size_override("font_size", 20)
+	title.theme_type_variation = &"HeadingLabel"
 	row.add_child(title)
 
 	var desc := Label.new()
 	desc.text = _game.upgrade_description(id)
+	desc.theme_type_variation = &"MutedLabel"
 	desc.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	desc.custom_minimum_size = Vector2(440, 0)
+	desc.custom_minimum_size = Vector2(420, 0)
 	row.add_child(desc)
 
 	var line := HBoxContainer.new()
 	line.add_theme_constant_override("separation", 16)
 
 	var level_label := Label.new()
+	level_label.theme_type_variation = &"ChipLabel"
 	level_label.custom_minimum_size = Vector2(150, 0)
 	line.add_child(level_label)
 
 	var cost_label := Label.new()
+	cost_label.theme_type_variation = &"ChipLabel"
 	cost_label.custom_minimum_size = Vector2(150, 0)
 	line.add_child(cost_label)
 
@@ -115,7 +125,7 @@ func _make_row(id: StringName) -> Control:
 
 	row.add_child(line)
 	_rows.append({"id": id, "level": level_label, "cost": cost_label, "button": button})
-	return row
+	return card
 
 
 func _buy(id: StringName) -> void:

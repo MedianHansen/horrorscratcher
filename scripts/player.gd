@@ -20,8 +20,7 @@ var stamina: float = 100.0
 const PITCH_LIMIT := deg_to_rad(88)
 
 @onready var cam: Camera3D = $Camera3D
-var _coins_label: Label
-var _prompt_label: Label
+var _hud: Node
 var _prompt_owner: Object = null
 var _game: Node
 
@@ -31,8 +30,7 @@ func _ready() -> void:
 	# start looking slightly down the corridor
 	yaw = rotation.y
 	pitch = cam.rotation.x
-	_coins_label = get_node_or_null("../UI/Coins")
-	_prompt_label = get_node_or_null("../UI/Prompt")
+	_hud = get_tree().get_first_node_in_group("hud")
 	_game = get_tree().get_first_node_in_group("game")
 	stamina = stamina_max
 	_update_coins_label()
@@ -72,23 +70,27 @@ func set_input_locked(value: bool) -> void:
 		show_prompt("")
 
 func show_prompt(text: String, owner: Object = null) -> void:
-	if _prompt_label == null:
+	if _hud == null:
+		_hud = get_tree().get_first_node_in_group("hud")
+	if _hud == null:
 		return
 	if text == "":
 		if owner == null or owner == _prompt_owner:
-			_prompt_label.text = ""
+			_hud.set_prompt("")
 			_prompt_owner = null
 		return
 	_prompt_owner = owner
-	_prompt_label.text = text
+	_hud.set_prompt(text)
 
 func add_coins(amount: int) -> void:
 	coins += amount
 	_update_coins_label()
 
 func _update_coins_label() -> void:
-	if _coins_label:
-		_coins_label.text = "Coins: %d" % coins
+	if _hud == null:
+		_hud = get_tree().get_first_node_in_group("hud")
+	if _hud and _hud.has_method("set_coins"):
+		_hud.set_coins(coins)
 
 func _unhandled_input(event: InputEvent) -> void:
 	if input_locked:

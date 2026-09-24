@@ -7,6 +7,7 @@ signal backpack_changed()
 signal gadgets_changed()
 signal upgrades_changed()
 signal player_died()
+signal ticket_completed(result: Dictionary)
 
 enum Phase { DAY, NIGHT }
 
@@ -106,6 +107,7 @@ var debug_senses: bool = false
 
 func _ready() -> void:
 	add_to_group("game")
+	get_window().theme = UiTheme.shared()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -355,6 +357,7 @@ func take_for_scratch() -> bool:
 	ticket.stowed.connect(_on_ticket_stowed)
 	ticket.finished.connect(_on_ticket_finished)
 	ticket.discarded.connect(_on_ticket_discarded)
+	ticket.ticket_completed.connect(_on_ticket_completed)
 	ticket.hold(data)
 	held_ticket = ticket
 	return true
@@ -380,6 +383,10 @@ func _on_ticket_finished(data) -> void:
 	backpack_changed.emit()
 	held_ticket = null
 	save_game()
+
+
+func _on_ticket_completed(result: Dictionary) -> void:
+	ticket_completed.emit(result)
 
 
 func _on_ticket_discarded(data) -> void:

@@ -46,7 +46,6 @@ func _draw() -> void:
 		bg = bg.darkened(0.6)
 	elif not can_buy and not maxed:
 		bg = bg.darkened(0.25)
-	draw_rect(Rect2(Vector2.ZERO, size), bg)
 
 	var border := Color(0.12, 0.12, 0.14)
 	if maxed:
@@ -55,7 +54,16 @@ func _draw() -> void:
 		border = Color(0.22, 0.22, 0.25)
 	elif can_buy:
 		border = Color(0.35, 0.9, 0.35)
-	draw_rect(Rect2(Vector2.ZERO, size), border, false, 3.0)
+
+	var sb := StyleBoxFlat.new()
+	sb.bg_color = bg
+	sb.border_color = border
+	sb.set_border_width_all(3)
+	sb.set_corner_radius_all(6)
+	if can_buy:
+		sb.shadow_color = Color(0.35, 0.9, 0.35, 0.45)
+		sb.shadow_size = 8
+	draw_style_box(sb, Rect2(Vector2.ZERO, size))
 
 	var glyph := skill.glyph if skill.glyph != "" else skill.title.substr(0, 1)
 	var fs := 30

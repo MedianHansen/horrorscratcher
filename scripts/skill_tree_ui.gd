@@ -11,6 +11,7 @@ const BOTTOM_MARGIN := 20.0
 var _player: Node
 var _points_label: Label
 var _xp_label: Label
+var _xp_bar: ProgressBar
 var _tree_area: Control
 var _tooltip_title: Label
 var _tooltip_body: Label
@@ -18,6 +19,7 @@ var _tooltip_hint: Label
 
 
 func _ready() -> void:
+	theme = UiTheme.shared()
 	_player = get_tree().get_first_node_in_group("player")
 	_build()
 	visible = false
@@ -53,14 +55,21 @@ func _build() -> void:
 
 	var title := Label.new()
 	title.text = "%s - Talents" % (ticket_type.type_name if ticket_type else "?")
-	title.add_theme_font_size_override("font_size", 28)
+	title.theme_type_variation = &"TitleLabel"
 	box.add_child(title)
 
 	_points_label = Label.new()
+	_points_label.theme_type_variation = &"HeadingLabel"
 	box.add_child(_points_label)
 
 	_xp_label = Label.new()
+	_xp_label.theme_type_variation = &"MutedLabel"
 	box.add_child(_xp_label)
+
+	_xp_bar = ProgressBar.new()
+	_xp_bar.custom_minimum_size = Vector2(0, 12)
+	_xp_bar.show_percentage = false
+	box.add_child(_xp_bar)
 
 	var hbox := HBoxContainer.new()
 	hbox.add_theme_constant_override("separation", 24)
@@ -85,21 +94,21 @@ func _build() -> void:
 	tip_box.add_theme_constant_override("separation", 8)
 	tip_margin.add_child(tip_box)
 	_tooltip_title = Label.new()
-	_tooltip_title.add_theme_font_size_override("font_size", 20)
+	_tooltip_title.theme_type_variation = &"HeadingLabel"
 	tip_box.add_child(_tooltip_title)
 	_tooltip_body = Label.new()
 	_tooltip_body.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_tooltip_body.custom_minimum_size = Vector2(266, 0)
 	tip_box.add_child(_tooltip_body)
 	_tooltip_hint = Label.new()
-	_tooltip_hint.modulate = Color(1, 1, 1, 0.65)
+	_tooltip_hint.theme_type_variation = &"MutedLabel"
 	_tooltip_hint.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	_tooltip_hint.custom_minimum_size = Vector2(266, 0)
 	tip_box.add_child(_tooltip_hint)
 
 	var hint := Label.new()
 	hint.text = "Click a skill to learn it. T or ESC to close."
-	hint.modulate = Color(1, 1, 1, 0.7)
+	hint.theme_type_variation = &"MutedLabel"
 	box.add_child(hint)
 
 
@@ -114,8 +123,12 @@ func _refresh() -> void:
 	var need := ticket_type.xp_to_next(level)
 	if need > 0:
 		_xp_label.text = "XP: %d / %d" % [int(profile["xp"]), need]
+		_xp_bar.max_value = need
+		_xp_bar.value = int(profile["xp"])
 	else:
 		_xp_label.text = "XP: %d    (max level)" % int(profile["xp"])
+		_xp_bar.max_value = 1
+		_xp_bar.value = 1
 	_build_tree()
 	if _tooltip_title.text == "":
 		_tooltip_title.text = "Hover a skill"
