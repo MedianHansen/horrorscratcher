@@ -21,8 +21,8 @@ const MARGIN := 18.0
 const GAP := 18.0
 const FINISH_DELAY := 1.8
 const BASE_XP := 1
-const PANEL_COLOR := Color(0.97, 0.95, 0.90)
-const FOIL_COLOR := Color(0.34, 0.38, 0.46)
+const PANEL_COLOR := UiTheme.PANEL_PAPER
+const FOIL_COLOR := UiTheme.FOIL
 
 enum Mode { GROUND, HELD }
 
@@ -92,7 +92,7 @@ func _build_viewport_ui() -> void:
 	root.set_anchors_preset(Control.PRESET_FULL_RECT)
 	_sub.add_child(root)
 
-	var paper_color := Color(0.93, 0.91, 0.84)
+	var paper_color := UiTheme.PAPER
 	if ticket_type:
 		paper_color = ticket_type.paper_color
 	var paper := ColorRect.new()

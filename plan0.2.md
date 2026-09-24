@@ -94,12 +94,38 @@ charcoal base, desaturated purple, amber/rust accents, blood red for danger);
       and a destructive-styled "Reset save" button.
 - [x] Add a payout/result toast system (stacked toasts: `+N coins`, `+N XP`,
       `LEVEL UP`, `SPOTTED!`) fed by `Game.ticket_completed`.
+- [x] Held-ticket info panel: while scratching, shows the type's XP bar and
+      level plus every rollable icon's percentage chance (effective weight after
+      skills) and reward. Driven by `Game.ticket_held` / `ticket_released`.
 - [ ] **Icons = text glyphs for now.** Skills keep `Skill.glyph`; upgrades and
       HUD chips use glyphs too. A real icon-art pass is deferred (see Deferred):
       replace skill glyphs, upgrade icons and the **ticket-field icons**
       (`TicketIcon`) with sprites/atlases once art exists.
 - [ ] Verify UI at 1280x720 and a smaller window; check `canvas_items` stretch
       still reads well. *(Pending in-browser visual pass.)*
+
+### Phase 1b — UI polish pass
+Follow-up to Phase 1, from the "still a bit amateurish" feedback. Icons deferred.
+
+- [x] **Typography**: real hierarchy via Inter's variable weight axis
+      (`FontVariation`): 400/500/600 weights, a type scale
+      (12/13/14/15/18/28/34), letter-spacing on `SectionLabel`, and tabular
+      figures (`tnum`) so numbers don't jitter.
+- [x] **Spacing**: a 4 px scale (`SP_XS`…`SP_XL`) applied to panel padding,
+      margins and separations.
+- [x] **Material/depth**: softer larger panel shadows, consistent radii,
+      `CardPanel`, themed `HSeparator`, amber accent rules under panel titles.
+- [x] **Colour refactor**: ticket paper/foil, skill-node states and tree-link
+      colours moved into `UiTheme` (no hardcoded UI colours left in scripts).
+- [x] **HUD composition**: stamina moved into a panel with a section label,
+      `CARRY` chip panel, drawn crosshair that recolours/expands with danger,
+      and an atmosphere pass.
+- [x] **Atmosphere**: full-screen vignette shader whose intensity rises at night,
+      with suspicion/chase, and while scratching; a light focus-dim on hold.
+- [x] **Motion**: panel open fade+scale (skill tree, workshop, scratch panel),
+      animated XP-bar fill, alert pulse, skill-node hover pop, toast accent bar.
+- [ ] **Deferred**: iconography (keycap prompts, coin/ticket/stun/stamina icons,
+      skill/upgrade/ticket-field icons) — see Deferred.
 
 ### Phase 2 — Game feel / juice
 - [ ] Player camera: head-bob while moving (amplitude/frequency above; more when

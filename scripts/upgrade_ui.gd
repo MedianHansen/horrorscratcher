@@ -4,6 +4,7 @@ var _game: Node
 var _player: Node
 var _coins_label: Label
 var _scroll: ScrollContainer
+var _panel: PanelContainer
 var _rows: Array = []
 
 
@@ -32,6 +33,7 @@ func _build() -> void:
 
 	var panel := PanelContainer.new()
 	center.add_child(panel)
+	_panel = panel
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 24)
@@ -48,6 +50,11 @@ func _build() -> void:
 	title.text = "Workshop - Upgrades"
 	title.theme_type_variation = &"TitleLabel"
 	box.add_child(title)
+
+	var rule := ColorRect.new()
+	rule.color = UiTheme.AMBER
+	rule.custom_minimum_size = Vector2(0, 2)
+	box.add_child(rule)
 
 	_coins_label = Label.new()
 	_coins_label.theme_type_variation = &"GoldLabel"
@@ -165,6 +172,7 @@ func open() -> void:
 		_scroll.custom_minimum_size.y = clampf(available, 220.0, 720.0)
 	visible = true
 	_refresh()
+	_animate_open()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(true)
@@ -175,6 +183,18 @@ func close() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(false)
+
+
+func _animate_open() -> void:
+	if _panel == null:
+		return
+	_panel.modulate.a = 0.0
+	_panel.pivot_offset = _panel.size * 0.5
+	_panel.scale = Vector2(0.98, 0.98)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(_panel, "modulate:a", 1.0, 0.18)
+	tween.tween_property(_panel, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _unhandled_input(event: InputEvent) -> void:

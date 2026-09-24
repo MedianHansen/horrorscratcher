@@ -47,6 +47,12 @@ These were agreed with the user and are the intended behaviour.
   a solid body.
 - **Only the held ticket renders live** (SubViewport `UPDATE_ALWAYS`); grounded
   tickets render once for performance.
+- **Held-ticket info panel.** While a ticket is held, a HUD panel (left side)
+  shows the type's **XP bar and level** plus the current roll odds: every icon
+  with effective weight > 0 (after skill weight changes), its **percentage
+  chance** (weight / total weight) and its **reward** (XP/coins, including the
+  Blood Value XP bonus). It is driven by `Game.ticket_held` /
+  `Game.ticket_released` and hides on stow/finish/discard/death.
 
 ## Ticket types, resources & progression
 

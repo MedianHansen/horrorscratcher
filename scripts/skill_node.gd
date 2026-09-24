@@ -27,8 +27,24 @@ func setup(s: Skill, r: int, purchasable: bool, is_locked: bool) -> void:
 
 func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_STOP
-	mouse_entered.connect(func(): hovered.emit(skill))
-	mouse_exited.connect(func(): unhovered.emit(skill))
+	pivot_offset = size * 0.5
+	mouse_entered.connect(_on_hover_in)
+	mouse_exited.connect(_on_hover_out)
+
+
+func _on_hover_in() -> void:
+	hovered.emit(skill)
+	_scale_to(1.08)
+
+
+func _on_hover_out() -> void:
+	unhovered.emit(skill)
+	_scale_to(1.0)
+
+
+func _scale_to(value: float) -> void:
+	var tween := create_tween()
+	tween.tween_property(self, "scale", Vector2(value, value), 0.12).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _gui_input(event: InputEvent) -> void:
@@ -49,11 +65,11 @@ func _draw() -> void:
 
 	var border := Color(0.12, 0.12, 0.14)
 	if maxed:
-		border = Color(1.0, 0.82, 0.25)
+		border = UiTheme.STATE_MAXED
 	elif locked:
-		border = Color(0.22, 0.22, 0.25)
+		border = UiTheme.STATE_LOCKED
 	elif can_buy:
-		border = Color(0.35, 0.9, 0.35)
+		border = UiTheme.STATE_LEARNABLE
 
 	var sb := StyleBoxFlat.new()
 	sb.bg_color = bg
@@ -61,7 +77,7 @@ func _draw() -> void:
 	sb.set_border_width_all(3)
 	sb.set_corner_radius_all(6)
 	if can_buy:
-		sb.shadow_color = Color(0.35, 0.9, 0.35, 0.45)
+		sb.shadow_color = Color(UiTheme.STATE_LEARNABLE.r, UiTheme.STATE_LEARNABLE.g, UiTheme.STATE_LEARNABLE.b, 0.45)
 		sb.shadow_size = 8
 	draw_style_box(sb, Rect2(Vector2.ZERO, size))
 

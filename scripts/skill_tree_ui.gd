@@ -13,6 +13,7 @@ var _points_label: Label
 var _xp_label: Label
 var _xp_bar: ProgressBar
 var _tree_area: Control
+var _panel: PanelContainer
 var _tooltip_title: Label
 var _tooltip_body: Label
 var _tooltip_hint: Label
@@ -41,6 +42,7 @@ func _build() -> void:
 
 	var panel := PanelContainer.new()
 	center.add_child(panel)
+	_panel = panel
 
 	var margin := MarginContainer.new()
 	margin.add_theme_constant_override("margin_left", 24)
@@ -57,6 +59,8 @@ func _build() -> void:
 	title.text = "%s - Talents" % (ticket_type.type_name if ticket_type else "?")
 	title.theme_type_variation = &"TitleLabel"
 	box.add_child(title)
+
+	box.add_child(_accent_rule())
 
 	_points_label = Label.new()
 	_points_label.theme_type_variation = &"HeadingLabel"
@@ -181,7 +185,7 @@ func _build_tree() -> void:
 		var a: Vector2 = positions[skill.requires]
 		var b: Vector2 = positions[skill.id]
 		var met := Progression.rank(ticket_type.type_name, skill.requires) > 0
-		var color := Color(0.9, 0.75, 0.2) if met else Color(0.28, 0.28, 0.32)
+		var color := UiTheme.LINK_ON if met else UiTheme.LINK_OFF
 		links.append({
 			"from": a + Vector2(0, NODE_SIZE * 0.5),
 			"to": b - Vector2(0, NODE_SIZE * 0.5),
@@ -271,6 +275,7 @@ func _open() -> void:
 		return
 	visible = true
 	_refresh()
+	_animate_open()
 	Input.set_mouse_mode(Input.MOUSE_MODE_VISIBLE)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(true)
@@ -281,3 +286,22 @@ func _close() -> void:
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	if _player and _player.has_method("set_input_locked"):
 		_player.set_input_locked(false)
+
+
+func _accent_rule() -> ColorRect:
+	var rule := ColorRect.new()
+	rule.color = UiTheme.AMBER
+	rule.custom_minimum_size = Vector2(0, 2)
+	return rule
+
+
+func _animate_open() -> void:
+	if _panel == null:
+		return
+	_panel.modulate.a = 0.0
+	_panel.pivot_offset = _panel.size * 0.5
+	_panel.scale = Vector2(0.98, 0.98)
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(_panel, "modulate:a", 1.0, 0.18)
+	tween.tween_property(_panel, "scale", Vector2.ONE, 0.18).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)

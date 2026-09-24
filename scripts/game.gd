@@ -8,6 +8,8 @@ signal gadgets_changed()
 signal upgrades_changed()
 signal player_died()
 signal ticket_completed(result: Dictionary)
+signal ticket_held(type: TicketType)
+signal ticket_released()
 
 enum Phase { DAY, NIGHT }
 
@@ -360,6 +362,7 @@ func take_for_scratch() -> bool:
 	ticket.ticket_completed.connect(_on_ticket_completed)
 	ticket.hold(data)
 	held_ticket = ticket
+	ticket_held.emit(data.type)
 	return true
 
 
@@ -367,6 +370,7 @@ func cancel_held() -> void:
 	if held_ticket != null and is_instance_valid(held_ticket):
 		held_ticket.queue_free()
 	held_ticket = null
+	ticket_released.emit()
 	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	var player := get_tree().get_first_node_in_group("player")
 	if player and player.has_method("set_input_locked"):
@@ -375,6 +379,7 @@ func cancel_held() -> void:
 
 func _on_ticket_stowed(_data) -> void:
 	held_ticket = null
+	ticket_released.emit()
 	save_game()
 
 
@@ -382,6 +387,7 @@ func _on_ticket_finished(data) -> void:
 	backpack.erase(data)
 	backpack_changed.emit()
 	held_ticket = null
+	ticket_released.emit()
 	save_game()
 
 
@@ -393,6 +399,7 @@ func _on_ticket_discarded(data) -> void:
 	backpack.erase(data)
 	backpack_changed.emit()
 	held_ticket = null
+	ticket_released.emit()
 	save_game()
 
 
