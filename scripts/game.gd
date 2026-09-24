@@ -88,8 +88,8 @@ const UPGRADES := {
 var night_duration: float = 120.0
 var nights_started: int = 0
 var backpack_capacity: int = 5
-var noise_sprint_radius: float = 12.0
-var noise_walk_radius: float = 4.0
+var noise_sprint_radius: float = 20.0
+var noise_walk_radius: float = 10.0
 var capture_range: float = 1.2
 
 var phase: int = Phase.DAY

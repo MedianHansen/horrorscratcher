@@ -22,7 +22,8 @@ var _stun_timer := 0.0
 var _current_color := Color(0, 0, 0, 0)
 var _rng := RandomNumberGenerator.new()
 var _debug_sight: MeshInstance3D
-var _debug_hear: MeshInstance3D
+var _debug_hear_walk: MeshInstance3D
+var _debug_hear_run: MeshInstance3D
 
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _nose: MeshInstance3D = $Nose
@@ -241,13 +242,26 @@ func _pick_target() -> void:
 
 func _build_debug_senses() -> void:
 	_debug_sight = _make_debug_mesh(Color(1.0, 0.35, 0.2, 0.22), 0.04)
-	_debug_hear = _make_debug_mesh(Color(0.25, 0.7, 1.0, 0.18), 0.02)
+	_debug_hear_walk = _make_debug_mesh(Color(0.3, 0.9, 0.4, 0.20), 0.03)
+	_debug_hear_run = _make_debug_mesh(Color(0.25, 0.7, 1.0, 0.12), 0.02)
 	if guest_type == null:
 		return
 	if guest_type.can_see:
 		_debug_sight.mesh = _make_cone_mesh(guest_type.sight_range, guest_type.sight_angle_deg)
 	if guest_type.hear_radius > 0.0:
-		_debug_hear.mesh = _make_disk_mesh(guest_type.hear_radius)
+		var walk_r := minf(_noise_walk(), guest_type.hear_radius)
+		var run_r := minf(_noise_sprint(), guest_type.hear_radius)
+		_debug_hear_walk.mesh = _make_disk_mesh(walk_r)
+		if run_r > walk_r + 0.01:
+			_debug_hear_run.mesh = _make_disk_mesh(run_r)
+
+
+func _noise_walk() -> float:
+	return float(_game.noise_walk_radius) if _game else 10.0
+
+
+func _noise_sprint() -> float:
+	return float(_game.noise_sprint_radius) if _game else 20.0
 
 
 func _make_debug_mesh(color: Color, y: float) -> MeshInstance3D:
@@ -298,4 +312,5 @@ func _make_disk_mesh(radius: float) -> ImmediateMesh:
 func _update_debug_senses() -> void:
 	var enabled := _game != null and bool(_game.get("debug_senses"))
 	_debug_sight.visible = enabled
-	_debug_hear.visible = enabled
+	_debug_hear_walk.visible = enabled
+	_debug_hear_run.visible = enabled

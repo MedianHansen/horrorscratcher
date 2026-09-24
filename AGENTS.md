@@ -289,10 +289,14 @@ spawn at Night and despawn at dawn. First two types:
 | Listener | patrol   | blind — noise only, but faster     |
 
 - **Senses:** sight has a range, an angle and requires clear line of sight;
-  hearing has a radius. **Noise** comes from movement: sprinting is loud
-  (`noise_sprint_radius`, default 12 m), walking is quiet (`noise_walk_radius`,
-  default 4 m), standing still is silent. There is no crouch yet. The Listener
-  ignores sight and reacts only to noise.
+  hearing has a radius. A guest hears a noise when the player is within **both**
+  the noise's radius and the guest's `hear_radius`, i.e.
+  `dist <= min(noise, hear_radius)`. **Noise** comes from movement: sprinting is
+  loud (`noise_sprint_radius`, default 20 m), walking is quiet
+  (`noise_walk_radius`, default 10 m), standing still is silent. There is no
+  crouch yet. So Drifter (`hear_radius` 15) hears walking within 10 m and running
+  within 15 m; Listener (`hear_radius` 20) hears walking within 10 m and running
+  within 20 m. The Listener ignores sight and reacts only to noise.
 - **Awareness:** *Unaware → Suspicious → Chasing → Caught*. Seeing or hearing the
   player draws a guest to investigate; a positive lock starts a chase. Detection
   is shown clearly: a guest turns **amber** when suspicious and **red** when
@@ -349,7 +353,7 @@ system exists.
 ### First-pass tunables
 
 `night_duration 120 s`, `backpack_capacity 5`,
-`noise_sprint_radius 12 m`, `noise_walk_radius 4 m`, `capture_range 1.2 m`,
+`noise_sprint_radius 20 m`, `noise_walk_radius 10 m`, `capture_range 1.2 m`,
 stamina 100 over ~30 s of sprint (sleep restores 5, or 10 with Restful Bed),
 stun cost 25 coins / radius 5 m / duration 4 s / 3 charges per night. Ticket
 spawn numbers live on each type (Suffering 10/night, Fortune 0.15/night from
@@ -393,8 +397,9 @@ night 3). All are meant to be tuned.
 - While holding a ticket: `E` near the trashcan = discard it (otherwise `E`/`ESC`
   stows it).
 - `T` = open/close the Suffering skill tree (only when not holding a ticket).
-- `H` = toggle guest **sense debug overlays** (red sight cone + blue hearing
-  radius, drawn through walls). Purely a debug aid; off by default.
+- `H` = toggle guest **sense debug overlays** (red sight cone + a green disk for
+  the walk-hearing radius and a blue disk for the run-hearing radius, drawn
+  through walls). Purely a debug aid; off by default.
 
 ---
 
