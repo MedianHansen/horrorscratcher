@@ -10,6 +10,7 @@ signal player_died()
 signal ticket_completed(result: Dictionary)
 signal ticket_held(type: TicketType)
 signal ticket_released()
+signal settings_changed()
 
 enum Phase { DAY, NIGHT }
 
@@ -105,6 +106,7 @@ var gadget_charges: int = 0
 var upgrades: Dictionary = {}
 var held_ticket: Node = null
 var debug_senses: bool = false
+var settings := {"head_bob": true, "screen_shake": true}
 
 
 func _ready() -> void:
@@ -238,6 +240,24 @@ func reset_gadgets() -> void:
 	if gadget != null:
 		gadget_charges = gadget.charges_per_night
 		gadgets_changed.emit()
+
+
+func get_setting(key: String) -> bool:
+	return bool(settings.get(key, true))
+
+
+func set_setting(key: String, value: bool) -> void:
+	settings[key] = value
+	settings_changed.emit()
+	save_game()
+
+
+func head_bob_enabled() -> bool:
+	return get_setting("head_bob")
+
+
+func screen_shake_enabled() -> bool:
+	return get_setting("screen_shake")
 
 
 func upgrade_ids() -> Array:
@@ -512,6 +532,7 @@ func _save_dict() -> Dictionary:
 		"gadgets": gadget_paths,
 		"upgrades": _keys_to_strings(upgrades),
 		"progression": Progression.all_profiles(),
+		"settings": settings.duplicate(),
 	}
 
 
@@ -534,9 +555,14 @@ func _apply_save(d: Dictionary) -> void:
 			if gadget != null:
 				gadgets[gadget.id] = gadget
 	Progression.set_profiles(_normalize_profiles(d.get("progression", {})))
+	var loaded_settings = d.get("settings", {})
+	if loaded_settings is Dictionary:
+		for key in loaded_settings:
+			settings[key] = bool(loaded_settings[key])
 	backpack_changed.emit()
 	gadgets_changed.emit()
 	upgrades_changed.emit()
+	settings_changed.emit()
 
 
 func _tickets_to_data(tickets: Array) -> Array:

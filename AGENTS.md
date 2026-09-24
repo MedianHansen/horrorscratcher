@@ -381,8 +381,9 @@ night 3). All are meant to be tuned.
   persist `user://` in IndexedDB, so progress survives reloads.
 - **Saved:** coins, stamina, per-type XP/level/skill points/ranks, the backpack
   and stash (each ticket's type, rolled icons, foil health, damage and revealed
-  state), owned gadgets + charges, workshop upgrade levels, and the
-  nights-started counter (used for spawn gating).
+  state), owned gadgets + charges, workshop upgrade levels, the settings toggles
+  (head bob, screen shake), and the nights-started counter (used for spawn
+  gating).
 - **Not saved:** the live world — phase, night timer, ground tickets and guests.
   Loading resumes at Day in the hideout with a fresh cycle.
 - **Autosave** runs once at startup and after every meaningful change (pickup,
@@ -403,6 +404,8 @@ night 3). All are meant to be tuned.
 - While holding a ticket: `E` near the trashcan = discard it (otherwise `E`/`ESC`
   stows it).
 - `T` = open/close the Suffering skill tree (only when not holding a ticket).
+- `O` = open/close the **settings menu** (head-bob and screen-shake toggles;
+  frees the mouse and locks input like the other panels, closes with `O`/`ESC`).
 - `H` = toggle guest **sense debug overlays** (red sight cone + a green disk for
   the walk-hearing radius and a blue disk for the run-hearing radius, drawn
   through walls). Purely a debug aid; off by default.

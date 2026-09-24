@@ -15,6 +15,7 @@
 [ext_resource type="Resource" path="res://ticket_types/fortune.tres" id="19_fortune"]
 [ext_resource type="Script" path="res://scripts/ticket_type.gd" id="20_tickettype"]
 [ext_resource type="Resource" path="res://ticket_types/the_long_run.tres" id="22_longrun"]
+[ext_resource type="Script" path="res://scripts/settings_ui.gd" id="23_settings"]
 
 [sub_resource type="CapsuleShape3D" id="3_capsule"]
 radius = 0.45
@@ -75,3 +76,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("21_upgrade")
+
+[node name="SettingsUI" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("23_settings")

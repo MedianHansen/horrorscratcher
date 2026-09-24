@@ -128,23 +128,27 @@ Follow-up to Phase 1, from the "still a bit amateurish" feedback. Icons deferred
       skill/upgrade/ticket-field icons) — see Deferred.
 
 ### Phase 2 — Game feel / juice
-- [ ] Player camera: head-bob while moving (amplitude/frequency above; more when
-      sprinting, none when still), subtle landing dip on ground contact, and a
-      lerped sprint FOV kick.
-- [ ] Screen shake: `Player.add_shake(amount)` with trauma decay; strong shake on
-      capture/death, light shake on being spotted and on a big reveal.
-- [ ] Scratch feel (`scripts/scratch_ticket.gd`): foil particles/flakes at the
-      brush, a subtle punch on `panel_revealed`, and a satisfying reveal
-      animation (foil alpha/scale pop) instead of an instant swap.
-- [ ] Ticket-in-world feel: ground tickets bob/rotate slightly and get a hover
-      highlight/outline when looked at; pickup gives a quick fly-to-camera
-      flourish (keep it cheap; can be a scale/alpha tween, not a real path).
-- [ ] Payout moment: brief slow/zoom-in on the held ticket at completion, coins
-      count up in the HUD, and the toast fires.
-- [ ] Stun feel: flash + ring effect at the stun origin and on stunned guests.
-- [ ] Proximity/tension overlay: vignette + desaturation that intensifies with
-      the nearest guest's awareness (Phase 4 wires the data; Phase 2 builds the
-      overlay and a simple "nearest chasing guest" input).
+- [x] Player camera: head-bob while moving (faster/stronger when sprinting, none
+      when still), a subtle landing dip on ground contact, and a lerped sprint
+      FOV kick. Tunables exported on `Player`.
+- [x] Screen shake: `Player.add_shake(amount)` with trauma-squared decay via
+      `FastNoiseLite` (offset + roll); strong on death/capture, light on being
+      spotted and on ticket completion.
+- [x] Settings menu (`O`, `scripts/settings_ui.gd`): head-bob and screen-shake
+      toggles, persisted in the save (`Game.settings` / `settings_changed`) and
+      applied live by `Player`.
+- [x] Scratch feel (`scripts/scratch_ticket.gd`): foil-spark particles at the
+      brush (HUD `spawn_sparks`), a white flash + scale pop on `panel_revealed`,
+      and a `TRANS_BACK` prize pop instead of an instant swap.
+- [x] Ticket-in-world feel: looked-at ground tickets lift and scale slightly
+      (kept lying flat when idle, per AGENTS); pickup flies to the camera and
+      shrinks before freeing.
+- [~] Payout moment: coins count up in the HUD, the toast fires, and the ticket
+      gives a completion shake. (The brief slow/zoom-in is not done.)
+- [x] Stun feel: stunned guests pulse (squash/stretch) on top of the existing
+      colour change. (The ground ring at the stun origin is not done.)
+- [x] Proximity/tension overlay: the vignette intensifies at night, with
+      suspicion/chase, and while scratching (built in Phase 1b).
 
 ### Phase 3 — Audio pass
 Needs an asset decision before it can finish (see Open questions). Build the

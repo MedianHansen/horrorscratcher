@@ -32,9 +32,12 @@ var _scratch_rows: VBoxContainer
 var _vignette: ColorRect
 var _vignette_mat: ShaderMaterial
 var _focus_dim: ColorRect
+var _spark_layer: Control
 var _last_alert := 0
 var _danger := 0
 var _time := 0.0
+var _coin_display := 0.0
+var _coin_target := 0.0
 
 
 func _ready() -> void:
@@ -61,6 +64,7 @@ func _process(delta: float) -> void:
 	_update_alert()
 	_update_stamina()
 	_update_vignette(delta)
+	_animate_coins(delta)
 
 
 func _build() -> void:
@@ -75,6 +79,33 @@ func _build() -> void:
 	_build_center()
 	_build_toasts()
 	_build_scratch_panel()
+	_build_sparks()
+
+
+func _build_sparks() -> void:
+	_spark_layer = Control.new()
+	_spark_layer.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_spark_layer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_spark_layer)
+
+
+func spawn_sparks(pos: Vector2, color: Color = BONE) -> void:
+	if _spark_layer == null:
+		return
+	var spark_color := Color(color.r, color.g, color.b, 0.9)
+	for i in range(3):
+		var spark := ColorRect.new()
+		spark.color = spark_color
+		spark.size = Vector2(3, 3)
+		spark.position = pos - spark.size * 0.5
+		spark.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		_spark_layer.add_child(spark)
+		var dir := Vector2.RIGHT.rotated(randf() * TAU) * randf_range(10.0, 26.0)
+		var tween := create_tween()
+		tween.set_parallel(true)
+		tween.tween_property(spark, "position", spark.position + dir, 0.35)
+		tween.tween_property(spark, "modulate:a", 0.0, 0.35)
+		tween.chain().tween_callback(spark.queue_free)
 
 
 func _build_atmosphere() -> void:
@@ -367,7 +398,17 @@ func _update_coins() -> void:
 	if _player == null:
 		_player = get_tree().get_first_node_in_group("player")
 	if _player:
-		_coins_label.text = "%d" % int(_player.get("coins"))
+		_coin_target = float(int(_player.get("coins")))
+
+
+func _animate_coins(delta: float) -> void:
+	if _coins_label == null:
+		return
+	if absf(_coin_display - _coin_target) < 0.5:
+		_coin_display = _coin_target
+	else:
+		_coin_display = lerpf(_coin_display, _coin_target, clampf(delta * 8.0, 0.0, 1.0))
+	_coins_label.text = "%d" % int(round(_coin_display))
 
 
 func _update_timer() -> void:
@@ -415,6 +456,8 @@ func _update_alert() -> void:
 		_alert_label.modulate.a = 1.0
 	if level == 2 and _last_alert < 2:
 		push_toast("SPOTTED!", BLOOD)
+		if _player and _player.has_method("add_shake"):
+			_player.add_shake(0.4)
 	_last_alert = level
 
 

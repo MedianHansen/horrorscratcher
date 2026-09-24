@@ -82,6 +82,10 @@ func stun(duration: float) -> void:
 	_stun_timer = maxf(_stun_timer, duration)
 	velocity = Vector3.ZERO
 	_refresh_visual()
+	if _mesh:
+		var tween := create_tween()
+		tween.tween_property(_mesh, "scale", Vector3(1.25, 0.8, 1.25), 0.08)
+		tween.tween_property(_mesh, "scale", Vector3.ONE, 0.3).set_trans(Tween.TRANS_ELASTIC).set_ease(Tween.EASE_OUT)
 
 
 func _physics_process(delta: float) -> void:

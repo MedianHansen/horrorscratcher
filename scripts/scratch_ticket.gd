@@ -46,6 +46,12 @@ var _hold_transform := Transform3D()
 var _cam: Camera3D
 var _player: Node
 var _game: Node
+var _hud: Node
+var _mesh_base_pos := Vector3.ZERO
+var _mesh_base_scale := Vector3.ONE
+var _hover := 0.0
+var _pocketing := false
+var _spark_timer := 0.0
 
 @onready var _mesh: MeshInstance3D = $Mesh
 @onready var _body: Area3D = $Body
@@ -71,7 +77,10 @@ func _ready() -> void:
 	_sub.render_target_update_mode = SubViewport.UPDATE_ONCE
 	_build_viewport_ui()
 	_setup_material()
+	_mesh_base_pos = _mesh.position
+	_mesh_base_scale = _mesh.scale
 	_player = get_tree().get_first_node_in_group("player")
+	_hud = get_tree().get_first_node_in_group("hud")
 	add_to_group("ground_ticket")
 	_game = get_tree().get_first_node_in_group("game")
 	if _game:
@@ -145,11 +154,19 @@ func _build_viewport_ui() -> void:
 		health.resize(grid_w * grid_h)
 		health.fill(scratch_hardness)
 
+		var noise := PackedFloat32Array()
+		noise.resize(grid_w * grid_h)
+		var rng := RandomNumberGenerator.new()
+		rng.randomize()
+		for j in range(noise.size()):
+			noise[j] = rng.randf()
+
 		_panels.append({
 			"rect": rect,
 			"grid_w": grid_w,
 			"grid_h": grid_h,
 			"health": health,
+			"noise": noise,
 			"image": img,
 			"texture": tex,
 			"damage": 0.0,
@@ -231,6 +248,16 @@ func _foil_alpha(health_ratio: float) -> float:
 	return 1.0 - pow(1.0 - ratio, foil_fade_power)
 
 
+func _cell_alpha(p: Dictionary, idx: int) -> Color:
+	var health: PackedFloat32Array = p["health"]
+	var noise: PackedFloat32Array = p["noise"]
+	var removed := 1.0 - _foil_alpha(health[idx] / scratch_hardness)
+	var n := noise[idx]
+	var alpha := clampf(1.0 - removed * (0.68 + 0.58 * n), 0.0, 1.0)
+	var shade := 0.88 + 0.24 * n
+	return Color(FOIL_COLOR.r * shade, FOIL_COLOR.g * shade, FOIL_COLOR.b * shade, alpha)
+
+
 func _refresh_panel_image(index: int) -> void:
 	var p: Dictionary = _panels[index]
 	var img: Image = p["image"]
@@ -240,8 +267,7 @@ func _refresh_panel_image(index: int) -> void:
 		img.fill(Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 0.0))
 	else:
 		for idx in range(health.size()):
-			var a := _foil_alpha(health[idx] / scratch_hardness)
-			img.set_pixel(idx % grid_w, idx / grid_w, Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, a))
+			img.set_pixel(idx % grid_w, idx / grid_w, _cell_alpha(p, idx))
 	p["texture"].update(img)
 	p["dirty"] = false
 	p["dirty_indices"] = PackedInt32Array()
@@ -294,8 +320,13 @@ func _apply_icon_visual(index: int, icon: TicketIcon) -> void:
 func _process(delta: float) -> void:
 	if _interact_cooldown > 0.0:
 		_interact_cooldown -= delta
+	if _spark_timer > 0.0:
+		_spark_timer -= delta
 
 	_flush_dirty()
+
+	if _pocketing:
+		return
 
 	if _mode == Mode.HELD:
 		_follow_camera()
@@ -310,11 +341,19 @@ func _process(delta: float) -> void:
 		_sub.render_target_update_mode = SubViewport.UPDATE_ONCE
 
 	var looking := _is_looking_at_ticket()
+	_update_hover(delta, looking)
 	var prompt := "Press E to pocket the ticket" if looking else ""
 	if _player and _player.has_method("show_prompt"):
 		_player.show_prompt(prompt, self)
 	if looking and _interact_cooldown <= 0.0 and Input.is_action_just_pressed("interact"):
 		_pocket()
+
+
+func _update_hover(delta: float, looking: bool) -> void:
+	var target := 1.0 if looking else 0.0
+	_hover = lerpf(_hover, target, clampf(delta * 10.0, 0.0, 1.0))
+	_mesh.position = _mesh_base_pos + Vector3(0.0, 0.035 * _hover, 0.0)
+	_mesh.scale = _mesh_base_scale * (1.0 + 0.05 * _hover)
 
 
 func _flush_dirty() -> void:
@@ -323,11 +362,9 @@ func _flush_dirty() -> void:
 		if not p["dirty"]:
 			continue
 		var img: Image = p["image"]
-		var health: PackedFloat32Array = p["health"]
 		var grid_w: int = p["grid_w"]
 		for idx in p["dirty_indices"]:
-			var a := _foil_alpha(health[idx] / scratch_hardness)
-			img.set_pixel(idx % grid_w, idx / grid_w, Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, a))
+			img.set_pixel(idx % grid_w, idx / grid_w, _cell_alpha(p, idx))
 		p["texture"].update(img)
 		p["dirty"] = false
 		p["dirty_indices"] = PackedInt32Array()
@@ -390,7 +427,22 @@ func _pocket() -> void:
 	if _game.pocket(data):
 		if _player and _player.has_method("show_prompt"):
 			_player.show_prompt("", self)
-		queue_free()
+		_pocket_flourish()
+
+
+func _pocket_flourish() -> void:
+	_pocketing = true
+	_body.monitoring = false
+	_shape.set_deferred("disabled", true)
+	var target := global_position + Vector3.UP * 0.4
+	var cam := get_viewport().get_camera_3d()
+	if cam:
+		target = cam.global_position - cam.global_transform.basis.z * 0.35
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(self, "global_position", target, 0.22).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_IN)
+	tween.tween_property(self, "scale", Vector3.ONE * 0.15, 0.22)
+	tween.chain().tween_callback(queue_free)
 
 
 func _stow() -> void:
@@ -460,7 +512,18 @@ func _input(event: InputEvent) -> void:
 		get_viewport().set_input_as_handled()
 	elif event is InputEventMouseMotion and _scratching:
 		_scratch_at(event.position)
+		_emit_sparks(event.position)
 		get_viewport().set_input_as_handled()
+
+
+func _emit_sparks(screen_pos: Vector2) -> void:
+	if _spark_timer > 0.0:
+		return
+	_spark_timer = 0.04
+	if _hud == null:
+		_hud = get_tree().get_first_node_in_group("hud")
+	if _hud and _hud.has_method("spawn_sparks"):
+		_hud.spawn_sparks(screen_pos, FOIL_COLOR)
 
 
 func _scratch_at(screen_pos: Vector2) -> void:
@@ -501,36 +564,42 @@ func _scratch_at(screen_pos: Vector2) -> void:
 			_last_panel = i
 			_last_hit = cur
 			return
-		var distance := (_last_hit - cur).length()
+		var delta := cur - _last_hit
+		var distance := delta.length()
 		_last_hit = cur
 		if distance <= 0.0 or distance > 64.0:
 			return
-		_apply_scratch(i, cx, cy, distance)
+		_apply_scratch(i, cx, cy, distance, delta)
 		return
 
 	_last_panel = -1
 	_last_hit = Vector2(-1.0, -1.0)
 
 
-func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void:
+func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float, dir: Vector2) -> void:
 	var p: Dictionary = _panels[panel_index]
 	if p["revealed"]:
 		return
 	var grid_w: int = p["grid_w"]
 	var grid_h: int = p["grid_h"]
 	var health: PackedFloat32Array = p["health"]
+	var noise: PackedFloat32Array = p["noise"]
 	var damage := distance * _player_damage()
 	var brush := brush_radius_cells * _brush_scale()
-	var radius := int(ceil(brush))
-	var radius_sq := brush * brush
+	var stretch := 1.6
+	var along_dir := dir.normalized() if dir.length() > 0.001 else Vector2.RIGHT
+	var perp := Vector2(-along_dir.y, along_dir.x)
+	var reach := int(ceil(brush * stretch))
 	var changed := false
 	var applied := 0.0
 	var dirty: PackedInt32Array = p["dirty_indices"]
 
-	for oy in range(-radius, radius + 1):
-		for ox in range(-radius, radius + 1):
-			var d_sq := float(ox * ox + oy * oy)
-			if d_sq > radius_sq:
+	for oy in range(-reach, reach + 1):
+		for ox in range(-reach, reach + 1):
+			var along := (float(ox) * along_dir.x + float(oy) * along_dir.y) / stretch
+			var across := float(ox) * perp.x + float(oy) * perp.y
+			var d := sqrt(along * along + across * across)
+			if d > brush:
 				continue
 			var x := cx + ox
 			var y := cy + oy
@@ -540,7 +609,9 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float) -> void
 			var h := health[idx]
 			if h <= 0.0:
 				continue
-			var falloff := 1.0 - sqrt(d_sq) / brush
+			var n := noise[idx]
+			var falloff := (1.0 - d / brush) * (0.42 + 1.16 * n) / stretch
+			falloff = clampf(falloff, 0.0, 1.0)
 			var nh := maxf(0.0, h - damage * falloff)
 			if nh != h:
 				applied += h - nh
@@ -590,8 +661,22 @@ func _reveal_panel(panel_index: int) -> void:
 	p["dirty"] = false
 	p["dirty_indices"] = PackedInt32Array()
 
+	_pop_panel(panel_index)
 	panel_revealed.emit(panel_index)
 	_maybe_finish()
+
+
+func _pop_panel(panel_index: int) -> void:
+	var bg: ColorRect = _panel_bgs[panel_index]
+	bg.color = Color(1, 1, 1, 1)
+	var flash := create_tween()
+	flash.tween_property(bg, "color", PANEL_COLOR, 0.3)
+
+	var label: Label = _prize_labels[panel_index]
+	label.pivot_offset = label.size * 0.5
+	label.scale = Vector2(0.5, 0.5)
+	var pop := create_tween()
+	pop.tween_property(label, "scale", Vector2.ONE, 0.32).set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _maybe_finish() -> void:
@@ -609,6 +694,8 @@ func _finish_ticket() -> void:
 	_award(result)
 	finished.emit(_data)
 	ticket_completed.emit(result)
+	if _player and _player.has_method("add_shake"):
+		_player.add_shake(0.3)
 	if _player and _player.has_method("show_prompt"):
 		_player.show_prompt(_result_text(result), self)
 	await get_tree().create_timer(FINISH_DELAY).timeout

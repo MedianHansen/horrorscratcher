@@ -11,6 +11,12 @@ extends CharacterBody3D
 @export var scratch_damage: float = 0.6
 @export var stamina_max: float = 100.0
 @export var sprint_stamina_seconds: float = 30.0
+@export var head_bob_amplitude: float = 0.045
+@export var head_bob_frequency: float = 8.0
+@export var sprint_fov_kick: float = 8.0
+@export var shake_decay: float = 1.8
+@export var shake_max_offset: float = 0.09
+@export var shake_max_roll: float = 0.035
 
 var yaw: float = 0.0
 var pitch: float = 0.0
@@ -23,6 +29,14 @@ const PITCH_LIMIT := deg_to_rad(88)
 var _hud: Node
 var _prompt_owner: Object = null
 var _game: Node
+var _cam_base_pos := Vector3.ZERO
+var _base_fov := 70.0
+var _bob_phase := 0.0
+var _trauma := 0.0
+var _land_dip := 0.0
+var _was_on_floor := true
+var _shake_time := 0.0
+var _shake_noise := FastNoiseLite.new()
 
 func _ready() -> void:
 	add_to_group("player")
@@ -32,6 +46,11 @@ func _ready() -> void:
 	pitch = cam.rotation.x
 	_hud = get_tree().get_first_node_in_group("hud")
 	_game = get_tree().get_first_node_in_group("game")
+	_cam_base_pos = cam.position
+	_base_fov = cam.fov
+	_shake_noise.frequency = 0.6
+	if _game and _game.has_signal("player_died"):
+		_game.player_died.connect(_on_player_died)
 	stamina = stamina_max
 	_update_coins_label()
 	if _game and _game.has_method("load_if_pending"):
@@ -132,6 +151,7 @@ func _move_speed_multiplier() -> float:
 	return 1.0
 
 func _physics_process(delta: float) -> void:
+	_update_shake(delta)
 	if input_locked:
 		if not is_on_floor():
 			velocity.y -= gravity * delta
@@ -170,3 +190,79 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0, speed * delta * 6.0)
 
 	move_and_slide()
+	_update_camera(delta, moving, sprinting)
+
+
+func _update_camera(delta: float, moving: bool, sprinting: bool) -> void:
+	var on_floor := is_on_floor()
+	var bob := Vector3.ZERO
+	if _head_bob_enabled():
+		if on_floor and not _was_on_floor:
+			_land_dip = 0.06
+		_land_dip = lerpf(_land_dip, 0.0, clampf(delta * 9.0, 0.0, 1.0))
+		if moving and on_floor:
+			var speed_scale := 1.5 if sprinting else 1.0
+			_bob_phase += delta * head_bob_frequency * speed_scale
+			var amp := head_bob_amplitude * speed_scale
+			bob.y = sin(_bob_phase * TAU) * amp
+			bob.x = cos(_bob_phase * TAU * 0.5) * amp * 0.5
+		else:
+			_bob_phase = 0.0
+		bob.y -= _land_dip
+	else:
+		_bob_phase = 0.0
+		_land_dip = 0.0
+	_was_on_floor = on_floor
+	cam.position = cam.position.lerp(_cam_base_pos + bob, clampf(delta * 14.0, 0.0, 1.0))
+
+	var target_fov := _base_fov + (sprint_fov_kick if sprinting else 0.0)
+	cam.fov = lerpf(cam.fov, target_fov, clampf(delta * 6.0, 0.0, 1.0))
+
+
+func _head_bob_enabled() -> bool:
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	if _game and _game.has_method("head_bob_enabled"):
+		return bool(_game.head_bob_enabled())
+	return true
+
+
+func _screen_shake_enabled() -> bool:
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	if _game and _game.has_method("screen_shake_enabled"):
+		return bool(_game.screen_shake_enabled())
+	return true
+
+
+func add_shake(amount: float) -> void:
+	if not _screen_shake_enabled():
+		return
+	_trauma = clampf(_trauma + amount, 0.0, 1.0)
+
+
+func _update_shake(delta: float) -> void:
+	if not _screen_shake_enabled():
+		if _trauma > 0.0 or cam.h_offset != 0.0 or cam.v_offset != 0.0 or cam.rotation.z != 0.0:
+			_trauma = 0.0
+			cam.h_offset = 0.0
+			cam.v_offset = 0.0
+			cam.rotation.z = 0.0
+		return
+	if _trauma <= 0.0:
+		return
+	_shake_time += delta
+	var t := _trauma * _trauma
+	var s := _shake_time * 34.0
+	cam.h_offset = _shake_noise.get_noise_2d(s, 0.0) * shake_max_offset * t
+	cam.v_offset = _shake_noise.get_noise_2d(0.0, s) * shake_max_offset * t
+	cam.rotation.z = _shake_noise.get_noise_2d(s, 100.0) * shake_max_roll * t
+	_trauma = maxf(0.0, _trauma - shake_decay * delta)
+	if _trauma <= 0.0:
+		cam.h_offset = 0.0
+		cam.v_offset = 0.0
+		cam.rotation.z = 0.0
+
+
+func _on_player_died() -> void:
+	add_shake(1.0)
