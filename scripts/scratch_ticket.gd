@@ -11,6 +11,9 @@ signal discarded(data)
 @export_range(0.5, 64.0, 0.5) var brush_radius_cells: float = 21.0
 @export_range(0.1, 1.0, 0.01) var reveal_threshold: float = 0.85
 @export_range(1.0, 8.0, 0.1) var foil_fade_power: float = 2.0
+@export_range(1.0, 6.0, 0.1) var edge_gain: float = 3.0
+@export_range(0.2, 1.0, 0.01) var edge_damage_scale: float = 0.47
+@export_range(1.0, 3.0, 0.05) var scratch_stretch: float = 1.6
 @export var interact_range: float = 4.0
 @export var hold_offset: Vector3 = Vector3(0.14, -0.12, -0.42)
 @export var hold_rotation_deg: Vector3 = Vector3(-6.0, -14.0, 0.0)
@@ -253,8 +256,8 @@ func _cell_alpha(p: Dictionary, idx: int) -> Color:
 	var noise: PackedFloat32Array = p["noise"]
 	var removed := 1.0 - _foil_alpha(health[idx] / scratch_hardness)
 	var n := noise[idx]
-	var alpha := clampf(1.0 - removed * (0.68 + 0.58 * n), 0.0, 1.0)
-	var shade := 0.88 + 0.24 * n
+	var alpha := clampf(1.0 - removed * (0.82 + 0.30 * n), 0.0, 1.0)
+	var shade := 0.94 + 0.12 * n
 	return Color(FOIL_COLOR.r * shade, FOIL_COLOR.g * shade, FOIL_COLOR.b * shade, alpha)
 
 
@@ -586,7 +589,7 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float, dir: Ve
 	var noise: PackedFloat32Array = p["noise"]
 	var damage := distance * _player_damage()
 	var brush := brush_radius_cells * _brush_scale()
-	var stretch := 1.6
+	var stretch := scratch_stretch
 	var along_dir := dir.normalized() if dir.length() > 0.001 else Vector2.RIGHT
 	var perp := Vector2(-along_dir.y, along_dir.x)
 	var reach := int(ceil(brush * stretch))
@@ -610,7 +613,8 @@ func _apply_scratch(panel_index: int, cx: int, cy: int, distance: float, dir: Ve
 			if h <= 0.0:
 				continue
 			var n := noise[idx]
-			var falloff := (1.0 - d / brush) * (0.42 + 1.16 * n) / stretch
+			var profile := clampf((1.0 - d / brush) * edge_gain, 0.0, 1.0)
+			var falloff := profile * edge_damage_scale * (0.65 + 0.70 * n) / stretch
 			falloff = clampf(falloff, 0.0, 1.0)
 			var nh := maxf(0.0, h - damage * falloff)
 			if nh != h:
