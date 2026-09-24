@@ -138,8 +138,10 @@ Follow-up to Phase 1, from the "still a bit amateurish" feedback. Icons deferred
       toggles, persisted in the save (`Game.settings` / `settings_changed`) and
       applied live by `Player`.
 - [x] Scratch feel (`scripts/scratch_ticket.gd`): foil-spark particles at the
-      brush (HUD `spawn_sparks`), a white flash + scale pop on `panel_revealed`,
-      and a `TRANS_BACK` prize pop instead of an instant swap.
+      brush (HUD `spawn_sparks`), and a `TRANS_BACK` prize pop. Reveal now
+      clears the remaining foil with a **diagonal white shine** (top-left →
+      bottom-right) plus a **clockwise yellow outline trace** around the panel
+      (`reveal_wipe_seconds` / `reveal_outline_seconds`).
 - [x] Ticket-in-world feel: looked-at ground tickets lift and scale slightly
       (kept lying flat when idle, per AGENTS); pickup flies to the camera and
       shrinks before freeing.

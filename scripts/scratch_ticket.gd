@@ -14,6 +14,8 @@ signal discarded(data)
 @export_range(1.0, 6.0, 0.1) var edge_gain: float = 3.0
 @export_range(0.2, 1.0, 0.01) var edge_damage_scale: float = 0.47
 @export_range(1.0, 3.0, 0.05) var scratch_stretch: float = 1.6
+@export_range(0.1, 2.0, 0.05) var reveal_wipe_seconds: float = 0.4
+@export_range(0.1, 2.0, 0.05) var reveal_outline_seconds: float = 0.7
 @export var interact_range: float = 4.0
 @export var hold_offset: Vector3 = Vector3(0.14, -0.12, -0.42)
 @export var hold_rotation_deg: Vector3 = Vector3(-6.0, -14.0, 0.0)
@@ -50,6 +52,9 @@ var _cam: Camera3D
 var _player: Node
 var _game: Node
 var _hud: Node
+var _overlay: Control
+var _wipe_anims: Array = []
+var _outline_anims: Array = []
 var _mesh_base_pos := Vector3.ZERO
 var _mesh_base_scale := Vector3.ONE
 var _hover := 0.0
@@ -179,6 +184,12 @@ func _build_viewport_ui() -> void:
 			"dirty_indices": PackedInt32Array(),
 			"icon": null,
 		})
+
+	_overlay = Control.new()
+	_overlay.set_anchors_preset(Control.PRESET_FULL_RECT)
+	_overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_overlay.draw.connect(_draw_overlay)
+	root.add_child(_overlay)
 
 
 func hold(data: TicketData) -> void:
@@ -327,6 +338,7 @@ func _process(delta: float) -> void:
 		_spark_timer -= delta
 
 	_flush_dirty()
+	_update_reveal_effects(delta)
 
 	if _pocketing:
 		return
@@ -658,16 +670,104 @@ func _reveal_panel(panel_index: int) -> void:
 	if p["revealed"]:
 		return
 	p["revealed"] = true
-
-	var img: Image = p["image"]
-	img.fill(Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 0.0))
-	p["texture"].update(img)
 	p["dirty"] = false
 	p["dirty_indices"] = PackedInt32Array()
 
+	_wipe_anims.append({"panel": panel_index, "t": 0.0})
+	_outline_anims.append({"rect": p["rect"], "t": 0.0})
 	_pop_panel(panel_index)
 	panel_revealed.emit(panel_index)
 	_maybe_finish()
+
+
+func _update_reveal_effects(delta: float) -> void:
+	for i in range(_wipe_anims.size() - 1, -1, -1):
+		var wipe: Dictionary = _wipe_anims[i]
+		wipe["t"] = float(wipe["t"]) + delta
+		var progress := float(wipe["t"]) / reveal_wipe_seconds
+		_render_wipe(_panels[wipe["panel"]], progress)
+		if progress >= 1.2:
+			_wipe_anims.remove_at(i)
+	for i in range(_outline_anims.size() - 1, -1, -1):
+		var outline: Dictionary = _outline_anims[i]
+		outline["t"] = float(outline["t"]) + delta
+		if float(outline["t"]) / reveal_outline_seconds >= 1.0:
+			_outline_anims.remove_at(i)
+	if _overlay:
+		_overlay.queue_redraw()
+
+
+func _render_wipe(p: Dictionary, progress: float) -> void:
+	var img: Image = p["image"]
+	var grid_w: int = p["grid_w"]
+	var grid_h: int = p["grid_h"]
+	var denom := float(maxi(1, grid_w + grid_h - 2))
+	var band := 0.08
+	var clear := Color(FOIL_COLOR.r, FOIL_COLOR.g, FOIL_COLOR.b, 0.0)
+	var shine := Color(1.0, 1.0, 1.0, 1.0)
+	for idx in range(grid_w * grid_h):
+		var x := idx % grid_w
+		var y := idx / grid_w
+		var t := float(x + y) / denom
+		var color: Color
+		if t < progress - band:
+			color = clear
+		elif t < progress:
+			color = shine
+		else:
+			color = _cell_alpha(p, idx)
+		img.set_pixel(x, y, color)
+	p["texture"].update(img)
+
+
+func _draw_overlay() -> void:
+	if _overlay == null:
+		return
+	for outline in _outline_anims:
+		var progress := clampf(float(outline["t"]) / reveal_outline_seconds, 0.0, 1.0)
+		_draw_outline(outline["rect"], progress)
+
+
+func _draw_outline(rect: Rect2, progress: float) -> void:
+	var perim := 2.0 * (rect.size.x + rect.size.y)
+	var head := minf(progress * 2.0, 1.0) * perim
+	var tail := maxf(progress * 2.0 - 1.0, 0.0) * perim
+	if head - tail < 0.5:
+		return
+	var points := _perimeter_segment(rect, tail, head)
+	if points.size() < 2:
+		return
+	_overlay.draw_polyline(points, Color(1.0, 0.85, 0.2, 0.35), 8.0, true)
+	_overlay.draw_polyline(points, Color(1.0, 0.9, 0.3, 1.0), 3.0, true)
+
+
+func _perimeter_segment(rect: Rect2, from_d: float, to_d: float) -> PackedVector2Array:
+	var w := rect.size.x
+	var h := rect.size.y
+	var p0 := rect.position
+	var p1 := rect.position + Vector2(w, 0.0)
+	var p2 := rect.position + Vector2(w, h)
+	var p3 := rect.position + Vector2(0.0, h)
+	var edges: Array = [
+		[p0, p1, w],
+		[p1, p2, h],
+		[p2, p3, w],
+		[p3, p0, h],
+	]
+	var points := PackedVector2Array()
+	var start := 0.0
+	for edge in edges:
+		var a: Vector2 = edge[0]
+		var b: Vector2 = edge[1]
+		var length: float = edge[2]
+		var lo := maxf(from_d, start)
+		var hi := minf(to_d, start + length)
+		if hi > lo and length > 0.0:
+			var dir := (b - a) / length
+			points.append(a + dir * (lo - start))
+			points.append(a + dir * (hi - start))
+		start += length
+	return points
 
 
 func _pop_panel(panel_index: int) -> void:
