@@ -29,6 +29,12 @@ var _scratch_level: Label
 var _scratch_xp_bar: ProgressBar
 var _scratch_xp_label: Label
 var _scratch_rows: VBoxContainer
+var _scratch_type: TicketType
+var _completing := false
+var _hide_token := 0
+var _xp_burst_time := 0.0
+var _xp_burst_accum := 0.0
+var _xp_tween: Tween
 var _vignette: ColorRect
 var _vignette_mat: ShaderMaterial
 var _focus_dim: ColorRect
@@ -65,6 +71,7 @@ func _process(delta: float) -> void:
 	_update_stamina()
 	_update_vignette(delta)
 	_animate_coins(delta)
+	_update_xp_burst(delta)
 
 
 func _build() -> void:
@@ -496,17 +503,6 @@ func _update_vignette(delta: float) -> void:
 	_vignette_mat.set_shader_parameter("intensity", lerpf(current, target, clampf(delta * 3.0, 0.0, 1.0)))
 
 
-func _on_ticket_completed(result: Dictionary) -> void:
-	var xp := int(result.get("xp", 0))
-	var coins := int(result.get("coins", 0))
-	if xp > 0:
-		push_toast("+%d XP" % xp, GOLD)
-	if coins > 0:
-		push_toast("+%d coins" % coins, GOLD)
-	if int(result.get("levels_gained", 0)) > 0:
-		push_toast("LEVEL UP  \u2192  %d" % int(result.get("level", 0)), AMBER)
-
-
 func push_toast(text: String, color: Color = BONE) -> void:
 	if _toast_box == null:
 		return
@@ -551,12 +547,16 @@ func set_prompt(text: String) -> void:
 func _on_ticket_held(type: TicketType) -> void:
 	if type == null:
 		return
+	_scratch_type = type
+	_completing = false
 	_scratch_title.text = type.type_name
 	var profile: Dictionary = Progression.profile(type.type_name)
 	var level := int(profile["level"])
 	_scratch_level.text = "Level %d / %d" % [level, type.level_cap]
 	var need := type.xp_to_next(level)
 	var target_xp := int(profile["xp"])
+	if _xp_tween and _xp_tween.is_valid():
+		_xp_tween.kill()
 	if need > 0:
 		_scratch_xp_bar.max_value = need
 		_scratch_xp_bar.value = 0
@@ -568,18 +568,122 @@ func _on_ticket_held(type: TicketType) -> void:
 	_populate_prizes(type)
 	_show_scratch_panel()
 	if need > 0:
-		var tween := create_tween()
-		tween.tween_property(_scratch_xp_bar, "value", float(target_xp), 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		_xp_tween = create_tween()
+		_xp_tween.tween_property(_scratch_xp_bar, "value", float(target_xp), 0.4).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
 
 
 func _on_ticket_released() -> void:
+	if _completing:
+		return
+	_hide_scratch_panel()
+
+
+func _hide_scratch_panel() -> void:
+	_completing = false
 	if _scratch_panel:
 		_scratch_panel.visible = false
 	if _focus_dim:
 		_focus_dim.visible = false
 
 
+func _on_ticket_completed(result: Dictionary) -> void:
+	var xp := int(result.get("xp", 0))
+	var coins := int(result.get("coins", 0))
+	if xp > 0:
+		push_toast("+%d XP" % xp, GOLD)
+	if coins > 0:
+		push_toast("+%d coins" % coins, GOLD)
+	if int(result.get("levels_gained", 0)) > 0:
+		push_toast("LEVEL UP  \u2192  %d" % int(result.get("level", 0)), AMBER)
+	if _scratch_type != null:
+		_completing = true
+		_animate_xp_after_award(result)
+		_schedule_hide(1.7)
+
+
+func _animate_xp_after_award(result: Dictionary) -> void:
+	var type := _scratch_type
+	var profile: Dictionary = Progression.profile(type.type_name)
+	var new_level := int(profile["level"])
+	var new_xp := int(profile["xp"])
+	var need := type.xp_to_next(new_level)
+	var levels_gained := int(result.get("levels_gained", 0))
+	if _xp_tween and _xp_tween.is_valid():
+		_xp_tween.kill()
+	_xp_burst_time = 0.9
+	var duration := 0.6
+	if levels_gained > 0:
+		_scratch_xp_bar.max_value = maxf(1.0, _scratch_xp_bar.max_value)
+		_xp_tween = create_tween()
+		_xp_tween.tween_property(_scratch_xp_bar, "value", _scratch_xp_bar.max_value, duration * 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+		_xp_tween.tween_callback(_on_level_filled.bind(new_level, type.level_cap, need))
+		_xp_tween.tween_property(_scratch_xp_bar, "value", float(new_xp), duration * 0.5).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	else:
+		_scratch_xp_bar.max_value = float(need) if need > 0 else 1.0
+		_xp_tween = create_tween()
+		_xp_tween.tween_property(_scratch_xp_bar, "value", float(new_xp), duration).set_trans(Tween.TRANS_CUBIC).set_ease(Tween.EASE_OUT)
+	_xp_tween.tween_callback(_set_xp_label.bind(new_xp, need))
+
+
+func _on_level_filled(level: int, cap: int, need: int) -> void:
+	_scratch_level.text = "Level %d / %d" % [level, cap]
+	_scratch_xp_bar.max_value = float(need) if need > 0 else 1.0
+	_scratch_xp_bar.value = 0.0
+	_xp_burst_time = maxf(_xp_burst_time, 0.6)
+
+
+func _set_xp_label(xp: int, need: int) -> void:
+	if need > 0:
+		_scratch_xp_label.text = "%d / %d XP to next level" % [xp, need]
+	else:
+		_scratch_xp_label.text = "Max level"
+
+
+func _schedule_hide(delay: float) -> void:
+	_hide_token += 1
+	var token := _hide_token
+	var tween := create_tween()
+	tween.tween_interval(delay)
+	tween.tween_callback(func() -> void:
+		if token == _hide_token:
+			_hide_scratch_panel()
+	)
+
+
+func _update_xp_burst(delta: float) -> void:
+	if _xp_burst_time <= 0.0:
+		return
+	_xp_burst_time -= delta
+	_xp_burst_accum += delta
+	while _xp_burst_accum >= 0.03:
+		_xp_burst_accum -= 0.03
+		_spawn_xp_mote()
+
+
+func _spawn_xp_mote() -> void:
+	if _scratch_xp_bar == null or _spark_layer == null:
+		return
+	var ratio := 0.0
+	if _scratch_xp_bar.max_value > 0.0:
+		ratio = clampf(_scratch_xp_bar.value / _scratch_xp_bar.max_value, 0.0, 1.0)
+	var base := _scratch_xp_bar.global_position
+	var pos := Vector2(base.x + _scratch_xp_bar.size.x * ratio, base.y + _scratch_xp_bar.size.y * 0.5)
+	var mote := ColorRect.new()
+	mote.color = Color(GOLD.r, GOLD.g, GOLD.b, 0.95)
+	mote.size = Vector2(3, 3)
+	mote.position = pos - mote.size * 0.5
+	mote.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_spark_layer.add_child(mote)
+	var drift := Vector2(randf_range(-10.0, 10.0), randf_range(-26.0, -14.0))
+	var tween := create_tween()
+	tween.set_parallel(true)
+	tween.tween_property(mote, "position", mote.position + drift, 0.5)
+	tween.tween_property(mote, "modulate:a", 0.0, 0.5)
+	tween.chain().tween_callback(mote.queue_free)
+
+
 func _show_scratch_panel() -> void:
+	_hide_token += 1
 	_scratch_panel.visible = true
 	_focus_dim.visible = true
 	_scratch_panel.modulate.a = 0.0

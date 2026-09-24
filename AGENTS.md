@@ -52,7 +52,9 @@ These were agreed with the user and are the intended behaviour.
   with effective weight > 0 (after skill weight changes), its **percentage
   chance** (weight / total weight) and its **reward** (XP/coins, including the
   Blood Value XP bonus). It is driven by `Game.ticket_held` /
-  `Game.ticket_released` and hides on stow/finish/discard/death.
+  `Game.ticket_released`. It hides on stow/discard/death; on **finish** it stays
+  up briefly so the type's XP bar can animate to the new value (with gold
+  particles at the fill front, and a fill-then-reset on level-up), then hides.
 
 ## Ticket types, resources & progression
 

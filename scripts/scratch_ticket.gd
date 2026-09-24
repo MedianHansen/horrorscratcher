@@ -796,8 +796,8 @@ func _finish_ticket() -> void:
 	_finished = true
 	var result := _evaluate()
 	_award(result)
-	finished.emit(_data)
 	ticket_completed.emit(result)
+	finished.emit(_data)
 	if _player and _player.has_method("add_shake"):
 		_player.add_shake(0.3)
 	if _player and _player.has_method("show_prompt"):

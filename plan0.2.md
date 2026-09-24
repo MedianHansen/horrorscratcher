@@ -97,6 +97,8 @@ charcoal base, desaturated purple, amber/rust accents, blood red for danger);
 - [x] Held-ticket info panel: while scratching, shows the type's XP bar and
       level plus every rollable icon's percentage chance (effective weight after
       skills) and reward. Driven by `Game.ticket_held` / `ticket_released`.
+- [x] On finish the panel stays up and the XP bar animates to the new value
+      (fill-then-reset on level-up) with gold particles at the fill front.
 - [ ] **Icons = text glyphs for now.** Skills keep `Skill.glyph`; upgrades and
       HUD chips use glyphs too. A real icon-art pass is deferred (see Deferred):
       replace skill glyphs, upgrade icons and the **ticket-field icons**
