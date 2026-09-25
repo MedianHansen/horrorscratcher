@@ -1,0 +1,23 @@
+[gd_scene load_steps=10 format=3]
+
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Columns.gltf" id="1_columns"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Circle_Engine_03b.gltf" id="2_circle"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Wheel_01_Engine.gltf" id="3_engine"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Wheel_01_Engine_02.gltf" id="4_engine2"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Wheel_Platform_01.gltf" id="5_platform"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ferris_Wheel_Platform_Enter.gltf" id="6_platform_enter"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Cabin_01a.gltf" id="7_cabin"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ladder_01.gltf" id="8_ladder1"]
+[ext_resource type="PackedScene" path="res://assets/ferris/SM_Ladder_02.gltf" id="9_ladder2"]
+
+[node name="FerrisWheelUE" type="Node3D"]
+
+[node name="SM_Ferris_Columns" parent="." instance=ExtResource("1_columns")]
+[node name="SM_Ferris_Circle_Engine_03b" parent="." instance=ExtResource("2_circle")]
+[node name="SM_Ferris_Wheel_01_Engine" parent="." instance=ExtResource("3_engine")]
+[node name="SM_Ferris_Wheel_01_Engine_02" parent="." instance=ExtResource("4_engine2")]
+[node name="SM_Ferris_Wheel_Platform_01" parent="." instance=ExtResource("5_platform")]
+[node name="SM_Ferris_Wheel_Platform_Enter" parent="." instance=ExtResource("6_platform_enter")]
+[node name="SM_Cabin_01a" parent="." instance=ExtResource("7_cabin")]
+[node name="SM_Ladder_01" parent="." instance=ExtResource("8_ladder1")]
+[node name="SM_Ladder_02" parent="." instance=ExtResource("9_ladder2")]

@@ -244,6 +244,28 @@ stash, gadget bench, workshop, trashcan, spawn marker and a warm light.
   reachable floor points; types below their `min_night` are skipped.
 - **Scratching can happen anywhere, anytime**, day or night.
 
+### UE asset pack (Creepwood Carnival) — pending import
+
+`assets/` holds the **Creepwood Carnival** UE5 pack (~2278 `.uasset`/`.umap`,
+~16 GB; gitignored, not yet integrated). Godot cannot read `.uasset` — meshes and
+textures must first be batch-exported to **glTF** from UE5 (built-in glTF Exporter
+via a Python batch script, or the `UnrealToGodot` plugin's "Export Selected
+Meshes"). Notes for when we build with it:
+
+- **Individual meshes lose the assembly.** Each mesh exports in its own local
+  space, so placing all the parts at the same transform does **not** rebuild a
+  compound prop — the ferris wheel proved this (its meshes are each centred on
+  their own pivot). The per-piece offsets live in the Blueprint and are not in
+  the glTF. **Export the whole actor instead** (one `.glb` per actor, via the
+  glTF exporter's selected-actors path) to carry the component hierarchy and
+  offsets; this also keeps animated parts separable.
+- **Browser budget:** only a curated, texture-capped (≤1024) subset can ship in
+  the WASM build; the full 16 GB pack cannot.
+- **Materials** transfer at parameter level only; Blueprint ride logic does not.
+
+If the carnival is rebuilt with these assets, replace the hand-made layout in the
+Carnival layout section above and record the change here.
+
 ### Stamina
 
 - Max **100**. Sprinting drains it over ~30 s (`sprint_stamina_seconds`), so once
@@ -408,6 +430,8 @@ night 3). All are meant to be tuned.
 - `T` = open/close the Suffering skill tree (only when not holding a ticket).
 - `O` = open/close the **settings menu** (head-bob and screen-shake toggles;
   frees the mouse and locks input like the other panels, closes with `O`/`ESC`).
+- `F1` = open/close the **controls/help overlay** (same input-lock behaviour,
+  closes with `F1`/`ESC`).
 - `H` = toggle guest **sense debug overlays** (red sight cone + a green disk for
   the walk-hearing radius and a blue disk for the run-hearing radius, drawn
   through walls). Purely a debug aid; off by default.

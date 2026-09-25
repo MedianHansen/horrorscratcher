@@ -192,18 +192,20 @@ plumbing first so it is not blocked.
 - [ ] Keep the `H` debug overlays in sync with any sense changes.
 
 ### Phase 5 — Clarity & onboarding
-- [ ] First-run flow: a short objective banner per phase ("Sleep to start the
-      night", "Find tickets on the ground", "Get back before dawn"), shown once
-      and dismissible.
-- [ ] Contextual hints the first time each verb is available (pocket, hold,
-      scratch, stash, buy), stored as "seen" flags in the save.
-- [ ] A controls/help overlay (e.g. `F1` or `Tab`) listing the current bindings,
+- [x] Objective banner per phase ("Sleep at the bed to begin the night" /
+      "Scavenge the carnival — be back before dawn"), shown on phase change and
+      at startup, auto-fading.
+- [x] One-time first-use hints (pocket, hold, stash, gadget) via
+      `Game.show_hint` / the `hint` signal, with seen flags persisted in the
+      save (`hints`).
+- [x] Controls/help overlay on `F1` (`scripts/help_ui.gd`), sectioned key list
       including the `H` debug toggle.
-- [ ] Make consequences legible: on death, state exactly what was lost
-      (carried tickets) and what was kept; on level-up, show the skill point
-      gained (normal vs epic).
-- [ ] Add a small "type XP / next level" readout to the HUD or the skill panel
-      header so progression is visible outside the tree.
+- [x] Death breakdown: the death message now states how many carried tickets
+      were lost (`Game.last_death_lost`).
+- [x] Level-up toast now says whether a **normal** or **epic** skill point was
+      gained (epic at levels that are multiples of 5).
+- [~] Type XP readout outside the tree: the skill panel header already shows it;
+      no separate HUD bar added.
 - [ ] Clearer wording pass over all prompts/tooltips; keep AGENTS controls list
       authoritative.
 

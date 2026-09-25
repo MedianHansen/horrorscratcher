@@ -1,4 +1,4 @@
-[gd_scene load_steps=251 format=3]
+[gd_scene load_steps=252 format=3]
 
 [ext_resource type="Script" path="res://scripts/ferris_wheel.gd" id="1_a1qow"]
 [ext_resource type="Script" path="res://scripts/carousel.gd" id="2_i2nui"]
@@ -10,6 +10,7 @@
 [ext_resource type="Resource" path="res://gadgets/stun_device.tres" id="8_mo6a1"]
 [ext_resource type="Script" path="res://scripts/workshop.gd" id="9_kh6ak"]
 [ext_resource type="Script" path="res://scripts/trashcan.gd" id="10_tshcan"]
+[ext_resource type="PackedScene" path="res://scenes/props/ferris_wheel_ue.tscn" id="11_fwue"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_h4ckd"]
 albedo_color = Color(0.11, 0.11, 0.13, 1)
@@ -1190,6 +1191,9 @@ mesh = SubResource("BoxMesh_8ci5x")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.77817, -7.77817, 0)
 material_override = SubResource("StandardMaterial3D_v5d2o")
 mesh = SubResource("BoxMesh_r6y3s")
+
+[node name="FerrisWheelUE" parent="." instance=ExtResource("11_fwue")]
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -36, 9.83, 6)
 
 [node name="Carousel" type="Node3D" parent="."]
 

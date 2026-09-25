@@ -18,6 +18,9 @@ var _coins_label: Label
 var _carried_label: Label
 var _gadget_label: Label
 var _death_label: Label
+var _death_sub_label: Label
+var _banner_label: Label
+var _banner_tween: Tween
 var _alert_label: Label
 var _prompt_label: Label
 var _stamina_bar: ProgressBar
@@ -60,8 +63,10 @@ func _ready() -> void:
 		_game.ticket_completed.connect(_on_ticket_completed)
 		_game.ticket_held.connect(_on_ticket_held)
 		_game.ticket_released.connect(_on_ticket_released)
+		_game.hint.connect(_on_hint)
 	resized.connect(queue_redraw)
 	refresh()
+	_show_banner.call_deferred(_objective_text())
 
 
 func _process(delta: float) -> void:
@@ -84,6 +89,7 @@ func _build() -> void:
 	_build_stamina()
 	_build_chips()
 	_build_center()
+	_build_banner()
 	_build_toasts()
 	_build_scratch_panel()
 	_build_sparks()
@@ -284,6 +290,20 @@ func _build_center() -> void:
 	_death_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_death_label)
 
+	_death_sub_label = Label.new()
+	_death_sub_label.theme_type_variation = &"HeadingLabel"
+	_death_sub_label.anchor_left = 0.5
+	_death_sub_label.anchor_top = 0.5
+	_death_sub_label.anchor_right = 0.5
+	_death_sub_label.anchor_bottom = 0.5
+	_death_sub_label.offset_left = -320.0
+	_death_sub_label.offset_top = 48.0
+	_death_sub_label.offset_right = 320.0
+	_death_sub_label.offset_bottom = 80.0
+	_death_sub_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_death_sub_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(_death_sub_label)
+
 	_prompt_label = Label.new()
 	_prompt_label.theme_type_variation = &"ChipLabel"
 	_prompt_label.anchor_left = 0.5
@@ -297,6 +317,20 @@ func _build_center() -> void:
 	_prompt_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	_prompt_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(_prompt_label)
+
+
+func _build_banner() -> void:
+	_banner_label = Label.new()
+	_banner_label.theme_type_variation = &"HeadingLabel"
+	_banner_label.anchor_left = 0.5
+	_banner_label.anchor_right = 0.5
+	_banner_label.offset_left = -360.0
+	_banner_label.offset_right = 360.0
+	_banner_label.offset_top = 24.0
+	_banner_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
+	_banner_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_banner_label.modulate.a = 0.0
+	add_child(_banner_label)
 
 
 func _build_toasts() -> void:
@@ -430,14 +464,46 @@ func _update_timer() -> void:
 
 
 func _on_phase_changed(_phase: int) -> void:
-	if _game and _game.is_night() and _death_label:
-		_death_label.text = ""
+	if _game and _game.is_night():
+		if _death_label:
+			_death_label.text = ""
+		if _death_sub_label:
+			_death_sub_label.text = ""
+	_show_banner(_objective_text())
 	refresh()
+
+
+func _objective_text() -> String:
+	if _game and _game.is_night():
+		return "Scavenge the carnival \u2014 be back in the hideout before dawn"
+	return "Sleep at the bed to begin the night"
+
+
+func _show_banner(text: String, hold: float = 4.0) -> void:
+	if _banner_label == null:
+		return
+	if _banner_tween and _banner_tween.is_valid():
+		_banner_tween.kill()
+	_banner_label.text = text
+	_banner_tween = create_tween()
+	_banner_tween.tween_property(_banner_label, "modulate:a", 1.0, 0.3)
+	_banner_tween.tween_interval(hold)
+	_banner_tween.tween_property(_banner_label, "modulate:a", 0.0, 0.8)
+
+
+func _on_hint(text: String) -> void:
+	_show_banner(text, 5.0)
 
 
 func _on_player_died() -> void:
 	if _death_label:
 		_death_label.text = "CAUGHT"
+	if _death_sub_label:
+		var lost := int(_game.last_death_lost) if _game else 0
+		if lost > 0:
+			_death_sub_label.text = "Lost %d carried ticket%s" % [lost, "" if lost == 1 else "s"]
+		else:
+			_death_sub_label.text = "Nothing carried was lost"
 
 
 func _update_alert() -> void:
@@ -503,7 +569,7 @@ func _update_vignette(delta: float) -> void:
 	_vignette_mat.set_shader_parameter("intensity", lerpf(current, target, clampf(delta * 3.0, 0.0, 1.0)))
 
 
-func push_toast(text: String, color: Color = BONE) -> void:
+func push_toast(text: String, color: Color = BONE, hold: float = 1.3) -> void:
 	if _toast_box == null:
 		return
 	var row := HBoxContainer.new()
@@ -529,7 +595,7 @@ func push_toast(text: String, color: Color = BONE) -> void:
 	_toast_box.add_child(row)
 	var tween := create_tween()
 	tween.tween_property(row, "modulate:a", 1.0, 0.15)
-	tween.tween_interval(1.3)
+	tween.tween_interval(hold)
 	tween.tween_property(row, "modulate:a", 0.0, 0.6)
 	tween.tween_callback(row.queue_free)
 
@@ -595,6 +661,9 @@ func _on_ticket_completed(result: Dictionary) -> void:
 		push_toast("+%d coins" % coins, GOLD)
 	if int(result.get("levels_gained", 0)) > 0:
 		push_toast("LEVEL UP  \u2192  %d" % int(result.get("level", 0)), AMBER)
+		var reached := int(result.get("level", 1))
+		var point := "EPIC skill point" if reached % 5 == 0 else "skill point"
+		push_toast("+1 %s" % point, AMBER)
 	if _scratch_type != null:
 		_completing = true
 		_animate_xp_after_award(result)

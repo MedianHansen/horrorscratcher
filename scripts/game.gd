@@ -11,6 +11,7 @@ signal ticket_completed(result: Dictionary)
 signal ticket_held(type: TicketType)
 signal ticket_released()
 signal settings_changed()
+signal hint(text: String)
 
 enum Phase { DAY, NIGHT }
 
@@ -107,6 +108,8 @@ var upgrades: Dictionary = {}
 var held_ticket: Node = null
 var debug_senses: bool = false
 var settings := {"head_bob": true, "screen_shake": true}
+var hints := {}
+var last_death_lost := 0
 
 
 func _ready() -> void:
@@ -169,6 +172,7 @@ func end_night(safe: bool) -> void:
 	night_time_left = 0.0
 	if not safe:
 		cancel_held()
+		last_death_lost = backpack.size()
 		backpack.clear()
 		backpack_changed.emit()
 		_teleport_player_home()
@@ -184,6 +188,7 @@ func pocket(data) -> bool:
 		return false
 	backpack.append(data)
 	backpack_changed.emit()
+	show_hint("pocket", "Press Q to hold a ticket and scratch it.")
 	save_game()
 	return true
 
@@ -195,6 +200,7 @@ func deposit_all() -> int:
 	stash.append_array(backpack)
 	backpack.clear()
 	backpack_changed.emit()
+	show_hint("stash", "Stashed tickets are safe. Carried tickets are lost if a guest catches you.")
 	save_game()
 	return count
 
@@ -211,6 +217,7 @@ func buy_gadget(gadget: Gadget) -> bool:
 	if gadget.id == ACTIVE_GADGET:
 		gadget_charges = gadget.charges_per_night
 	gadgets_changed.emit()
+	show_hint("gadget", "Press G at night to use the Stun Device.")
 	save_game()
 	return true
 
@@ -258,6 +265,14 @@ func head_bob_enabled() -> bool:
 
 func screen_shake_enabled() -> bool:
 	return get_setting("screen_shake")
+
+
+func show_hint(id: String, text: String) -> void:
+	if bool(hints.get(id, false)):
+		return
+	hints[id] = true
+	hint.emit(text)
+	save_game()
 
 
 func upgrade_ids() -> Array:
@@ -383,6 +398,7 @@ func take_for_scratch() -> bool:
 	ticket.hold(data)
 	held_ticket = ticket
 	ticket_held.emit(data.type)
+	show_hint("hold", "Hold the left mouse button and scrub the foil to reveal the prize.")
 	return true
 
 
@@ -433,6 +449,7 @@ func on_caught() -> void:
 	if phase == Phase.NIGHT:
 		end_night(false)
 	else:
+		last_death_lost = 0
 		_teleport_player_home()
 		player_died.emit()
 
@@ -533,6 +550,7 @@ func _save_dict() -> Dictionary:
 		"upgrades": _keys_to_strings(upgrades),
 		"progression": Progression.all_profiles(),
 		"settings": settings.duplicate(),
+		"hints": hints.duplicate(),
 	}
 
 
@@ -559,6 +577,9 @@ func _apply_save(d: Dictionary) -> void:
 	if loaded_settings is Dictionary:
 		for key in loaded_settings:
 			settings[key] = bool(loaded_settings[key])
+	var loaded_hints = d.get("hints", {})
+	if loaded_hints is Dictionary:
+		hints = loaded_hints.duplicate()
 	backpack_changed.emit()
 	gadgets_changed.emit()
 	upgrades_changed.emit()

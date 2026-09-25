@@ -16,6 +16,7 @@
 [ext_resource type="Script" path="res://scripts/ticket_type.gd" id="20_tickettype"]
 [ext_resource type="Resource" path="res://ticket_types/the_long_run.tres" id="22_longrun"]
 [ext_resource type="Script" path="res://scripts/settings_ui.gd" id="23_settings"]
+[ext_resource type="Script" path="res://scripts/help_ui.gd" id="24_help"]
 
 [sub_resource type="CapsuleShape3D" id="3_capsule"]
 radius = 0.45
@@ -82,3 +83,9 @@ anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 script = ExtResource("23_settings")
+
+[node name="HelpUI" type="Control" parent="UI"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("24_help")
