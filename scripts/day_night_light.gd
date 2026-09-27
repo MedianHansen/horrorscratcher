@@ -46,7 +46,6 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _toggle_debug() -> void:
 	_debug = not _debug
-	shadow_enabled = not _debug
 	if _env == null:
 		return
 	if _debug:

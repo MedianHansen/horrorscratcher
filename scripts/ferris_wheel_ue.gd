@@ -108,6 +108,10 @@ func _f(value, fallback: float = 1.0) -> float:
 	return fallback
 
 
+func _is_white(v: Vector3) -> bool:
+	return absf(v.x - 1.0) < 0.01 and absf(v.y - 1.0) < 0.01 and absf(v.z - 1.0) < 0.01
+
+
 func _apply_master(node: Node) -> void:
 	if node is MeshInstance3D:
 		var mi := node as MeshInstance3D
@@ -177,7 +181,10 @@ func _build_material(entry: Dictionary) -> ShaderMaterial:
 	mat.set_shader_parameter("tmask_r1", _vec3(entry.get("tr1")))
 	mat.set_shader_parameter("tmask_g1", _vec3(entry.get("tg1")))
 	mat.set_shader_parameter("tmask_b1", _vec3(entry.get("tb1")))
-	mat.set_shader_parameter("tintmask_inten1", _f(entry.get("ti1")))
+	if _is_white(_vec3(entry.get("tr1"))) and _is_white(_vec3(entry.get("tg1"))) and _is_white(_vec3(entry.get("tb1"))):
+		mat.set_shader_parameter("tintmask_inten1", 0.0)
+	else:
+		mat.set_shader_parameter("tintmask_inten1", _f(entry.get("ti1")))
 
 	var tm2 := _tex(entry.get("tm2"))
 	if tm2 == null:
@@ -187,6 +194,9 @@ func _build_material(entry: Dictionary) -> ShaderMaterial:
 	mat.set_shader_parameter("tmask_r2", _vec3(entry.get("tr2")))
 	mat.set_shader_parameter("tmask_g2", _vec3(entry.get("tg2")))
 	mat.set_shader_parameter("tmask_b2", _vec3(entry.get("tb2")))
-	mat.set_shader_parameter("tintmask_inten2", _f(entry.get("ti2")))
+	if _is_white(_vec3(entry.get("tr2"))) and _is_white(_vec3(entry.get("tg2"))) and _is_white(_vec3(entry.get("tb2"))):
+		mat.set_shader_parameter("tintmask_inten2", 0.0)
+	else:
+		mat.set_shader_parameter("tintmask_inten2", _f(entry.get("ti2")))
 
 	return mat

@@ -36,6 +36,7 @@ uniform float tintmask_inten2 = 1.0;
 uniform float specular_amount : hint_range(0.0, 1.0) = 0.5;
 uniform int debug_mode = 0;
 uniform float mask_tiling = 1.0;
+uniform float mask_lod : hint_range(0.0, 6.0) = 0.0;
 
 void fragment() {
 	vec2 uv = UV;
@@ -52,12 +53,12 @@ void fragment() {
 	albedo = mix(albedo, tmask_g2, clamp(c.g * tintmask_inten2, 0.0, 1.0));
 	albedo = mix(albedo, tmask_b2, clamp(c.b * tintmask_inten2, 0.0, 1.0));
 
-	vec3 m1 = texture(mask1, uv).rgb;
+	vec3 m1 = textureLod(mask1, uv, mask_lod).rgb;
 	albedo = mix(albedo, tint_r1, clamp(m1.r * inten1.r, 0.0, 1.0));
 	albedo = mix(albedo, tint_g1, clamp(m1.g * inten1.g, 0.0, 1.0));
 	albedo = mix(albedo, tint_b1, clamp(m1.b * inten1.b, 0.0, 1.0));
 
-	vec3 m2 = texture(mask2, uv).rgb;
+	vec3 m2 = textureLod(mask2, uv, mask_lod).rgb;
 	albedo = mix(albedo, tint_r2, clamp(m2.r * inten2.r, 0.0, 1.0));
 	albedo = mix(albedo, tint_g2, clamp(m2.g * inten2.g, 0.0, 1.0));
 	albedo = mix(albedo, tint_b2, clamp(m2.b * inten2.b, 0.0, 1.0));
