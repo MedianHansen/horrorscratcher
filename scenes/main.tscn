@@ -31,6 +31,8 @@ environment = ExtResource("2_env")
 transform = Transform3D(1, 0, 0, 0, 0.642788, 0.766044, 0, -0.766044, 0.642788, 0, 14.0, 10.0)
 light_energy = 1.2
 shadow_enabled = true
+shadow_bias = 0.4
+shadow_normal_bias = 6.0
 script = ExtResource("12_daynight")
 
 [node name="Carnival" parent="." instance=ExtResource("3_carnival")]
