@@ -1,6 +1,5 @@
 [gd_scene load_steps=252 format=3]
 
-[ext_resource type="Script" path="res://scripts/ferris_wheel.gd" id="1_a1qow"]
 [ext_resource type="Script" path="res://scripts/carousel.gd" id="2_i2nui"]
 [ext_resource type="Script" path="res://scripts/hideout_door.gd" id="3_vuawu"]
 [ext_resource type="Script" path="res://scripts/hideout_zone.gd" id="4_kl44j"]
@@ -122,89 +121,11 @@ radial_segments = 8
 [sub_resource type="BoxMesh" id="BoxMesh_jy40f"]
 size = Vector3(2, 1, 0.1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_cwd60"]
-size = Vector3(0.7, 15, 0.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_w5o1e"]
-size = Vector3(0.7, 15, 0.7)
-
-[sub_resource type="BoxMesh" id="BoxMesh_04hcw"]
-size = Vector3(0.7, 15, 0.7)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_ctftv"]
-size = Vector3(0.7, 15, 0.7)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_6sgse"]
 albedo_color = Color(0.09, 0.08, 0.1, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_6lopb"]
-size = Vector3(12, 1, 6)
-
-[sub_resource type="BoxShape3D" id="BoxShape3D_fxdyu"]
-size = Vector3(12, 1, 6)
-
-[sub_resource type="TorusMesh" id="TorusMesh_x8wyt"]
-inner_radius = 10.4
-outer_radius = 11.6
-rings = 28
-ring_segments = 8
-
-[sub_resource type="TorusMesh" id="TorusMesh_05frw"]
-inner_radius = 6.4
-outer_radius = 7.0
-rings = 28
-ring_segments = 8
-
-[sub_resource type="BoxMesh" id="BoxMesh_cwkir"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_d645y"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_t628k"]
-size = Vector3(11, 0.15, 0.15)
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_v5d2o"]
 albedo_color = Color(0.72, 0.58, 0.16, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_yg7uv"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_0gokb"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ujy4r"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ixu78"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_dy8vc"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ana8k"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ndsys"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_ywtmn"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_dimhq"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_b0r2t"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_txcjl"]
-size = Vector3(1.6, 1.6, 1.6)
-
-[sub_resource type="BoxMesh" id="BoxMesh_8ci5x"]
-size = Vector3(11, 0.15, 0.15)
-
-[sub_resource type="BoxMesh" id="BoxMesh_r6y3s"]
-size = Vector3(1.6, 1.6, 1.6)
 
 [sub_resource type="CylinderMesh" id="CylinderMesh_8vva6"]
 top_radius = 8.0
@@ -1067,133 +988,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -31, 13, -8)
 material_override = SubResource("StandardMaterial3D_7riix")
 mesh = SubResource("BoxMesh_jy40f")
 
-[node name="FerrisWheel" type="Node3D" parent="."]
-
-[node name="LegL" type="StaticBody3D" parent="FerrisWheel"]
-transform = Transform3D(0.961055, -0.276356, 0, 0.276356, 0.961055, 0, 0, 0, 1, 26, 7.5, -18)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="FerrisWheel/LegL"]
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_cwd60")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FerrisWheel/LegL"]
-shape = SubResource("BoxShape3D_w5o1e")
-
-[node name="LegR" type="StaticBody3D" parent="FerrisWheel"]
-transform = Transform3D(0.961055, 0.276356, 0, -0.276356, 0.961055, 0, 0, 0, 1, 34, 7.5, -18)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="FerrisWheel/LegR"]
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_04hcw")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FerrisWheel/LegR"]
-shape = SubResource("BoxShape3D_ctftv")
-
-[node name="Base" type="StaticBody3D" parent="FerrisWheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 0.5, -18)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="FerrisWheel/Base"]
-material_override = SubResource("StandardMaterial3D_6sgse")
-mesh = SubResource("BoxMesh_6lopb")
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="FerrisWheel/Base"]
-shape = SubResource("BoxShape3D_fxdyu")
-
-[node name="Wheel" type="Node3D" parent="FerrisWheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 30, 14, -18)
-script = ExtResource("1_a1qow")
-
-[node name="RingOuter" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("TorusMesh_x8wyt")
-
-[node name="RingInner" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("TorusMesh_05frw")
-
-[node name="Spoke0" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_cwkir")
-
-[node name="Cabin0" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 11, 0, 0)
-material_override = SubResource("StandardMaterial3D_7riix")
-mesh = SubResource("BoxMesh_d645y")
-
-[node name="Spoke1" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(0.707107, -0.707107, 0, 0.707107, 0.707107, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_t628k")
-
-[node name="Cabin1" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.77817, 7.77817, 0)
-material_override = SubResource("StandardMaterial3D_v5d2o")
-mesh = SubResource("BoxMesh_yg7uv")
-
-[node name="Spoke2" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(-4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_0gokb")
-
-[node name="Cabin2" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.73556e-16, 11, 0)
-material_override = SubResource("StandardMaterial3D_7riix")
-mesh = SubResource("BoxMesh_ujy4r")
-
-[node name="Spoke3" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(-0.707107, -0.707107, 0, 0.707107, -0.707107, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_ixu78")
-
-[node name="Cabin3" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.77817, 7.77817, 0)
-material_override = SubResource("StandardMaterial3D_v5d2o")
-mesh = SubResource("BoxMesh_dy8vc")
-
-[node name="Spoke4" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(-1, 8.74228e-08, 0, -8.74228e-08, -1, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_ana8k")
-
-[node name="Cabin4" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11, 1.34711e-15, 0)
-material_override = SubResource("StandardMaterial3D_7riix")
-mesh = SubResource("BoxMesh_ndsys")
-
-[node name="Spoke5" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(-0.707107, 0.707107, 0, -0.707107, -0.707107, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_ywtmn")
-
-[node name="Cabin5" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.77817, -7.77817, 0)
-material_override = SubResource("StandardMaterial3D_v5d2o")
-mesh = SubResource("BoxMesh_dimhq")
-
-[node name="Spoke6" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1.19249e-08, 1, 0, -1, 1.19249e-08, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_b0r2t")
-
-[node name="Cabin6" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.02067e-15, -11, 0)
-material_override = SubResource("StandardMaterial3D_7riix")
-mesh = SubResource("BoxMesh_txcjl")
-
-[node name="Spoke7" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(0.707107, 0.707107, 0, -0.707107, 0.707107, 0, 0, 0, 1, 0, 0, 0)
-material_override = SubResource("StandardMaterial3D_8rq7h")
-mesh = SubResource("BoxMesh_8ci5x")
-
-[node name="Cabin7" type="MeshInstance3D" parent="FerrisWheel/Wheel"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.77817, -7.77817, 0)
-material_override = SubResource("StandardMaterial3D_v5d2o")
-mesh = SubResource("BoxMesh_r6y3s")
-
 [node name="FerrisWheelUE" parent="." instance=ExtResource("11_fwue")]
-transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -36, 0, 6)
+transform = Transform3D(0.283, 0, 0, 0, 0.283, 0, 0, 0, 0.283, 30, 0, -18)
 
 [node name="Carousel" type="Node3D" parent="."]
 
