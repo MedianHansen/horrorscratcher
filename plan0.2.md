@@ -191,6 +191,26 @@ plumbing first so it is not blocked.
       vignette so "sneaking past" is a real, readable decision.
 - [ ] Keep the `H` debug overlays in sync with any sense changes.
 
+#### Requested (user) — investigated, not yet implemented
+- [ ] **Navmesh navigation for guests.** They get stuck on the straight-line
+      `_move_towards` + random-wander `_pick_target`. Plan: add a
+      `NavigationRegion3D` to `scenes/carnival.tscn` with a **baked, committed**
+      `NavigationMesh` (`scenes/carnival_navmesh.tres`), put a `NavigationAgent3D`
+      on `scenes/guest.tscn`, and replace `_move_towards(_target, …)` with
+      `agent.get_next_path_position()` pathing. Keep the old wander as a fallback.
+      Feasibility confirmed headless: `NavigationServer3D.parse_source_geometry_data`
+      + `bake_from_source_geometry_data` works with no GPU (test scene baked 16
+      polys). Map has a ground `StaticBody3D` + 52 obstacle bodies / 57 collision
+      shapes, so `PARSED_GEOMETRY_STATIC_COLLIDERS` should capture the walkable
+      area. Re-bake is a manual/headless step whenever the layout changes.
+- [ ] **Extend the vision cone + keep the line-of-sight raycast.** Note: `_can_see`
+      **already** raycasts (`PhysicsRayQueryParameters3D` from the guest's head to
+      the player's camera, excluding self) and returns true only if the first hit
+      is the player, so walls already block sight. "Extending" is mainly raising
+      `sight_range` / `sight_angle_deg` (data-driven), optionally sampling a few
+      body points (head/chest/feet) instead of one, and making sure the ray's
+      `collision_mask` is right.
+
 ### Phase 5 — Clarity & onboarding
 - [x] Objective banner per phase ("Sleep at the bed to begin the night" /
       "Scavenge the carnival — be back before dawn"), shown on phase change and

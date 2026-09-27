@@ -1193,7 +1193,7 @@ material_override = SubResource("StandardMaterial3D_v5d2o")
 mesh = SubResource("BoxMesh_r6y3s")
 
 [node name="FerrisWheelUE" parent="." instance=ExtResource("11_fwue")]
-transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -36, 9.83, 6)
+transform = Transform3D(0.25, 0, 0, 0, 0.25, 0, 0, 0, 0.25, -36, 0, 6)
 
 [node name="Carousel" type="Node3D" parent="."]
 
