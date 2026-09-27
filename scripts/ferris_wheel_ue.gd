@@ -1,15 +1,29 @@
 extends Node3D
 
 @export var speed: float = 0.25
+@export var normal_tiling: float = 10.0
+@export var chase_enabled: bool = true
+@export var chase_letter_seconds: float = 0.25
+@export var chase_hold_seconds: float = 1.5
+@export var chase_dark_seconds: float = 0.6
+@export var chase_energy: float = 2.5
 
 const TEX_DIR := "res://assets/uploads/textures/"
 const CLEAN_JSON := "res://assets/uploads/materials_clean.json"
 const MASTER_SHADER := preload("res://shaders/ue_master.gdshader")
+const TEXT_MATERIAL := "MI_FerrisWheel_TextBG"
+const TEXT_LETTERS := 11
+const TEXT_UV0 := 0.031
+const TEXT_UV_STEP := 0.0936
 
 var _materials := {}
 var _cache := {}
 var _wheel: Node3D
 var _cabins: Array[Node3D] = []
+var _chase_materials: Array[ShaderMaterial] = []
+var _chase_index := -1
+var _chase_timer := 0.0
+var _chase_phase := 0
 
 
 func _ready() -> void:
@@ -24,12 +38,46 @@ func _ready() -> void:
 
 
 func _process(delta: float) -> void:
+	_update_chase(delta)
 	if _wheel == null:
 		return
 	var angle := speed * delta
 	_wheel.rotate_z(angle)
 	for cabin in _cabins:
 		cabin.rotate_z(-angle)
+
+
+func _update_chase(delta: float) -> void:
+	if _chase_materials.is_empty():
+		return
+	if not chase_enabled:
+		_set_chase_index(TEXT_LETTERS - 1)
+		return
+	_chase_timer -= delta
+	if _chase_timer > 0.0:
+		return
+	match _chase_phase:
+		0:
+			_chase_index += 1
+			_set_chase_index(_chase_index)
+			if _chase_index >= TEXT_LETTERS - 1:
+				_chase_phase = 1
+				_chase_timer = chase_hold_seconds
+			else:
+				_chase_timer = chase_letter_seconds
+		1:
+			_chase_phase = 2
+			_chase_timer = chase_dark_seconds
+			_chase_index = -1
+			_set_chase_index(_chase_index)
+		2:
+			_chase_phase = 0
+			_chase_timer = chase_letter_seconds
+
+
+func _set_chase_index(value: int) -> void:
+	for mat in _chase_materials:
+		mat.set_shader_parameter("chase_index", float(value))
 
 
 func _load_materials() -> void:
@@ -78,6 +126,11 @@ func _apply_master(node: Node) -> void:
 				if mat == null:
 					continue
 				var key := String(mat.resource_name)
+				if key == TEXT_MATERIAL:
+					if not _cache.has(key):
+						_cache[key] = _build_chase_material(mat)
+					mesh.surface_set_material(i, _cache[key])
+					continue
 				if key == "" or not _materials.has(key):
 					continue
 				var entry: Dictionary = _materials[key]
@@ -88,6 +141,32 @@ func _apply_master(node: Node) -> void:
 				mesh.surface_set_material(i, _cache[key])
 	for child in node.get_children():
 		_apply_master(child)
+
+
+func _build_chase_material(base: Material) -> ShaderMaterial:
+	var mat := ShaderMaterial.new()
+	mat.shader = MASTER_SHADER
+
+	var base_mat := base as BaseMaterial3D
+	if base_mat != null:
+		if base_mat.albedo_texture != null:
+			mat.set_shader_parameter("main_albedo", base_mat.albedo_texture)
+		mat.set_shader_parameter("main_tint", base_mat.albedo_color)
+		if base_mat.normal_texture != null:
+			mat.set_shader_parameter("has_normal", true)
+			mat.set_shader_parameter("main_normal", base_mat.normal_texture)
+
+	mat.set_shader_parameter("tintmask_inten1", 0.0)
+	mat.set_shader_parameter("tintmask_inten2", 0.0)
+	mat.set_shader_parameter("inten1", Vector3.ZERO)
+	mat.set_shader_parameter("inten2", Vector3.ZERO)
+	mat.set_shader_parameter("chase_enabled", chase_enabled)
+	mat.set_shader_parameter("chase_u0", TEXT_UV0)
+	mat.set_shader_parameter("chase_du", TEXT_UV_STEP)
+	mat.set_shader_parameter("chase_index", -1.0)
+	mat.set_shader_parameter("emissive_energy", chase_energy)
+	_chase_materials.append(mat)
+	return mat
 
 
 func _build_material(entry: Dictionary) -> ShaderMaterial:
@@ -103,6 +182,7 @@ func _build_material(entry: Dictionary) -> ShaderMaterial:
 	mat.set_shader_parameter("has_normal", normal_tex != null)
 	if normal_tex != null:
 		mat.set_shader_parameter("main_normal", normal_tex)
+		mat.set_shader_parameter("normal_tiling", normal_tiling)
 
 	var orm_tex := _tex(entry.get("orm"))
 	mat.set_shader_parameter("has_orm", orm_tex != null)

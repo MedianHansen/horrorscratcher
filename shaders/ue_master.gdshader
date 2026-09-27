@@ -8,6 +8,7 @@ uniform vec3 main_tint = vec3(1.0, 1.0, 1.0);
 uniform bool has_normal = false;
 uniform bool has_orm = false;
 uniform float normal_strength : hint_range(0.0, 2.0) = 1.0;
+uniform float normal_tiling : hint_range(0.0, 16.0) = 1.0;
 
 uniform sampler2D mask1 : source_color, filter_linear_mipmap, repeat_enable;
 uniform vec3 tint_r1 = vec3(1.0, 1.0, 1.0);
@@ -36,6 +37,12 @@ uniform float tintmask_inten2 = 1.0;
 uniform float specular_amount : hint_range(0.0, 1.0) = 0.5;
 uniform float mask_lod : hint_range(0.0, 6.0) = 0.0;
 
+uniform bool chase_enabled = false;
+uniform float chase_u0 = 0.0;
+uniform float chase_du = 1.0;
+uniform float chase_index = -1.0;
+uniform float emissive_energy : hint_range(0.0, 8.0) = 2.0;
+
 void fragment() {
 	vec2 uv = UV;
 
@@ -63,8 +70,15 @@ void fragment() {
 
 	ALBEDO = albedo;
 
+	if (chase_enabled) {
+		float idx = floor((UV2.x - chase_u0) / chase_du + 0.5);
+		float lit = step(idx, chase_index);
+		EMISSION = albedo * emissive_energy * lit;
+	}
+
 	if (has_normal) {
-		vec3 n = texture(main_normal, uv).rgb * 2.0 - 1.0;
+		vec3 n = texture(main_normal, uv * normal_tiling).rgb * 2.0 - 1.0;
+		n.y = -n.y;
 		NORMAL_MAP = normalize(vec3(n.xy * normal_strength, n.z));
 	}
 

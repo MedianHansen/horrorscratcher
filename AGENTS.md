@@ -213,6 +213,14 @@ generation). It contains the ground, a fenced perimeter, and:
 - **Big top tent** (west), **Ferris wheel** (east, slowly rotating) and
   **Carousel** (centre, rotating) — the two rides spin via `ferris_wheel.gd` /
   `carousel.gd`.
+- A second, imported UE **Ferris wheel** (`scenes/props/ferris_wheel_ue.tscn`,
+  script `ferris_wheel_ue.gd`) carries the detailed model. Its curved
+  "FERRIS WHEEL" platform sign (`MI_FerrisWheel_TextBG`) runs a marquee chase: the
+  letters light in reading order (`chase_letter_seconds` each), hold fully lit
+  (`chase_hold_seconds`), then all go dark (`chase_dark_seconds`) and repeat. The
+  mesh's second UV set tags every vertex with its letter id, so **whole letters
+  pop on one at a time** (no partial letters); `ue_master.gdshader` compares that
+  id to `chase_index` to decide emission.
 - **Funhouse** (east), a row of five **game stalls** (north) and three **food
   carts**.
 - **Lampposts** with amber lights along the midway, plus string lights.
