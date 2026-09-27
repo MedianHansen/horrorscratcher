@@ -34,8 +34,6 @@ uniform vec3 tmask_b2 = vec3(1.0, 1.0, 1.0);
 uniform float tintmask_inten2 = 1.0;
 
 uniform float specular_amount : hint_range(0.0, 1.0) = 0.5;
-uniform int debug_mode = 0;
-uniform float mask_tiling = 1.0;
 uniform float mask_lod : hint_range(0.0, 6.0) = 0.0;
 
 void fragment() {
@@ -64,20 +62,6 @@ void fragment() {
 	albedo = mix(albedo, tint_b2, clamp(m2.b * inten2.b, 0.0, 1.0));
 
 	ALBEDO = albedo;
-
-	if (debug_mode == 1) {
-		ALBEDO = texture(main_albedo, uv).rgb;
-	} else if (debug_mode == 2) {
-		ALBEDO = texture(mask1, uv * mask_tiling).rgb;
-	} else if (debug_mode == 3) {
-		ALBEDO = texture(tm1, uv).rgb;
-	} else if (debug_mode == 4) {
-		ALBEDO = texture(mask2, uv).rgb;
-	} else if (debug_mode == 5) {
-		ALBEDO = texture(tm2, uv).rgb;
-	} else if (debug_mode == 6) {
-		ALBEDO = albedo;
-	}
 
 	if (has_normal) {
 		vec3 n = texture(main_normal, uv).rgb * 2.0 - 1.0;

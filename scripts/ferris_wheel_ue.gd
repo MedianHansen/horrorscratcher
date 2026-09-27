@@ -10,35 +10,17 @@ var _materials := {}
 var _cache := {}
 var _wheel: Node3D
 var _cabins: Array[Node3D] = []
-var _debug := 0
-var _tiling := 1.0
-var _label: Label
-const TILINGS := [1.0, 2.0, 4.0, 8.0, 16.0, 32.0, 0.5, 0.25, 0.125, 0.0625]
 
 
 func _ready() -> void:
 	_load_materials()
 	_apply_master(self)
-	_build_ui()
 	_wheel = find_child("1_SM_Ferris_Circle_Engine_03_StaticMeshComponent0", true, false) as Node3D
 	if _wheel == null:
 		return
 	for child in _wheel.get_children():
 		if child is Node3D:
 			_cabins.append(child)
-
-
-func _build_ui() -> void:
-	var layer := CanvasLayer.new()
-	_label = Label.new()
-	_label.position = Vector2(24, 24)
-	_label.add_theme_font_size_override("font_size", 30)
-	_label.add_theme_color_override("font_color", Color(1, 1, 0))
-	_label.add_theme_color_override("font_outline_color", Color(0, 0, 0))
-	_label.add_theme_constant_override("outline_size", 6)
-	layer.add_child(_label)
-	add_child(layer)
-	_update_label()
 
 
 func _process(delta: float) -> void:
@@ -48,32 +30,6 @@ func _process(delta: float) -> void:
 	_wheel.rotate_z(angle)
 	for cabin in _cabins:
 		cabin.rotate_z(-angle)
-
-
-func _unhandled_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_M:
-		_debug = (_debug + 1) % 7
-		_apply_debug()
-		print("ferris debug_mode = ", _debug)
-	elif event is InputEventKey and event.pressed and not event.echo and event.physical_keycode == KEY_N:
-		var idx := TILINGS.find(_tiling)
-		idx = (idx + 1) % TILINGS.size()
-		_tiling = TILINGS[idx]
-		_apply_debug()
-		print("ferris mask_tiling = ", _tiling)
-
-
-func _apply_debug() -> void:
-	for key in _cache:
-		var m := _cache[key] as ShaderMaterial
-		m.set_shader_parameter("debug_mode", _debug)
-		m.set_shader_parameter("mask_tiling", _tiling)
-	_update_label()
-
-
-func _update_label() -> void:
-	if _label != null:
-		_label.text = "debug_mode = %d    mask_tiling = %s" % [_debug, str(_tiling)]
 
 
 func _load_materials() -> void:
