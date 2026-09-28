@@ -1,4 +1,4 @@
-[gd_scene load_steps=17 format=3 uid="uid://c6k8p2q1x9r4a"]
+[gd_scene load_steps=20 format=3 uid="uid://c6k8p2q1x9r4a"]
 
 [ext_resource type="Script" path="res://scripts/player.gd" id="1_player"]
 [ext_resource type="Environment" path="res://default_env.tres" id="2_env"]
@@ -17,6 +17,7 @@
 [ext_resource type="Resource" path="res://ticket_types/the_long_run.tres" id="22_longrun"]
 [ext_resource type="Script" path="res://scripts/settings_ui.gd" id="23_settings"]
 [ext_resource type="Script" path="res://scripts/help_ui.gd" id="24_help"]
+[ext_resource type="Resource" path="res://ticket_types/the_debt.tres" id="25_debt"]
 
 [sub_resource type="CapsuleShape3D" id="3_capsule"]
 radius = 0.45
@@ -51,7 +52,7 @@ fov = 85.0
 
 [node name="TicketSpawner" type="Node3D" parent="."]
 script = ExtResource("15_spawner")
-ticket_types = Array[ExtResource("20_tickettype")]([ExtResource("8_suffering"), ExtResource("19_fortune"), ExtResource("22_longrun")])
+ticket_types = Array[ExtResource("20_tickettype")]([ExtResource("8_suffering"), ExtResource("19_fortune"), ExtResource("22_longrun"), ExtResource("25_debt")])
 
 [node name="GuestSpawner" type="Node3D" parent="."]
 script = ExtResource("16_guests")

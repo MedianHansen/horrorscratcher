@@ -94,7 +94,7 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 
 ### Suffering (first ticket type)
 
-3 tiles. Level cap 10. Icons (id, weight, prize):
+3 tiles. Level cap 20. Icons (id, weight, prize):
 
 | Icon        | Weight | Prize          |
 |-------------|--------|----------------|
@@ -106,10 +106,12 @@ Two resources: **Ticket XP** (tracked per ticket type) and **Coins** (global).
 | Gold bar    | 0      | 100 coins      |
 
 Weights of 0 mean the icon cannot roll yet (it exists for when progression/skill
-trees raise its weight). Coin starts unlocked; Blood is locked until its unlock is
-bought. The XP curve is **coefficient-driven**: `xp_base` 5 and `xp_growth` 1.5,
+trees raise its weight). Coin starts unlocked; Blood and Purse are locked until
+their unlock is bought; Gold Bar stays locked (no unlock). The XP curve is
+**coefficient-driven**: `xp_base` 5 and `xp_growth` 1.5,
 so level-up `L` costs `round(xp_base × xp_growth^(L-1))` — `[5, 8, 11, 17, 25,
-38, 57, 85, 128]`, total 374 (tunable per type). Spawns **10/night** from night 1.
+38, 57, 85, 128, 192, 288, 432, 649, 973, 1460, 2189, 3284, 4926, 7389]`, total
+22156 (tunable per type). Spawns **10/night** from night 1.
 
 ### Fortune (second ticket type)
 
@@ -135,8 +137,8 @@ Nightly spawn: each type is placed independently from its `spawn_per_night`
 (expected tickets per night) — the integer part is guaranteed and the fraction is
 a per-night chance (e.g. `1.6` = 1 always + 60% for a second). Fortune is
 **0.15/night** with `min_night = 3`, so it cannot appear on the first two nights;
-Suffering is **10/night** with `min_night = 1` (`ticket_spawner.gd`,
-`scenes/main.tscn`).
+Suffering is **10/night** with `min_night = 1`; The Debt is **0/night**
+(disabled) (`ticket_spawner.gd`, `scenes/main.tscn`).
 
 ### The Long Run (third ticket type)
 
@@ -159,16 +161,40 @@ while a ticket is held, so the player picks the spot before scratching; the held
 prompt shows the current multiplier. Spawns **0/night** for now (disabled until
 it is switched on).
 
+### The Debt (fourth ticket type)
+
+A dark, high-value slip: it **hums while carried in the backpack at Night**,
+drawing guests toward the player. 3 tiles. Level cap 8, Fortune's XP curve
+(`[5, 8, 11, 17, 25, 38, 57]`, total 161). Icons (id, weight, prize):
+
+| Icon     | Weight | Prize    |
+|----------|--------|----------|
+| Empty    | 45     | nothing  |
+| Coin     | 30     | 1 coin   |
+| Purse    | 15     | 5 coins  |
+| Gold bar | 10     | 100 coins|
+
+**Special rule — cursed hum** (`TicketType.Special.CURSED_HUM`): while any
+carried (backpack) ticket of this type is held, the player's effective noise
+radius is at least `hum_radius` (default 18 m), at Night only. Note the ticket
+stays in the backpack while it is held in hand for scratching, so the hum keeps
+running until it is finished, deposited in the stash or lost. This reuses the
+existing guest hearing path: a guest hears the player when
+`dist <= min(noise, guest_type.hear_radius)` (`game.gd` `carried_hum_radius()`,
+`player.gd` `current_noise_radius()`). Spawns **0/night** for now (disabled until
+it is switched on).
+
 ### Skill tree (Suffering)
 
 Per-type skill tree, opened with **`T`** (closes with `T`/`ESC`); it frees the
 mouse and locks player input while open, and cannot be opened while a ticket is
 being held. Skills cost points and are chained: **Unlock Blood is the root**, and
-the other five require Unlock Blood rank ≥ 1.
+the rest require it directly or through another skill.
 
 The panel is a **WoW-style talent tree** (`skill_tree_ui.gd` + `skill_node.gd`):
 each skill is an icon node (`Skill.icon_color` / `Skill.glyph`) laid out by
-dependency depth with connector lines between a skill and its prerequisite.
+dependency depth, with siblings centred under their prerequisite and connector
+lines between a skill and its prerequisite.
 Hovering a node fills a tooltip (name, description, rank, cost, requirement) and
 clicking it spends a point. Node borders show state — green = learnable, gold =
 maxed, dark = locked — and connector lines light up once the prerequisite is
@@ -178,22 +204,28 @@ ranked.
 |-------------|--------------------------------------------------------|-------|--------|
 | Unlock Blood| Blood weight +20 and Empty weight −20 (one-time)       | 1     | normal |
 | Unlock Bone | Bone weight +20 and Empty weight −20 (one-time)        | 1     | normal |
+| Bone Density| Bone icon weight +10 per rank (requires Unlock Bone)   | 5     | normal |
 | Lucky Coin  | Coin icon weight +10 per rank                          | 5     | normal |
+| Unlock Purse| Purse weight +20 (one-time; requires Lucky Coin maxed) | 1     | normal |
+| Purse Snatcher| Purse weight +10 and Coin weight −10 per rank (requires Unlock Purse) | 5 | normal |
 | Wear Away   | Empty icon weight −15 per rank (min 0)                 | 5     | normal |
 | Blood Value | Blood pairs pay +1 XP per rank                         | 5     | normal |
-| Blood Money | Double all prizes (coins **and** XP)                   | 1     | epic   |
+| Blood Money | All prizes +100% per rank (coins **and** XP)           | 5     | epic   |
 
-A single skill may carry a second icon modifier (`target_icon_2` / `amount_2`),
-which is how Unlock Blood and Unlock Bone each raise their icon and lower Empty.
-Blood and Bone cannot roll until their unlock is bought (Bone is the main XP
-source, so this is what makes later levels affordable).
+A single skill may carry a second icon modifier (`target_icon_2` / `amount_2`):
+Unlock Blood and Unlock Bone lower Empty, while Purse Snatcher trades Coin weight
+for Purse weight. A skill may also require its prerequisite to be **maxed**
+(`Skill.requires_maxed`), which is what gates Unlock Purse behind a fully-ranked
+Lucky Coin. Blood, Bone and Purse cannot roll until their unlock is bought (Bone
+is the main XP source, so this is what makes later levels affordable). Gold Bar
+stays at weight 0 with no unlock — reserved for a future update.
 
 - Weight skills change the table **for future rolls only** — a ticket already
   generated keeps its icons.
 - The prize multiplier is applied **at payout time**, so it affects a ticket
   even if it was rolled before the skill was bought.
 - **Blood Value** (`Skill.Kind.ICON_XP_BONUS`) adds a flat XP bonus to its
-  target icon's payout, also at evaluation time; Blood Money doubles it too.
+  target icon's payout, also at evaluation time; Blood Money scales it too.
 - No respec/refund yet. Skill points and tree state are in-memory (reset on
   refresh), same as XP, until a save system exists.
 
@@ -334,7 +366,10 @@ spawn at Night and despawn at dawn. First two types:
   (`noise_walk_radius`, default 10 m), standing still is silent. There is no
   crouch yet. So Drifter (`hear_radius` 15) hears walking within 10 m and running
   within 15 m; Listener (`hear_radius` 20) hears walking within 10 m and running
-  within 20 m. The Listener ignores sight and reacts only to noise.
+  within 20 m. The Listener ignores sight and reacts only to noise. A carried
+  **The Debt** ticket adds a constant Night noise floor (`hum_radius`, default
+  18 m) even while standing still, via `game.carried_hum_radius()` and
+  `player.current_noise_radius()`.
 - **Awareness:** *Unaware → Suspicious → Chasing → Caught*. Seeing or hearing the
   player draws a guest to investigate; a positive lock starts a chase. Detection
   is shown clearly: a guest turns **amber** when suspicious and **red** when
@@ -456,10 +491,13 @@ night 3). All are meant to be tuned.
   context, so HTTPS (or localhost) is required. Use the hostname, not the bare IP.
 - **After changing game code:** re-run `npm run export` (the server serves from
   `export/web/` on disk). Hard-refresh the browser (`Ctrl+Shift+R`).
-- **Validate before claiming done:** parse-check scripts with
-  `~/bin/godot --headless --path . --check-only --script <file>`, exercise logic
-  with a headless smoke test where practical, then `npm run export` and confirm
-  the file is served. Remove temporary test scripts afterwards.
+- **Verification is mostly the user's job.** The user reviews changes in the
+  browser. Do only cheap, non-time-consuming checks yourself — reading the code,
+  greps, static reasoning, and `~/bin/godot --headless --path . --check-only
+  --script <file>` parse-checks. Do **not** launch the engine or do screenshot
+  renders / smoke tests just to verify; only do those when you genuinely aren't
+  confident something works (and say why). Remove temporary test scripts
+  afterwards.
 - **Never commit:** `certs/`, `export/`, `.godot/`. In particular never commit
   the TLS private key. These are in `.gitignore`.
 - **Commit/push only when the user explicitly asks.** Match the existing commit

@@ -162,17 +162,23 @@ func _build_tree() -> void:
 		layer_count = maxi(layer_count, int(d) + 1)
 
 	var width := float(max_cols) * H_SPACE
+	var xs := _layout_columns(layers, layer_count, width)
+	var min_x := INF
+	var max_x := -INF
+	for id in xs:
+		min_x = minf(min_x, float(xs[id]))
+		max_x = maxf(max_x, float(xs[id]))
+	var shift := H_SPACE * 0.5 - min_x
+	width = (max_x - min_x) + H_SPACE
 	var height := TOP_MARGIN + float(maxi(0, layer_count - 1)) * V_SPACE + NODE_SIZE + BOTTOM_MARGIN
 	_tree_area.custom_minimum_size = Vector2(width, height)
 
 	var positions := {}
 	for d in range(layer_count):
 		var layer: Array = layers.get(d, [])
-		var count := layer.size()
-		for i in range(count):
-			var skill: Skill = layer[i]
+		for skill in layer:
 			var center := Vector2(
-				width * 0.5 + (float(i) - float(count - 1) * 0.5) * H_SPACE,
+				float(xs[skill.id]) + shift,
 				TOP_MARGIN + float(d) * V_SPACE + NODE_SIZE * 0.5
 			)
 			positions[skill.id] = center
@@ -184,7 +190,7 @@ func _build_tree() -> void:
 			continue
 		var a: Vector2 = positions[skill.requires]
 		var b: Vector2 = positions[skill.id]
-		var met := Progression.rank(ticket_type.type_name, skill.requires) > 0
+		var met := Progression.requirement_met(ticket_type, skill)
 		var color := UiTheme.LINK_ON if met else UiTheme.LINK_OFF
 		links.append({
 			"from": a + Vector2(0, NODE_SIZE * 0.5),
@@ -194,10 +200,58 @@ func _build_tree() -> void:
 	_tree_area.set_links(links)
 
 
+func _layout_columns(layers: Dictionary, layer_count: int, base_width: float) -> Dictionary:
+	var xs := {}
+	for d in range(layer_count):
+		var layer: Array = layers.get(d, [])
+		if layer.is_empty():
+			continue
+		if d == 0:
+			var count := layer.size()
+			for i in range(count):
+				var skill: Skill = layer[i]
+				xs[skill.id] = base_width * 0.5 + (float(i) - float(count - 1) * 0.5) * H_SPACE
+			continue
+		var groups := _groups_for_layer(layer, xs, base_width)
+		var cursor := -INF
+		for g in groups:
+			var siblings: Array = g["skills"]
+			var k := siblings.size()
+			for j in range(k):
+				var skill: Skill = siblings[j]
+				var x := float(g["parent_x"]) + (float(j) - float(k - 1) * 0.5) * H_SPACE
+				if cursor > -INF:
+					x = maxf(x, cursor + H_SPACE)
+				cursor = x
+				xs[skill.id] = x
+	return xs
+
+
+func _groups_for_layer(layer: Array, xs: Dictionary, base_width: float) -> Array:
+	var groups := []
+	for i in range(layer.size()):
+		var skill: Skill = layer[i]
+		var px := float(xs.get(skill.requires, base_width * 0.5))
+		var found := false
+		for g in groups:
+			if is_equal_approx(float(g["parent_x"]), px):
+				g["skills"].append(skill)
+				found = true
+				break
+		if not found:
+			groups.append({"parent_x": px, "skills": [skill]})
+	groups.sort_custom(_group_less)
+	return groups
+
+
+func _group_less(a: Dictionary, b: Dictionary) -> bool:
+	return float(a["parent_x"]) < float(b["parent_x"])
+
+
 func _add_node(skill: Skill, center: Vector2) -> void:
 	var node := SkillNode.new()
 	var rank := Progression.rank(ticket_type.type_name, skill.id)
-	var locked := skill.requires != &"" and Progression.rank(ticket_type.type_name, skill.requires) <= 0
+	var locked := not Progression.requirement_met(ticket_type, skill)
 	node.setup(skill, rank, Progression.can_buy(ticket_type, skill), locked)
 	node.position = center - Vector2(NODE_SIZE, NODE_SIZE) * 0.5
 	_tree_area.add_child(node)
@@ -235,12 +289,16 @@ func _show_tooltip(skill: Skill) -> void:
 	lines.append("Cost: 1 %s point" % ("epic" if skill.cost == Skill.Cost.EPIC else "normal"))
 	if skill.requires != &"":
 		var parent := _find_skill(skill.requires)
-		var parent_rank := Progression.rank(ticket_type.type_name, skill.requires)
 		var name := parent.title if parent != null else String(skill.requires)
-		lines.append("Requires: %s (%s)" % [name, "met" if parent_rank > 0 else "locked"])
+		if skill.requires_maxed:
+			name += " (max rank)"
+		var met := Progression.requirement_met(ticket_type, skill)
+		lines.append("Requires: %s — %s" % [name, "met" if met else "locked"])
 	_tooltip_body.text = "\n".join(lines)
 	if rank >= skill.max_ranks:
 		_tooltip_hint.text = "Maxed out."
+	elif not Progression.requirement_met(ticket_type, skill):
+		_tooltip_hint.text = "Requirement not met."
 	elif Progression.can_buy(ticket_type, skill):
 		_tooltip_hint.text = "Click to learn."
 	else:

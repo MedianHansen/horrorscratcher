@@ -1,7 +1,7 @@
 class_name TicketType
 extends Resource
 
-enum Special { NONE, DISTANCE_REWARD }
+enum Special { NONE, DISTANCE_REWARD, CURSED_HUM }
 
 @export var type_name: String = ""
 @export var tile_count: int = 3
@@ -14,6 +14,7 @@ enum Special { NONE, DISTANCE_REWARD }
 @export var special: Special = Special.NONE
 @export var distance_full_mult: float = 4.0
 @export var distance_full_meters: float = 120.0
+@export var hum_radius: float = 18.0
 @export var paper_color: Color = Color(0.93, 0.91, 0.84)
 @export var icons: Array[TicketIcon] = []
 @export var skills: Array[Skill] = []

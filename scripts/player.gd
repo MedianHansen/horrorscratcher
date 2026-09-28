@@ -71,6 +71,10 @@ func set_stamina(value: float) -> void:
 
 
 func current_noise_radius() -> float:
+	return maxf(_movement_noise_radius(), _carried_hum_radius())
+
+
+func _movement_noise_radius() -> float:
 	if input_locked:
 		return 0.0
 	if Vector2(velocity.x, velocity.z).length() <= 0.5:
@@ -81,6 +85,14 @@ func current_noise_radius() -> float:
 	if _game:
 		return float(_game.noise_sprint_radius) if sprinting else float(_game.noise_walk_radius)
 	return 12.0 if sprinting else 4.0
+
+
+func _carried_hum_radius() -> float:
+	if _game == null:
+		_game = get_tree().get_first_node_in_group("game")
+	if _game and _game.has_method("carried_hum_radius"):
+		return float(_game.carried_hum_radius())
+	return 0.0
 
 func set_input_locked(value: bool) -> void:
 	input_locked = value

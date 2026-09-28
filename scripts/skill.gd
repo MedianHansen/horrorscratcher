@@ -17,3 +17,4 @@ enum Cost { NORMAL, EPIC }
 @export var max_ranks: int = 1
 @export var cost: Cost = Cost.NORMAL
 @export var requires: StringName = &""
+@export var requires_maxed: bool = false

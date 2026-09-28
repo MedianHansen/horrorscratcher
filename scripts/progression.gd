@@ -64,12 +64,31 @@ static func can_buy(type: TicketType, skill: Skill) -> bool:
 		return false
 	if rank(type.type_name, skill.id) >= skill.max_ranks:
 		return false
-	if skill.requires != &"" and rank(type.type_name, skill.requires) <= 0:
+	if not requirement_met(type, skill):
 		return false
 	var p: Dictionary = profile(type.type_name)
 	if skill.cost == Skill.Cost.EPIC:
 		return int(p["epic"]) >= 1
 	return int(p["normal"]) >= 1
+
+
+static func find_skill(type: TicketType, skill_id: StringName) -> Skill:
+	if type == null or skill_id == &"":
+		return null
+	for skill in type.skills:
+		if skill.id == skill_id:
+			return skill
+	return null
+
+
+static func requirement_met(type: TicketType, skill: Skill) -> bool:
+	if skill == null or skill.requires == &"":
+		return true
+	var have := rank(type.type_name, skill.requires)
+	if skill.requires_maxed:
+		var parent := find_skill(type, skill.requires)
+		return parent != null and have >= parent.max_ranks
+	return have > 0
 
 
 static func buy(type: TicketType, skill: Skill) -> bool:

@@ -52,15 +52,18 @@ in your backpack. Press `Q` to take one out and hold it; **hold left mouse and
 scrub** to wear off the foil, then `E`/`ESC` stows it again. Most are 3-space
 **Suffering** slips; now and then a rarer 4-space **Fortune** slip turns up (from
 the third night on). A third type, **The Long Run**, pays more the farther from
-the hideout you scratch it — but it isn't spawning yet. Deposit carried tickets
+the hideout you scratch it — but it isn't spawning yet. A fourth, **The Debt**,
+hums while carried at Night and draws guests toward you — also not spawning yet.
+Deposit carried tickets
 at the hideout stash so a bad night can't cost you them.
 
 Scratching always earns a little **ticket XP** (every finished ticket, even with
 no match); leveling up grants skill points. Press `T` to open the Suffering
 **talent tree** (a WoW-style node tree): learn **Unlock Blood** and **Unlock
-Bone** to make those icons rollable, then **Lucky Coin** (more coins, unlocked
-from the start), **Wear Away** (less Empty), **Blood Value** (more XP from
-Blood) and **Blood Money** (double prizes).
+Bone** to make those icons rollable, stack **Bone Density**, **Lucky Coin**
+(more coins), **Wear Away** (less Empty) and **Blood Value** (more XP from
+Blood), then max Lucky Coin to unlock **Unlock Purse** and its **Purse Snatcher**
+trade — and finally **Blood Money** (all prizes +100% per rank, 5 epic ranks).
 
 ## Day / night
 

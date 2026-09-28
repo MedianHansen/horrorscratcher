@@ -1,0 +1,54 @@
+[gd_resource type="Resource" script_class="TicketType" load_steps=7 format=3]
+
+[ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_icon"]
+[ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_type"]
+
+[sub_resource type="Resource" id="Resource_empty"]
+script = ExtResource("1_icon")
+id = &"empty"
+label = "EMPTY"
+color = Color(0.8, 0.8, 0.82, 1)
+weight = 45.0
+xp = 0
+coins = 0
+
+[sub_resource type="Resource" id="Resource_coin"]
+script = ExtResource("1_icon")
+id = &"coin"
+label = "COIN"
+color = Color(0.9, 0.75, 0.2, 1)
+weight = 30.0
+xp = 0
+coins = 1
+
+[sub_resource type="Resource" id="Resource_purse"]
+script = ExtResource("1_icon")
+id = &"purse"
+label = "PURSE"
+color = Color(0.45, 0.28, 0.12, 1)
+weight = 15.0
+xp = 0
+coins = 5
+
+[sub_resource type="Resource" id="Resource_gold_bar"]
+script = ExtResource("1_icon")
+id = &"gold_bar"
+label = "GOLD BAR"
+color = Color(0.98, 0.84, 0.15, 1)
+weight = 10.0
+xp = 0
+coins = 100
+
+[resource]
+script = ExtResource("2_type")
+type_name = "The Debt"
+tile_count = 3
+level_cap = 8
+xp_base = 5
+xp_growth = 1.5
+spawn_per_night = 0.0
+min_night = 1
+special = 2
+hum_radius = 18.0
+paper_color = Color(0.22, 0.18, 0.24, 1)
+icons = Array[ExtResource("1_icon")]([SubResource("Resource_empty"), SubResource("Resource_coin"), SubResource("Resource_purse"), SubResource("Resource_gold_bar")])

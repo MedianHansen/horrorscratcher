@@ -372,6 +372,16 @@ func ticket_spawn_bonus(type: TicketType) -> float:
 	return bonus
 
 
+func carried_hum_radius() -> float:
+	if phase != Phase.NIGHT:
+		return 0.0
+	var radius := 0.0
+	for data in backpack:
+		if data is TicketData and data.type != null and data.type.special == TicketType.Special.CURSED_HUM:
+			radius = maxf(radius, data.type.hum_radius)
+	return radius
+
+
 func _upgrade_multiplier(id: StringName) -> float:
 	if not UPGRADES.has(id):
 		return 1.0

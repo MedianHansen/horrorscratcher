@@ -1,4 +1,4 @@
-[gd_resource type="Resource" script_class="TicketType" load_steps=16 format=3]
+[gd_resource type="Resource" script_class="TicketType" load_steps=19 format=3]
 
 [ext_resource type="Script" path="res://scripts/ticket_icon.gd" id="1_bdm1m"]
 [ext_resource type="Script" path="res://scripts/ticket_type.gd" id="2_qqun5"]
@@ -90,6 +90,51 @@ max_ranks = 1
 cost = 0
 requires = &"unlock_blood"
 
+[sub_resource type="Resource" id="Resource_bone_density"]
+script = ExtResource("3_mc71x")
+id = &"bone_density"
+title = "Bone Density"
+description = "Increase the Bone icon's weight by 10 per rank."
+icon_color = Color(0.8, 0.78, 0.68, 1)
+glyph = "D"
+kind = 0
+target_icon = &"bone"
+amount = 10.0
+max_ranks = 5
+cost = 0
+requires = &"unlock_bone"
+
+[sub_resource type="Resource" id="Resource_purse_unlock"]
+script = ExtResource("3_mc71x")
+id = &"unlock_purse"
+title = "Unlock Purse"
+description = "Purse can now appear (weight +20)."
+icon_color = Color(0.45, 0.28, 0.12, 1)
+glyph = "P"
+kind = 0
+target_icon = &"purse"
+amount = 20.0
+max_ranks = 1
+cost = 0
+requires = &"coin_luck"
+requires_maxed = true
+
+[sub_resource type="Resource" id="Resource_purse_snatch"]
+script = ExtResource("3_mc71x")
+id = &"purse_snatch"
+title = "Purse Snatcher"
+description = "Increase the Purse icon's weight by 10 per rank and reduce the Coin icon's weight by 10 per rank."
+icon_color = Color(0.55, 0.35, 0.18, 1)
+glyph = "S"
+kind = 0
+target_icon = &"purse"
+amount = 10.0
+target_icon_2 = &"coin"
+amount_2 = -10.0
+max_ranks = 5
+cost = 0
+requires = &"unlock_purse"
+
 [sub_resource type="Resource" id="Resource_o66fl"]
 script = ExtResource("3_mc71x")
 id = &"coin_luck"
@@ -122,13 +167,13 @@ requires = &"unlock_blood"
 script = ExtResource("3_mc71x")
 id = &"blood_money"
 title = "Blood Money"
-description = "Double all prizes (coins and XP)."
+description = "Increase all prizes by +100% per rank (coins and XP)."
 icon_color = Color(0.5, 0.08, 0.1, 1)
 glyph = "B"
 kind = 1
 target_icon = &""
 amount = 1.0
-max_ranks = 1
+max_ranks = 5
 cost = 1
 requires = &"unlock_blood"
 
@@ -150,11 +195,11 @@ requires = &"unlock_blood"
 script = ExtResource("2_qqun5")
 type_name = "Suffering"
 tile_count = 3
-level_cap = 10
+level_cap = 20
 xp_base = 5
 xp_growth = 1.5
 spawn_per_night = 10.0
 min_night = 1
 paper_color = Color(0.9, 0.87, 0.8, 1)
 icons = Array[ExtResource("1_bdm1m")]([SubResource("Resource_v205m"), SubResource("Resource_oo6x8"), SubResource("Resource_vxnrt"), SubResource("Resource_5rvvb"), SubResource("Resource_o0351"), SubResource("Resource_3ep2w")])
-skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_unlock"), SubResource("Resource_bone"), SubResource("Resource_o66fl"), SubResource("Resource_d4ol6"), SubResource("Resource_st322"), SubResource("Resource_bloodvalue")])
+skills = Array[ExtResource("3_mc71x")]([SubResource("Resource_unlock"), SubResource("Resource_bone"), SubResource("Resource_bone_density"), SubResource("Resource_o66fl"), SubResource("Resource_purse_unlock"), SubResource("Resource_purse_snatch"), SubResource("Resource_d4ol6"), SubResource("Resource_st322"), SubResource("Resource_bloodvalue")])
